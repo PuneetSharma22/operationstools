@@ -1,3 +1,4 @@
+import { supabase } from '../../supabase.js';
 import { useState } from "react";
 import DocumentsPage from "../DocumentsPage";
 import BillForm from "../../components/fuel/BillForm";
@@ -70,6 +71,22 @@ export default function FuelBillPage() {
   };
 
   const PreviewComponent = TEMPLATE_COMPONENTS[activeTemplate];
+  
+  
+const handlePrint = async () => {
+  const printId = `PRINT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+  try {
+    const { error } = await supabase.from('print_requests').insert({
+      template: activeTemplate,
+      print_id: printId,
+    });
+    if (error) console.error('Supabase error:', error);
+    else console.log('Print logged:', printId);
+  } catch (err) {
+    console.error('Failed:', err);
+  }
+  window.print();
+};
 
   return (
     <>
@@ -83,7 +100,7 @@ export default function FuelBillPage() {
             <p className="text-[#64748B] text-[14px] mt-1">Choose a template, fill details — receipt updates live.</p>
           </div>
           <button
-            onClick={() => window.print()}
+            onClick={handlePrint}
             className="inline-flex items-center justify-center gap-2 h-11 px-6 text-[14px] font-semibold text-white rounded-xl transition-all duration-150 hover:opacity-90"
             style={{ background: "linear-gradient(135deg, #2563EB 0%, #4F46E5 100%)" }}
           >

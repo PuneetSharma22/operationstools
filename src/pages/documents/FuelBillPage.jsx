@@ -76,9 +76,11 @@ export default function FuelBillPage() {
 const handlePrint = async () => {
   const printId = `PRINT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
   try {
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase.from('print_requests').insert({
       template: activeTemplate,
       print_id: printId,
+      user_id: user?.id ?? null,
     });
     if (error) console.error('Supabase error:', error);
     else console.log('Print logged:', printId);

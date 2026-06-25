@@ -2,9 +2,9 @@ const inputClass = "w-full h-11 px-4 bg-white border border-[#E2E8F0] rounded-xl
 const labelClass = "block text-[#0F172A] text-[13px] font-medium mb-1.5";
 const sectionClass = "text-[11px] font-semibold uppercase tracking-widest text-[#64748B] mb-4 mt-7 first:mt-0 pb-2 border-b border-[#F1F5F9]";
 
-function Field({ label, children, half }) {
+function Field({ label, children }) {
   return (
-    <div className={half ? "" : ""}>
+    <div>
       <label className={labelClass}>{label}</label>
       {children}
     </div>
@@ -52,7 +52,6 @@ export default function BillForm({ data, onChange, template }) {
           </Field>
         )}
 
-        {/* Logo URL — for IOCL template */}
         {(isIocl || isPos) && (
           <div className="col-span-2">
             <Field label="Logo Image URL (optional)">
@@ -60,7 +59,7 @@ export default function BillForm({ data, onChange, template }) {
             </Field>
             {data.logoUrl && (
               <div className="mt-2 flex items-center gap-3">
-                <img src={data.logoUrl} alt="logo preview" className="h-10 object-contain rounded border border-[#E2E8F0] p-1 bg-white" onError={(e) => e.target.style.display="none"} />
+                <img src={data.logoUrl} alt="logo preview" className="h-10 object-contain rounded border border-[#E2E8F0] p-1 bg-white" onError={(e) => e.target.style.display = "none"} />
                 <span className="text-[12px] text-[#64748B]">Logo preview</span>
               </div>
             )}
@@ -74,6 +73,14 @@ export default function BillForm({ data, onChange, template }) {
         <Field label="Receipt / Bill No.">
           <input className={inputClass} name="billNumber" value={data.billNumber} onChange={onChange} />
         </Field>
+
+        {/* Inv No for thermal-full and pos */}
+        {(isThermalFull || isPos) && (
+          <Field label="Invoice No.">
+            <input className={inputClass} name="invoiceNo" value={data.invoiceNo} onChange={onChange} placeholder="e.g. 224105525C306687" />
+          </Field>
+        )}
+
         <Field label="Date">
           <input className={inputClass} type="date" name="billDate" value={data.billDate} onChange={onChange} />
         </Field>
@@ -99,22 +106,17 @@ export default function BillForm({ data, onChange, template }) {
           </>
         )}
         {isPos && (
-          <>
-            <Field label="TXN No.">
-              <input className={inputClass} name="txnNo" value={data.txnNo} onChange={onChange} />
-            </Field>
-            <Field label="Invoice No.">
-              <input className={inputClass} name="invoiceNo" value={data.invoiceNo} onChange={onChange} />
-            </Field>
-          </>
+          <Field label="TXN No.">
+            <input className={inputClass} name="txnNo" value={data.txnNo} onChange={onChange} />
+          </Field>
         )}
         {isThermalFull && (
           <>
             <Field label="FCC ID">
-              <input className={inputClass} name="fccId" value={data.fccId} onChange={onChange} />
+              <input className={inputClass} name="fccId" value={data.fccId} onChange={onChange} placeholder="e.g. 000000001697748" />
             </Field>
             <Field label="FIP No.">
-              <input className={inputClass} name="fipNo" value={data.fipNo} onChange={onChange} />
+              <input className={inputClass} name="fipNo" value={data.fipNo} onChange={onChange} placeholder="e.g. 01" />
             </Field>
             <Field label="Local ID">
               <input className={inputClass} name="localId" value={data.localId} onChange={onChange} />
@@ -141,11 +143,14 @@ export default function BillForm({ data, onChange, template }) {
         <Field label="Volume / Qty (Litres)">
           <input className={inputClass} type="number" name="quantity" value={data.quantity} onChange={onChange} placeholder="30.20" />
         </Field>
-        {isPos && (
-          <Field label="Density (kg/m³)">
-            <input className={inputClass} name="density" value={data.density} onChange={onChange} placeholder="625.078" />
+
+        {/* Density — for pos and thermal-full */}
+        {(isPos || isThermalFull) && (
+          <Field label="Density (Kg/Cu.mtr)">
+            <input className={inputClass} name="density" value={data.density} onChange={onChange} placeholder="771.9" />
           </Field>
         )}
+
         {(isPos || isThermalFull) && (
           <Field label="Preset Type">
             <select className={inputClass} name="presetType" value={data.presetType} onChange={onChange}>
@@ -155,6 +160,19 @@ export default function BillForm({ data, onChange, template }) {
             </select>
           </Field>
         )}
+
+        {/* Atot / Vtot — thermal-full only (cumulative totals on receipt) */}
+        {isThermalFull && (
+          <>
+            <Field label="Atot (cumulative amt)">
+              <input className={inputClass} name="atot" value={data.atot} onChange={onChange} placeholder="e.g. 00121730171.27" />
+            </Field>
+            <Field label="Vtot (cumulative vol)">
+              <input className={inputClass} name="vtot" value={data.vtot} onChange={onChange} placeholder="e.g. 0001155464.120" />
+            </Field>
+          </>
+        )}
+
         <Field label="Payment Mode">
           <select className={inputClass} name="paymentMode" value={data.paymentMode} onChange={onChange}>
             <option>Cash</option>

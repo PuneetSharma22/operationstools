@@ -27,7 +27,7 @@ const defaultData = {
   gstNumber: "27AABCU9603R1ZX",
   lstNumber: "",
   cstNumber: "",
-  logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/4/47/IndianOil_Logo.svg/200px-IndianOil_Logo.svg.png",
+  logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Indian_Oil_Logo.svg/500px-Indian_Oil_Logo.svg.png",
   billNumber: "G64695",
   billDate: new Date().toISOString().split("T")[0],
   billTime: new Date().toTimeString().slice(0, 5),

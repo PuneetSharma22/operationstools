@@ -24,8 +24,8 @@ export default function TemplateThermalCompact({ data }) {
       <div style={{ padding: "24px" }}>
         {data.logoUrl && (
           <div style={{ textAlign: "center", marginBottom: 8 }}>
-            <img src={data.logoUrl} alt="logo" style={{ height: 40, objectFit: "contain" }} onError={(e) => e.target.style.display = "none"} />
-          </div>
+  <img src={data.logoUrl} alt="logo" style={{ height: 40, objectFit: "contain", display: "block", margin: "0 auto" }} onError={(e) => e.target.style.display = "none"} />
+</div>
         )}
         <div style={{ ...dot, textAlign: "center", fontWeight: "bold", fontSize: 14, marginBottom: 12 }}>WELCOME!!!</div>
 

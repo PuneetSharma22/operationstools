@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../supabase";
 
 const NAV_ITEMS = [
   {
@@ -44,8 +45,20 @@ function OpsToolsLogo() {
 export default function TopHeader() {
   const [openMenu, setOpenMenu] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [credits, setCredits] = useState(null);
   const location = useLocation();
   const { user, signOut } = useAuth();
+
+  // Fetch credits balance when user is logged in
+  useEffect(() => {
+    if (!user) { setCredits(null); return; }
+    supabase
+      .from("user_credits")
+      .select("balance")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setCredits(data?.balance ?? 0));
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -105,38 +118,76 @@ export default function TopHeader() {
         <div className="flex items-center gap-2 shrink-0 ml-auto">
 
           {user ? (
-            /* Logged in state */
-            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="inline-flex items-center gap-2 px-3 h-9 bg-white/8 hover:bg-white/12 border border-white/10 rounded-xl transition-colors duration-150"
-              >
-                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#2563EB] to-[#4F46E5] flex items-center justify-center text-white text-[10px] font-bold">
-                  {user.email[0].toUpperCase()}
-                </div>
-                <span className="text-[13px] text-white/70 max-w-[120px] truncate">{user.email}</span>
-                <svg className="w-3.5 h-3.5 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-
-              {showUserMenu && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-[#0D0630] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
-                  <div className="px-4 py-3 border-b border-white/10">
-                    <p className="text-[11px] text-white/40 uppercase tracking-wider">Signed in as</p>
-                    <p className="text-[13px] text-white/70 truncate mt-0.5">{user.email}</p>
-                  </div>
-                  <button
-                    onClick={handleSignOut}
-                    className="w-full flex items-center gap-2 px-4 py-3 text-[14px] text-red-400 hover:bg-white/8 transition-colors duration-150"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    Sign out
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Guest state */
             <>
+              {/* Credits pill — clickable, goes to /account */}
+              <Link
+                to="/account"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 h-8 bg-white/8 hover:bg-white/12 border border-white/10 rounded-lg transition-colors duration-150"
+                title="View credits & account"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 6v6l4 2"/>
+                </svg>
+                <span className="text-[12px] font-medium text-white/60 leading-none">
+                  {credits === null ? "—" : credits.toLocaleString()} credits
+                </span>
+              </Link>
+
+              {/* User menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="inline-flex items-center gap-2 px-3 h-9 bg-white/8 hover:bg-white/12 border border-white/10 rounded-xl transition-colors duration-150"
+                >
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#2563EB] to-[#4F46E5] flex items-center justify-center text-white text-[10px] font-bold">
+                    {user.email[0].toUpperCase()}
+                  </div>
+                  <span className="text-[13px] text-white/70 max-w-[120px] truncate">{user.email}</span>
+                  <svg className="w-3.5 h-3.5 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+
+                {showUserMenu && (
+                  <div className="absolute top-full right-0 mt-2 w-52 bg-[#0D0630] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+                    <div className="px-4 py-3 border-b border-white/10">
+                      <p className="text-[11px] text-white/40 uppercase tracking-wider">Signed in as</p>
+                      <p className="text-[13px] text-white/70 truncate mt-0.5">{user.email}</p>
+                    </div>
+                    <Link
+                      to="/account"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-2 px-4 py-3 text-[14px] text-white/70 hover:text-white hover:bg-white/8 transition-colors duration-150"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                      </svg>
+                      My Account
+                    </Link>
+                    <Link
+                      to="/account"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-2 px-4 py-3 text-[14px] text-white/70 hover:text-white hover:bg-white/8 transition-colors duration-150"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                      </svg>
+                      {credits === null ? "—" : credits.toLocaleString()} credits
+                    </Link>
+                    <div className="border-t border-white/10" />
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full flex items-center gap-2 px-4 py-3 text-[14px] text-red-400 hover:bg-white/8 transition-colors duration-150"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Guest credits pill */}
               <div className="hidden sm:inline-flex items-center gap-1.5 px-3 h-8 bg-white/8 border border-white/10 rounded-lg">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5">
                   <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>

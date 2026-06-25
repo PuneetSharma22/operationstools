@@ -1,4 +1,6 @@
-const mono = { fontFamily: "Courier New, monospace" };
+const mono = { fontFamily: "'Courier New', monospace" };
+const wrap = { background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" };
+const divider = { borderTop: "1px dashed #666", margin: "12px 0" };
 
 export default function TemplatePOS({ data }) {
   const qty = parseFloat(data.quantity) || 0;
@@ -12,35 +14,32 @@ export default function TemplatePOS({ data }) {
   };
 
   const Line = ({ label, value }) => (
-    <div style={mono} className="text-[13px] py-0.5">
-      <span className="font-bold">{label}</span>
-      <span className="ml-1">{value}</span>
+    <div style={{ ...mono, fontSize: 13, padding: "2px 0" }}>
+      <span style={{ fontWeight: "bold" }}>{label}</span>
+      <span style={{ marginLeft: 4 }}>{value}</span>
     </div>
   );
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm print:shadow-none print:border-none">
-      <div className="px-7 py-7">
-
-        {/* Logo */}
+    <div style={wrap}>
+      <div style={{ padding: "28px" }}>
         {data.logoUrl && (
-          <div className="flex justify-center mb-4">
-            <img src={data.logoUrl} alt="logo" className="h-14 object-contain" onError={(e) => e.target.style.display = "none"} />
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+            <img src={data.logoUrl} alt="logo" style={{ height: 56, objectFit: "contain" }} onError={(e) => e.target.style.display = "none"} />
           </div>
         )}
 
-        {/* Station */}
-        <div style={mono} className="font-black text-[18px] uppercase mb-1">{data.stationName}</div>
-        <div style={mono} className="text-[12px] mb-0.5">{data.stationAddress}</div>
-        <div style={mono} className="text-[12px] mb-0.5">TEL {data.stationPhone}</div>
-        <div style={mono} className="text-[12px] mb-3">VAT TIN NO {data.vatTin}</div>
+        <div style={{ ...mono, fontWeight: 900, fontSize: 18, textTransform: "uppercase", marginBottom: 4 }}>{data.stationName}</div>
+        <div style={{ ...mono, fontSize: 12, marginBottom: 2 }}>{data.stationAddress}</div>
+        <div style={{ ...mono, fontSize: 12, marginBottom: 2 }}>TEL {data.stationPhone}</div>
+        <div style={{ ...mono, fontSize: 12, marginBottom: 12 }}>VAT TIN NO {data.vatTin}</div>
 
-        <div style={mono} className="text-center font-bold text-[13px] mb-1">ORIGINAL</div>
-        <div style={{ ...mono, borderTop: "1px dashed #666", borderBottom: "1px dashed #666" }} className="py-1 text-center text-[12px] mb-3 tracking-widest">
+        <div style={{ ...mono, textAlign: "center", fontWeight: "bold", fontSize: 13, marginBottom: 4 }}>ORIGINAL</div>
+        <div style={{ ...mono, borderTop: "1px dashed #666", borderBottom: "1px dashed #666", padding: "4px 0", textAlign: "center", fontSize: 12, marginBottom: 12, letterSpacing: 2 }}>
           ****************************
         </div>
 
-        <div style={mono} className="text-[13px] mb-3">
+        <div style={{ ...mono, fontSize: 13, marginBottom: 12 }}>
           {formatDate(data.billDate)} &nbsp; {data.billTime}
         </div>
 
@@ -49,7 +48,7 @@ export default function TemplatePOS({ data }) {
         <Line label="VEHICLE NO:" value={data.vehicleNumber || "NOT ENTERED"} />
         <Line label="PRESET:" value={data.presetType?.toUpperCase()} />
 
-        <div style={{ borderTop: "1px dashed #666" }} className="my-3" />
+        <div style={divider} />
 
         <Line label="NOZZLE NO:" value={data.nozzleNo} />
         <Line label="PRODUCT:" value={data.fuelType?.toUpperCase()} />
@@ -58,9 +57,9 @@ export default function TemplatePOS({ data }) {
         <Line label="VOLUME  :" value={`${qty.toFixed(1)} Ltr`} />
         <Line label="AMOUNT  :" value={`${total.toFixed(1)} INR`} />
 
-        <div style={{ borderTop: "1px dashed #666" }} className="my-3" />
+        <div style={divider} />
 
-        <div style={mono} className="text-center text-[13px] font-bold">Thank You! Visit Again</div>
+        <div style={{ ...mono, textAlign: "center", fontSize: 13, fontWeight: "bold" }}>Thank You! Visit Again</div>
       </div>
     </div>
   );

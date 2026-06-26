@@ -10,11 +10,21 @@ import AboutPage from "./pages/AboutPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AccountPage from "./pages/AccountPage";
+import { useEffect } from "react";
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+         <ScrollToTop />
         <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
           <TopHeader />
           <div className="flex-1">

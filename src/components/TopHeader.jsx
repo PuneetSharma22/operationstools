@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../supabase";
@@ -49,9 +49,12 @@ export default function TopHeader() {
   const location = useLocation();
   const { user, signOut } = useAuth();
 
-  // Fetch credits balance when user is logged in
+  // Fetch credits once when user logs in — don't refetch on tab switch
+  const creditsFetchedRef = React.useRef(false);
   useEffect(() => {
-    if (!user) { setCredits(null); return; }
+    if (!user) { setCredits(null); creditsFetchedRef.current = false; return; }
+    if (creditsFetchedRef.current) return;
+    creditsFetchedRef.current = true;
     supabase
       .from("user_credits")
       .select("balance")

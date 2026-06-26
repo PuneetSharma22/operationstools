@@ -1,4 +1,42 @@
+const ROADMAP = [
+  // Launched
+  { name: "Fuel Bill Generator", category: "Transport", bundle: "Transport Suite", date: "2026-07-01", status: "live", icon: "⛽" },
+  // Coming soon — grouped by week
+  { name: "Invoice Generator", category: "Sales", bundle: "Invoice Suite", date: "2026-07-20", status: "soon", icon: "🧾" },
+  { name: "Rent Receipt", category: "Housing", bundle: "Housing Suite", date: "2026-07-25", status: "soon", icon: "🏠" },
+  { name: "Quotation Generator", category: "Sales", bundle: "Invoice Suite", date: "2026-07-27", status: "soon", icon: "📋" },
+  { name: "Restaurant Bill", category: "Food", bundle: "Food Suite", date: "2026-08-08", status: "soon", icon: "🍽️" },
+  { name: "Medical Bill", category: "Healthcare", bundle: "Healthcare Suite", date: "2026-08-15", status: "soon", icon: "🏥" },
+  { name: "Salary Slip", category: "HR", bundle: "HR Suite", date: "2026-08-22", status: "soon", icon: "💼" },
+  { name: "Service Invoice", category: "Services", bundle: "Service Suite", date: "2026-08-29", status: "soon", icon: "🔧" },
+  { name: "E-Way Bill", category: "GST", bundle: "GST Suite", date: "2026-09-05", status: "soon", icon: "📦" },
+  { name: "Freelancer Invoice", category: "Invoicing", bundle: "Freelancer Suite", date: "2026-09-19", status: "soon", icon: "💻" },
+  { name: "Hotel Bill", category: "Hospitality", bundle: "Hospitality Suite", date: "2026-09-26", status: "soon", icon: "🏨" },
+  { name: "Tax Invoice", category: "GST", bundle: "GST Suite", date: "2026-09-26", status: "soon", icon: "🧮" },
+  { name: "E-Invoice", category: "GST", bundle: "GST Suite", date: "2026-09-26", status: "soon", icon: "📄" },
+  { name: "Electricity Bill", category: "Utilities", bundle: "Utility Suite", date: "2026-09-26", status: "soon", icon: "⚡" },
+];
+
+const formatDate = (d) =>
+  new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
+const monthLabel = (d) =>
+  new Date(d).toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+
+// Group by month
+function groupByMonth(items) {
+  const map = {};
+  items.forEach((item) => {
+    const key = monthLabel(item.date);
+    if (!map[key]) map[key] = [];
+    map[key].push(item);
+  });
+  return map;
+}
+
 export default function AboutPage() {
+  const grouped = groupByMonth(ROADMAP);
+
   return (
     <div className="max-w-[720px] mx-auto px-6 py-16">
 
@@ -41,6 +79,65 @@ export default function AboutPage() {
               <div>
                 <p className="font-semibold text-[#0F172A] text-[15px] mb-1">{title}</p>
                 <p className="text-[#64748B] text-[14px]">{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Roadmap */}
+      <section id="roadmap" className="mb-14">
+        <div className="mb-8">
+          <span className="inline-flex items-center px-3 py-1 bg-[#F0FDF4] text-[#16A34A] text-[12px] font-semibold rounded-full uppercase tracking-wider mb-3">
+            Product Roadmap
+          </span>
+          <h2 className="text-[24px] font-semibold text-[#0F172A] mb-2">What's coming next</h2>
+          <p className="text-[#64748B] text-[15px]">
+            Every tool below is scheduled and in development. Dates are target go-live dates.
+          </p>
+        </div>
+
+        <div className="space-y-8">
+          {Object.entries(grouped).map(([month, items]) => (
+            <div key={month}>
+              {/* Month header */}
+              <div className="flex items-center gap-3 mb-4">
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  {month}
+                </span>
+                <div style={{ flex: 1, height: 1, background: "#E2E8F0" }} />
+              </div>
+
+              {/* Items */}
+              <div className="space-y-3">
+                {items.map((item) => (
+                  <div
+                    key={item.name}
+                    className="flex items-center justify-between p-4 rounded-xl border"
+                    style={{
+                      background: item.status === "live" ? "#F0FDF4" : "#fff",
+                      borderColor: item.status === "live" ? "#BBF7D0" : "#E2E8F0",
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span style={{ fontSize: 20, lineHeight: 1 }}>{item.icon}</span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span style={{ fontSize: 14, fontWeight: 600, color: "#0F172A" }}>{item.name}</span>
+                          {item.status === "live" && (
+                            <span style={{ fontSize: 11, fontWeight: 700, color: "#16A34A", background: "#DCFCE7", padding: "2px 8px", borderRadius: 999, letterSpacing: "0.05em" }}>
+                              LIVE
+                            </span>
+                          )}
+                        </div>
+                        <span style={{ fontSize: 12, color: "#94A3B8" }}>{item.category} · {item.bundle}</span>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 12, color: item.status === "live" ? "#16A34A" : "#64748B", fontWeight: 500, whiteSpace: "nowrap" }}>
+                      {item.status === "live" ? "Available now" : formatDate(item.date)}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           ))}

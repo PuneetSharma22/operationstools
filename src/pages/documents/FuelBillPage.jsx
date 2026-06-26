@@ -369,7 +369,7 @@ export default function FuelBillPage() {
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
       // Target receipt width: 90mm (like a real thermal receipt on A4)
-      const targetW = 90;
+      const targetW = 105;
       const pxToMm = 25.4 / (96 * 2); // scale:2
       const naturalW = canvas.width * pxToMm;
       const naturalH = canvas.height * pxToMm;

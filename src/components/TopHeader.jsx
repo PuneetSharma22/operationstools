@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { supabase } from "../supabase";
+import { supabase } from "../supabase-public";
 
 function OpsToolsLogo() {
   return (

@@ -26,9 +26,6 @@ function OpsToolsLogo() {
   );
 }
 
-// ─── Pastel icons matching Home.jsx style exactly ─────────────────────────────
-// Each: { bg: pastel color, svg: JSX }
-
 const DOC_ICON_MAP = {
   "fuel-bill": {
     bg: "#DBEAFE",
@@ -54,177 +51,187 @@ const DOC_ICON_MAP = {
       </svg>
     ),
   },
-  "restaurant-bill": {
-    bg: "#FCE7F3",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="3" width="22" height="22" rx="3" fill="#FBCFE8"/>
-        <path d="M9 8v5a3 3 0 0 0 6 0V8" stroke="#DB2777" strokeWidth="1.5" strokeLinecap="round"/>
-        <line x1="12" y1="13" x2="12" y2="20" stroke="#DB2777" strokeWidth="1.5" strokeLinecap="round"/>
-        <line x1="18" y1="8" x2="18" y2="20" stroke="#DB2777" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  "medical-bill": {
-    bg: "#DCFCE7",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="3" width="22" height="22" rx="3" fill="#BBF7D0"/>
-        <rect x="12" y="8" width="4" height="12" rx="2" fill="#16A34A"/>
-        <rect x="8" y="12" width="12" height="4" rx="2" fill="#16A34A"/>
-      </svg>
-    ),
-  },
-  "hotel-bill": {
-    bg: "#DBEAFE",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="3" width="22" height="22" rx="3" fill="#BFDBFE"/>
-        <rect x="7" y="12" width="6" height="10" rx="1" fill="#2563EB"/>
-        <rect x="15" y="12" width="6" height="10" rx="1" fill="#2563EB"/>
-        <rect x="5" y="10" width="18" height="3" rx="1" fill="#3B82F6"/>
-        <rect x="11" y="6" width="6" height="4" rx="1" fill="#60A5FA"/>
-      </svg>
-    ),
-  },
-  "electricity-bill": {
-    bg: "#FEF3C7",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="3" width="22" height="22" rx="3" fill="#FDE68A"/>
-        <polygon points="16,4 9,15 14,15 12,24 19,13 14,13" fill="#D97706"/>
-      </svg>
-    ),
-  },
-  "vehicle-expense": {
-    bg: "#E0F2FE",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="3" width="22" height="22" rx="3" fill="#BAE6FD"/>
-        <rect x="5" y="11" width="18" height="8" rx="2" fill="#0284C7"/>
-        <rect x="8" y="8" width="12" height="5" rx="1.5" fill="#38BDF8"/>
-        <circle cx="9" cy="20" r="2" fill="#0369A1"/>
-        <circle cx="19" cy="20" r="2" fill="#0369A1"/>
-      </svg>
-    ),
-  },
-  "travel-expense": {
-    bg: "#EDE9FE",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="3" width="22" height="22" rx="3" fill="#DDD6FE"/>
-        <path d="M6 18l4-6 3 3 4-5 5 8H6z" fill="#7C3AED" opacity="0.3"/>
-        <path d="M14 6l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z" fill="#7C3AED"/>
-      </svg>
-    ),
-  },
-  "roi-calculator": {
-    bg: "#FEF3C7",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="3" width="22" height="22" rx="3" fill="#FDE68A"/>
-        <path d="M7 18l4-5 4 3 5-7" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="21" cy="9" r="2" fill="#F59E0B"/>
-      </svg>
-    ),
-  },
-  "gst-invoice": {
-    bg: "#EDE9FE",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="4" y="3" width="20" height="22" rx="2.5" fill="#DDD6FE"/>
-        <rect x="7" y="7" width="14" height="2" rx="1" fill="#7C3AED"/>
-        <rect x="7" y="11" width="9" height="1.5" rx="0.75" fill="#A78BFA"/>
-        <rect x="7" y="14" width="11" height="1.5" rx="0.75" fill="#A78BFA"/>
-        <rect x="7" y="17" width="7" height="1.5" rx="0.75" fill="#A78BFA"/>
-        <rect x="15" y="20" width="6" height="2" rx="1" fill="#7C3AED"/>
-      </svg>
-    ),
-  },
-  "eway-bill": {
-    bg: "#DBEAFE",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="3" width="22" height="22" rx="3" fill="#BFDBFE"/>
-        <rect x="5" y="11" width="18" height="8" rx="2" fill="#2563EB"/>
-        <rect x="8" y="8" width="12" height="5" rx="1.5" fill="#60A5FA"/>
-        <circle cx="9" cy="20" r="2" fill="#1D4ED8"/>
-        <circle cx="19" cy="20" r="2" fill="#1D4ED8"/>
-      </svg>
-    ),
-  },
-  "tax-invoice": {
-    bg: "#FCE7F3",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="4" y="3" width="20" height="22" rx="2.5" fill="#FBCFE8"/>
-        <rect x="7" y="7" width="14" height="2" rx="1" fill="#DB2777"/>
-        <rect x="7" y="11" width="9" height="1.5" rx="0.75" fill="#F9A8D4"/>
-        <rect x="7" y="14" width="11" height="1.5" rx="0.75" fill="#F9A8D4"/>
-        <rect x="15" y="19" width="6" height="3" rx="1" fill="#DB2777"/>
-      </svg>
-    ),
-  },
-  "e-invoice": {
-    bg: "#CFFAFE",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="6" width="22" height="16" rx="2.5" fill="#A5F3FC"/>
-        <path d="M3 10l11 7 11-7" stroke="#0891B2" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  "salary-slip": {
-    bg: "#FCE7F3",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="6" width="22" height="16" rx="2.5" fill="#FBCFE8"/>
-        <circle cx="10" cy="14" r="4" fill="#F9A8D4"/>
-        <path d="M9 14h2M10 13v2" stroke="#DB2777" strokeWidth="1.3" strokeLinecap="round"/>
-        <rect x="16" y="11" width="6" height="1.5" rx="0.75" fill="#F9A8D4"/>
-        <rect x="16" y="14" width="4" height="1.5" rx="0.75" fill="#F9A8D4"/>
-      </svg>
-    ),
-  },
-  "quotation": {
-    bg: "#D1FAE5",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="4" y="3" width="20" height="22" rx="2.5" fill="#A7F3D0"/>
-        <rect x="7" y="7" width="14" height="2" rx="1" fill="#059669"/>
-        <rect x="7" y="11" width="10" height="1.5" rx="0.75" fill="#6EE7B7"/>
-        <rect x="7" y="14" width="12" height="1.5" rx="0.75" fill="#6EE7B7"/>
-        <rect x="7" y="17" width="8" height="1.5" rx="0.75" fill="#6EE7B7"/>
-      </svg>
-    ),
-  },
-  "service-invoice": {
-    bg: "#FEF3C7",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="3" width="22" height="22" rx="3" fill="#FDE68A"/>
-        <circle cx="14" cy="14" r="5" fill="#F59E0B" opacity="0.4"/>
-        <circle cx="14" cy="14" r="2" fill="#D97706"/>
-        <path d="M14 7v2M14 19v2M7 14h2M19 14h2M9.5 9.5l1.4 1.4M17.1 17.1l1.4 1.4M9.5 18.5l1.4-1.4M17.1 10.9l1.4-1.4" stroke="#D97706" strokeWidth="1.3" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  "freelancer-invoice": {
-    bg: "#DBEAFE",
-    svg: (
-      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-        <rect x="3" y="5" width="22" height="18" rx="2.5" fill="#BFDBFE"/>
-        <rect x="6" y="9" width="16" height="2" rx="1" fill="#3B82F6"/>
-        <rect x="6" y="13" width="10" height="1.5" rx="0.75" fill="#93C5FD"/>
-        <rect x="6" y="16" width="12" height="1.5" rx="0.75" fill="#93C5FD"/>
-        <circle cx="21" cy="8" r="4" fill="#2563EB"/>
-        <path d="M19.5 8l1 1 2-2" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
+  "restaurant-bill": { bg: "#FCE7F3", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#FBCFE8"/><path d="M9 8v5a3 3 0 0 0 6 0V8" stroke="#DB2777" strokeWidth="1.5" strokeLinecap="round"/><line x1="12" y1="13" x2="12" y2="20" stroke="#DB2777" strokeWidth="1.5" strokeLinecap="round"/><line x1="18" y1="8" x2="18" y2="20" stroke="#DB2777" strokeWidth="1.5" strokeLinecap="round"/></svg> },
+  "medical-bill": { bg: "#DCFCE7", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#BBF7D0"/><rect x="12" y="8" width="4" height="12" rx="2" fill="#16A34A"/><rect x="8" y="12" width="12" height="4" rx="2" fill="#16A34A"/></svg> },
+  "hotel-bill": { bg: "#DBEAFE", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#BFDBFE"/><rect x="7" y="12" width="6" height="10" rx="1" fill="#2563EB"/><rect x="15" y="12" width="6" height="10" rx="1" fill="#2563EB"/><rect x="5" y="10" width="18" height="3" rx="1" fill="#3B82F6"/><rect x="11" y="6" width="6" height="4" rx="1" fill="#60A5FA"/></svg> },
+  "electricity-bill": { bg: "#FEF3C7", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#FDE68A"/><polygon points="16,4 9,15 14,15 12,24 19,13 14,13" fill="#D97706"/></svg> },
+  "vehicle-expense": { bg: "#E0F2FE", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#BAE6FD"/><rect x="5" y="11" width="18" height="8" rx="2" fill="#0284C7"/><rect x="8" y="8" width="12" height="5" rx="1.5" fill="#38BDF8"/><circle cx="9" cy="20" r="2" fill="#0369A1"/><circle cx="19" cy="20" r="2" fill="#0369A1"/></svg> },
+  "travel-expense": { bg: "#EDE9FE", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#DDD6FE"/><path d="M14 6l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z" fill="#7C3AED"/></svg> },
+  "roi-calculator": { bg: "#FEF3C7", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#FDE68A"/><path d="M7 18l4-5 4 3 5-7" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><circle cx="21" cy="9" r="2" fill="#F59E0B"/></svg> },
+  "gst-invoice": { bg: "#EDE9FE", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="4" y="3" width="20" height="22" rx="2.5" fill="#DDD6FE"/><rect x="7" y="7" width="14" height="2" rx="1" fill="#7C3AED"/><rect x="7" y="11" width="9" height="1.5" rx="0.75" fill="#A78BFA"/><rect x="7" y="14" width="11" height="1.5" rx="0.75" fill="#A78BFA"/><rect x="15" y="20" width="6" height="2" rx="1" fill="#7C3AED"/></svg> },
+  "eway-bill": { bg: "#DBEAFE", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#BFDBFE"/><rect x="5" y="11" width="18" height="8" rx="2" fill="#2563EB"/><rect x="8" y="8" width="12" height="5" rx="1.5" fill="#60A5FA"/><circle cx="9" cy="20" r="2" fill="#1D4ED8"/><circle cx="19" cy="20" r="2" fill="#1D4ED8"/></svg> },
+  "tax-invoice": { bg: "#FCE7F3", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="4" y="3" width="20" height="22" rx="2.5" fill="#FBCFE8"/><rect x="7" y="7" width="14" height="2" rx="1" fill="#DB2777"/><rect x="7" y="11" width="9" height="1.5" rx="0.75" fill="#F9A8D4"/><rect x="7" y="14" width="11" height="1.5" rx="0.75" fill="#F9A8D4"/><rect x="15" y="19" width="6" height="3" rx="1" fill="#DB2777"/></svg> },
+  "e-invoice": { bg: "#CFFAFE", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="6" width="22" height="16" rx="2.5" fill="#A5F3FC"/><path d="M3 10l11 7 11-7" stroke="#0891B2" strokeWidth="1.5" strokeLinecap="round"/></svg> },
+  "salary-slip": { bg: "#FCE7F3", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="6" width="22" height="16" rx="2.5" fill="#FBCFE8"/><circle cx="10" cy="14" r="4" fill="#F9A8D4"/><rect x="16" y="11" width="6" height="1.5" rx="0.75" fill="#F9A8D4"/><rect x="16" y="14" width="4" height="1.5" rx="0.75" fill="#F9A8D4"/></svg> },
+  "quotation": { bg: "#D1FAE5", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="4" y="3" width="20" height="22" rx="2.5" fill="#A7F3D0"/><rect x="7" y="7" width="14" height="2" rx="1" fill="#059669"/><rect x="7" y="11" width="10" height="1.5" rx="0.75" fill="#6EE7B7"/><rect x="7" y="14" width="12" height="1.5" rx="0.75" fill="#6EE7B7"/></svg> },
+  "service-invoice": { bg: "#FEF3C7", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#FDE68A"/><circle cx="14" cy="14" r="5" fill="#F59E0B" opacity="0.4"/><circle cx="14" cy="14" r="2" fill="#D97706"/></svg> },
+  "freelancer-invoice": { bg: "#DBEAFE", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="5" width="22" height="18" rx="2.5" fill="#BFDBFE"/><rect x="6" y="9" width="16" height="2" rx="1" fill="#3B82F6"/><rect x="6" y="13" width="10" height="1.5" rx="0.75" fill="#93C5FD"/><circle cx="21" cy="8" r="4" fill="#2563EB"/><path d="M19.5 8l1 1 2-2" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg> },
 };
 
-// ─── Mega Dropdown ─────────────────────────────────────────────────────────────
+// ─── Mobile Drawer ─────────────────────────────────────────────────────────────
+
+function MobileDrawer({ open, onClose, retailDocs, businessDocs, user, credits, signOut }) {
+  const [expanded, setExpanded] = useState(null);
+
+  if (!open) return null;
+
+  const sections = [
+    { key: "retail", label: "Retail", docs: retailDocs },
+    { key: "business", label: "Business", docs: businessDocs },
+  ];
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed", inset: 0, zIndex: 300,
+          background: "rgba(0,0,0,0.5)",
+          animation: "fadeIn 0.15s ease",
+        }}
+      />
+      {/* Drawer */}
+      <div style={{
+        position: "fixed", top: 0, left: 0, bottom: 0,
+        width: "min(320px, 85vw)",
+        background: "#07011F",
+        zIndex: 301,
+        overflowY: "auto",
+        animation: "slideInLeft 0.2s cubic-bezier(0.16,1,0.3,1)",
+        display: "flex", flexDirection: "column",
+      }}>
+        <style>{`
+          @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+          @keyframes slideInLeft { from { transform: translateX(-100%) } to { transform: translateX(0) } }
+          .drawer-item:hover { background: rgba(255,255,255,0.06) !important; }
+          .drawer-doc-item:active { background: rgba(255,255,255,0.08) !important; }
+        `}</style>
+
+        {/* Drawer header */}
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "0 20px", height: 64, flexShrink: 0,
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <OpsToolsLogo />
+            <span style={{ fontWeight: 700, color: "#fff", fontSize: 16 }}>OpsTools</span>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: 8, color: "rgba(255,255,255,0.5)" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Nav sections */}
+        <div style={{ flex: 1, padding: "12px 0" }}>
+          {sections.map(({ key, label, docs }) => (
+            <div key={key}>
+              <button
+                onClick={() => setExpanded(expanded === key ? null : key)}
+                className="drawer-item"
+                style={{
+                  width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+                  padding: "12px 20px", background: "transparent", border: "none", cursor: "pointer",
+                  transition: "background 0.12s",
+                }}
+              >
+                <span style={{ fontSize: 15, fontWeight: 600, color: "#fff" }}>{label}</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5"
+                  style={{ transition: "transform 0.2s", transform: expanded === key ? "rotate(180deg)" : "rotate(0deg)" }}>
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </button>
+
+              {expanded === key && (
+                <div style={{ padding: "4px 0 8px 0" }}>
+                  {docs.map((doc) => {
+                    const iconData = DOC_ICON_MAP[doc.slug];
+                    const inner = (
+                      <div className="drawer-doc-item" style={{
+                        display: "flex", alignItems: "center", gap: 12,
+                        padding: "10px 20px", transition: "background 0.12s",
+                        opacity: doc.status === "soon" ? 0.5 : 1,
+                      }}>
+                        <div style={{
+                          width: 36, height: 36, borderRadius: 9, flexShrink: 0,
+                          background: iconData?.bg || "#F1F5F9",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                        }}>
+                          {iconData?.svg}
+                        </div>
+                        <div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <span style={{ fontSize: 14, fontWeight: 600, color: doc.status === "live" ? "#fff" : "rgba(255,255,255,0.5)" }}>
+                              {doc.name}
+                            </span>
+                            {doc.status === "soon" && (
+                              <span style={{ fontSize: 9, fontWeight: 700, color: "#64748B", background: "rgba(255,255,255,0.08)", padding: "1px 6px", borderRadius: 999 }}>SOON</span>
+                            )}
+                          </div>
+                          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", margin: 0, lineHeight: 1.4 }}>{doc.description}</p>
+                        </div>
+                      </div>
+                    );
+
+                    return doc.status === "live" ? (
+                      <Link key={doc.slug} to={doc.href} onClick={onClose} style={{ textDecoration: "none", display: "block" }}>{inner}</Link>
+                    ) : (
+                      <div key={doc.slug}>{inner}</div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Divider */}
+          <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "8px 0" }} />
+
+          {/* Auth section */}
+          {user ? (
+            <div style={{ padding: "8px 20px" }}>
+              <div style={{ padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: 8 }}>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 3px" }}>Signed in as</p>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</p>
+              </div>
+              <Link to="/account" onClick={onClose} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 0", fontSize: 14, color: "rgba(255,255,255,0.65)", textDecoration: "none" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                My Account
+              </Link>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 0", fontSize: 14, color: "rgba(255,255,255,0.45)" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                {credits === null ? "—" : credits.toLocaleString()} credits
+              </div>
+              <button onClick={async () => { await signOut(); onClose(); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 0", fontSize: 14, color: "#F87171", background: "none", border: "none", cursor: "pointer", width: "100%" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F87171" strokeWidth="2.5" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <div style={{ padding: "12px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
+              <Link to="/login" onClick={onClose} style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                height: 44, borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)",
+                fontSize: 15, fontWeight: 500, color: "rgba(255,255,255,0.8)", textDecoration: "none",
+              }}>Log in</Link>
+              <Link to="/signup" onClick={onClose} style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                height: 44, borderRadius: 10,
+                background: "linear-gradient(135deg,#2563EB,#4F46E5)",
+                fontSize: 15, fontWeight: 600, color: "#fff", textDecoration: "none",
+              }}>Sign up</Link>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ─── Desktop Mega Dropdown ─────────────────────────────────────────────────────
 
 function MegaDropdown({ docs, onClose }) {
   const groups = docs.reduce((acc, doc) => {
@@ -262,11 +269,7 @@ function MegaDropdown({ docs, onClose }) {
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: "0 28px" }}>
         {Object.entries(groups).map(([bundle, items]) => (
           <div key={bundle} style={{ marginBottom: 8 }}>
-            <p style={{
-              fontSize: 10, fontWeight: 700, color: "#94A3B8",
-              textTransform: "uppercase", letterSpacing: "0.12em",
-              margin: "0 0 8px 4px",
-            }}>
+            <p style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 8px 4px" }}>
               {bundle.replace(" Suite", "")}
             </p>
             {items.map((doc) => {
@@ -279,7 +282,6 @@ function MegaDropdown({ docs, onClose }) {
                   cursor: doc.status === "live" ? "pointer" : "default",
                   marginBottom: 2,
                 }}>
-                  {/* Pastel square icon — matches Home.jsx */}
                   <div style={{
                     width: 40, height: 40, borderRadius: 10, flexShrink: 0,
                     background: iconData?.bg || "#F1F5F9",
@@ -290,26 +292,14 @@ function MegaDropdown({ docs, onClose }) {
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{
-                        fontSize: 13, fontWeight: 600,
-                        color: doc.status === "live" ? "#0F172A" : "#94A3B8",
-                        whiteSpace: "nowrap",
-                      }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: doc.status === "live" ? "#0F172A" : "#94A3B8", whiteSpace: "nowrap" }}>
                         {doc.name}
                       </span>
                       {doc.status === "soon" && (
-                        <span style={{
-                          fontSize: 9, fontWeight: 700, color: "#94A3B8",
-                          background: "#F1F5F9", padding: "1px 6px",
-                          borderRadius: 999, letterSpacing: "0.05em", flexShrink: 0,
-                        }}>SOON</span>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: "#94A3B8", background: "#F1F5F9", padding: "1px 6px", borderRadius: 999, letterSpacing: "0.05em", flexShrink: 0 }}>SOON</span>
                       )}
                     </div>
-                    <p style={{
-                      fontSize: 11.5, color: "#94A3B8", margin: 0,
-                      lineHeight: 1.35, overflow: "hidden",
-                      textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 180,
-                    }}>
+                    <p style={{ fontSize: 11.5, color: "#94A3B8", margin: 0, lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 180 }}>
                       {doc.description}
                     </p>
                   </div>
@@ -317,9 +307,7 @@ function MegaDropdown({ docs, onClose }) {
               );
 
               return doc.status === "live" ? (
-                <Link key={doc.slug} to={doc.href} onClick={onClose} style={{ textDecoration: "none", display: "block" }}>
-                  {item}
-                </Link>
+                <Link key={doc.slug} to={doc.href} onClick={onClose} style={{ textDecoration: "none", display: "block" }}>{item}</Link>
               ) : (
                 <div key={doc.slug}>{item}</div>
               );
@@ -336,6 +324,7 @@ function MegaDropdown({ docs, onClose }) {
 export default function TopHeader() {
   const [openMenu, setOpenMenu] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [credits, setCredits] = useState(null);
   const [retailDocs, setRetailDocs] = useState(FALLBACK_RETAIL);
   const [businessDocs, setBusinessDocs] = useState(FALLBACK_BUSINESS);
@@ -360,6 +349,9 @@ export default function TopHeader() {
       .then(({ data }) => setCredits(data?.balance ?? 0));
   }, [user]);
 
+  // Close mobile drawer on route change
+  useEffect(() => { setMobileOpen(false); }, [location.pathname]);
+
   const closeAll = () => { setOpenMenu(null); setShowUserMenu(false); };
 
   const NAV_ITEMS = [
@@ -368,127 +360,171 @@ export default function TopHeader() {
   ];
 
   return (
-    <header style={{ background: "#07011F", borderBottom: "1px solid rgba(255,255,255,0.08)", position: "sticky", top: 0, zIndex: 50 }} className="no-print">
-      <div className="max-w-[1280px] mx-auto px-6 h-16 flex items-center gap-8">
+    <>
+      <header style={{ background: "#07011F", borderBottom: "1px solid rgba(255,255,255,0.08)", position: "sticky", top: 0, zIndex: 50 }} className="no-print">
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 20px", height: 64, display: "flex", alignItems: "center", gap: 8 }}>
 
-        <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }} onClick={closeAll}>
-          <OpsToolsLogo />
-          <span style={{ fontWeight: 700, color: "#fff", fontSize: 16, letterSpacing: "-0.01em" }}>OpsTools</span>
-        </Link>
+          {/* Logo */}
+          <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }} onClick={closeAll}>
+            <OpsToolsLogo />
+            <span style={{ fontWeight: 700, color: "#fff", fontSize: 16, letterSpacing: "-0.01em" }}>OpsTools</span>
+          </Link>
 
-        <nav style={{ display: "flex", alignItems: "center", gap: 4, flex: 1 }}>
-          {NAV_ITEMS.map((item) => (
-            <div key={item.key} style={{ position: "relative" }}>
-              <button
-                onClick={() => setOpenMenu(openMenu === item.key ? null : item.key)}
-                style={{
-                  display: "inline-flex", alignItems: "center", gap: 5,
-                  padding: "0 14px", height: 36, borderRadius: 8,
-                  fontSize: 14, fontWeight: 500, cursor: "pointer", border: "none",
-                  background: openMenu === item.key ? "rgba(255,255,255,0.1)" : "transparent",
-                  color: openMenu === item.key ? "#fff" : "rgba(255,255,255,0.65)",
-                  transition: "color 0.15s, background 0.15s",
-                }}
-                onMouseEnter={e => { if (openMenu !== item.key) { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}}
-                onMouseLeave={e => { if (openMenu !== item.key) { e.currentTarget.style.color = "rgba(255,255,255,0.65)"; e.currentTarget.style.background = "transparent"; }}}
-              >
-                {item.label}
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                  style={{ transition: "transform 0.2s", transform: openMenu === item.key ? "rotate(180deg)" : "rotate(0deg)" }}>
-                  <path d="m6 9 6 6 6-6"/>
-                </svg>
-              </button>
-              {openMenu === item.key && item.docs.length > 0 && (
-                <MegaDropdown docs={item.docs} onClose={closeAll} />
-              )}
-            </div>
-          ))}
-        </nav>
-
-        {/* Right side */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, marginLeft: "auto" }}>
-          {user ? (
-            <>
-              <Link to="/account" style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                padding: "0 12px", height: 32,
-                background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 8, textDecoration: "none",
-              }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                <span style={{ fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.55)" }}>
-                  {credits === null ? "—" : credits.toLocaleString()} credits
-                </span>
-              </Link>
-
-              <div style={{ position: "relative" }}>
-                <button onClick={() => setShowUserMenu(!showUserMenu)} style={{
-                  display: "inline-flex", alignItems: "center", gap: 8,
-                  padding: "0 12px", height: 36,
-                  background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: 10, cursor: "pointer",
-                }}>
-                  <div style={{ width: 20, height: 20, borderRadius: "50%", background: "linear-gradient(135deg,#2563EB,#4F46E5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "#fff" }}>
-                    {user.email[0].toUpperCase()}
-                  </div>
-                  <span style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</span>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          {/* Desktop nav — hidden on mobile via media query */}
+          <nav className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: 4, flex: 1 }}>
+            {NAV_ITEMS.map((item) => (
+              <div key={item.key} style={{ position: "relative" }}>
+                <button
+                  onClick={() => setOpenMenu(openMenu === item.key ? null : item.key)}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 5,
+                    padding: "0 14px", height: 36, borderRadius: 8,
+                    fontSize: 14, fontWeight: 500, cursor: "pointer", border: "none",
+                    background: openMenu === item.key ? "rgba(255,255,255,0.1)" : "transparent",
+                    color: openMenu === item.key ? "#fff" : "rgba(255,255,255,0.65)",
+                    transition: "color 0.15s, background 0.15s",
+                  }}
+                  onMouseEnter={e => { if (openMenu !== item.key) { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}}
+                  onMouseLeave={e => { if (openMenu !== item.key) { e.currentTarget.style.color = "rgba(255,255,255,0.65)"; e.currentTarget.style.background = "transparent"; }}}
+                >
+                  {item.label}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                    style={{ transition: "transform 0.2s", transform: openMenu === item.key ? "rotate(180deg)" : "rotate(0deg)" }}>
+                    <path d="m6 9 6 6 6-6"/>
+                  </svg>
                 </button>
-
-                {showUserMenu && (
-                  <div style={{ position: "fixed", top: 64, right: 24, width: 210, background: "#fff", border: "1px solid #E2E8F0", borderRadius: 12, boxShadow: "0 12px 40px rgba(0,0,0,0.12)", overflow: "hidden", zIndex: 200, animation: "megaIn 0.15s cubic-bezier(0.16,1,0.3,1)" }}>
-                    <div style={{ padding: "12px 16px", borderBottom: "1px solid #F1F5F9" }}>
-                      <p style={{ fontSize: 11, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 3px" }}>Signed in as</p>
-                      <p style={{ fontSize: 13, color: "#0F172A", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</p>
-                    </div>
-                    {[
-                      { to: "/account", label: "My Account", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> },
-                      { to: "/account", label: `${credits === null ? "—" : credits.toLocaleString()} credits`, icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> },
-                    ].map(({ to, label, icon }) => (
-                      <Link key={label} to={to} onClick={closeAll} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 16px", fontSize: 14, color: "#374151", textDecoration: "none" }}
-                        onMouseEnter={e => e.currentTarget.style.background = "#F8FAFC"}
-                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                      >{icon}{label}</Link>
-                    ))}
-                    <div style={{ borderTop: "1px solid #F1F5F9" }} />
-                    <button onClick={async () => { await signOut(); closeAll(); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "11px 16px", fontSize: 14, color: "#DC2626", background: "none", border: "none", cursor: "pointer" }}
-                      onMouseEnter={e => e.currentTarget.style.background = "#FEF2F2"}
-                      onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                      Sign out
-                    </button>
-                  </div>
+                {openMenu === item.key && item.docs.length > 0 && (
+                  <MegaDropdown docs={item.docs} onClose={closeAll} />
                 )}
               </div>
-            </>
-          ) : (
-            <>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "0 12px", height: 32, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                <span style={{ fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.45)" }}>Guest · 0 credits</span>
-              </div>
-              <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.1)" }} />
-              <Link to="/login" style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 16px", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.65)", textDecoration: "none", borderRadius: 8 }}
-                onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(255,255,255,0.07)"; }}
-                onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.65)"; e.currentTarget.style.background = "transparent"; }}
-              >Log in</Link>
-              <Link to="/signup" style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 18px", fontSize: 14, fontWeight: 600, color: "#fff", textDecoration: "none", borderRadius: 10, background: "linear-gradient(135deg,#2563EB,#4F46E5)" }}>
+            ))}
+          </nav>
+
+          {/* Desktop right side */}
+          <div className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, marginLeft: "auto" }}>
+            {user ? (
+              <>
+                <Link to="/account" style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "0 12px", height: 32,
+                  background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: 8, textDecoration: "none",
+                }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  <span style={{ fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.55)" }}>
+                    {credits === null ? "—" : credits.toLocaleString()} credits
+                  </span>
+                </Link>
+
+                <div style={{ position: "relative" }}>
+                  <button onClick={() => setShowUserMenu(!showUserMenu)} style={{
+                    display: "inline-flex", alignItems: "center", gap: 8,
+                    padding: "0 12px", height: 36,
+                    background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: 10, cursor: "pointer",
+                  }}>
+                    <div style={{ width: 20, height: 20, borderRadius: "50%", background: "linear-gradient(135deg,#2563EB,#4F46E5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "#fff" }}>
+                      {user.email[0].toUpperCase()}
+                    </div>
+                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.5"><path d="m6 9 6 6 6-6"/></svg>
+                  </button>
+
+                  {showUserMenu && (
+                    <div style={{ position: "fixed", top: 64, right: 24, width: 210, background: "#fff", border: "1px solid #E2E8F0", borderRadius: 12, boxShadow: "0 12px 40px rgba(0,0,0,0.12)", overflow: "hidden", zIndex: 200, animation: "megaIn 0.15s cubic-bezier(0.16,1,0.3,1)" }}>
+                      <div style={{ padding: "12px 16px", borderBottom: "1px solid #F1F5F9" }}>
+                        <p style={{ fontSize: 11, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 3px" }}>Signed in as</p>
+                        <p style={{ fontSize: 13, color: "#0F172A", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</p>
+                      </div>
+                      {[
+                        { to: "/account", label: "My Account", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> },
+                        { to: "/account", label: `${credits === null ? "—" : credits.toLocaleString()} credits`, icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> },
+                      ].map(({ to, label, icon }) => (
+                        <Link key={label} to={to} onClick={closeAll} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 16px", fontSize: 14, color: "#374151", textDecoration: "none" }}
+                          onMouseEnter={e => e.currentTarget.style.background = "#F8FAFC"}
+                          onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                        >{icon}{label}</Link>
+                      ))}
+                      <div style={{ borderTop: "1px solid #F1F5F9" }} />
+                      <button onClick={async () => { await signOut(); closeAll(); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "11px 16px", fontSize: 14, color: "#DC2626", background: "none", border: "none", cursor: "pointer" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "#FEF2F2"}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Sign out
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "0 12px", height: 32, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  <span style={{ fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.45)" }}>Guest · 0 credits</span>
+                </div>
+                <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.1)" }} />
+                <Link to="/login" style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 16px", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.65)", textDecoration: "none", borderRadius: 8 }}
+                  onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(255,255,255,0.07)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.65)"; e.currentTarget.style.background = "transparent"; }}
+                >Log in</Link>
+                <Link to="/signup" style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 18px", fontSize: 14, fontWeight: 600, color: "#fff", textDecoration: "none", borderRadius: 10, background: "linear-gradient(135deg,#2563EB,#4F46E5)" }}>
+                  Sign up
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Mobile right side: Sign up + hamburger */}
+          <div className="mobile-nav" style={{ display: "none", alignItems: "center", gap: 8, marginLeft: "auto" }}>
+            {!user && (
+              <Link to="/signup" style={{ display: "inline-flex", alignItems: "center", height: 34, padding: "0 14px", fontSize: 13, fontWeight: 600, color: "#fff", textDecoration: "none", borderRadius: 8, background: "linear-gradient(135deg,#2563EB,#4F46E5)" }}>
                 Sign up
               </Link>
-            </>
-          )}
-        </div>
-      </div>
+            )}
+            <button
+              onClick={() => setMobileOpen(true)}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: 8, color: "rgba(255,255,255,0.8)", display: "flex", alignItems: "center" }}
+              aria-label="Open menu"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
+          </div>
 
-      {(openMenu || showUserMenu) && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 199 }} onClick={closeAll} />
-      )}
-    </header>
+        </div>
+
+        {/* Desktop overlay */}
+        {(openMenu || showUserMenu) && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 199 }} onClick={closeAll} />
+        )}
+
+        <style>{`
+          @media (max-width: 768px) {
+            .desktop-nav { display: none !important; }
+            .mobile-nav { display: flex !important; }
+          }
+        `}</style>
+      </header>
+
+      {/* Mobile Drawer */}
+      <MobileDrawer
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        retailDocs={retailDocs}
+        businessDocs={businessDocs}
+        user={user}
+        credits={credits}
+        signOut={signOut}
+      />
+    </>
   );
 }
 
-// ─── Fallback ─────────────────────────────────────────────────────────────────
+// ─── Fallback data ─────────────────────────────────────────────────────────────
 
 const FALLBACK_RETAIL = [
   { slug: "fuel-bill", name: "Fuel Bill", href: "/documents/fuel-bill", description: "Petrol & diesel receipts for reimbursement", bundle: "Transport Suite", status: "live" },

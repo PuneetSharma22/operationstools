@@ -1,7 +1,6 @@
-import { supabase } from '../../supabase.js';
+import { supabase } from "../../supabase-public";
+
 import { useState, useRef } from "react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import RentReceiptForm from "../../components/rent/RentReceiptForm";
 import TemplateRentReceipt from "../../components/rent/TemplateRentReceipt";
 import { useSEO } from "../../seo/useSEO";
@@ -128,6 +127,8 @@ export default function RentReceiptPage() {
   const handleDownloadPDF = async () => {
     if (!previewRef.current || downloading) return;
     setDownloading(true);
+    const { default: jsPDF } = await import("jspdf");
+const { default: html2canvas } = await import("html2canvas");
     try {
       const printId = `RENT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
       try {

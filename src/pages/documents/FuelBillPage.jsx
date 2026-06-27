@@ -1,6 +1,4 @@
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-import { supabase } from '../../supabase.js';
+import { supabase } from "../../supabase-public";
 import { useState, useRef, useEffect } from "react";
 import BillForm from "../../components/fuel/BillForm";
 import TemplatePOS from "../../components/fuel/TemplatePOS";
@@ -152,14 +150,12 @@ const RELATED_DOCS = [
 // ─── Modal backdrop + container ───────────────────────────────────────────────
 
 function Modal({ onClose, children }) {
-  // Trap escape key
   useEffect(() => {
     const onKey = (e) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  // Prevent body scroll
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
@@ -246,7 +242,6 @@ function BulkCreditsModal({ user, onClose }) {
   return (
     <Modal onClose={onClose}>
       <div style={{ padding: "28px 28px 24px" }}>
-        {/* Header */}
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 }}>
           <div>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: "#64748B", textTransform: "uppercase", margin: "0 0 4px" }}>Bulk Generation</p>
@@ -258,22 +253,12 @@ function BulkCreditsModal({ user, onClose }) {
             display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, lineHeight: 1,
           }}>×</button>
         </div>
-
-        {/* User */}
         <div style={{ background: "#F8FAFC", borderRadius: 10, padding: "9px 13px", marginBottom: 20, fontSize: 13, color: "#475569" }}>
           Signed in as <strong style={{ color: "#0F172A" }}>{user.email}</strong>
         </div>
-
-        {/* Info pill */}
-        <div style={{
-          background: "linear-gradient(135deg, #EFF6FF, #EEF2FF)",
-          borderRadius: 10, padding: "12px 14px", marginBottom: 20,
-          fontSize: 13, color: "#374151", lineHeight: 1.6,
-        }}>
+        <div style={{ background: "linear-gradient(135deg, #EFF6FF, #EEF2FF)", borderRadius: 10, padding: "12px 14px", marginBottom: 20, fontSize: 13, color: "#374151", lineHeight: 1.6 }}>
           <strong style={{ color: "#2563EB" }}>1 credit = 1 bill</strong> · Minimum ₹10 = 100 credits
         </div>
-
-        {/* Presets */}
         <p style={{ fontSize: 11, fontWeight: 700, color: "#64748B", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>Choose credits</p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginBottom: 14 }}>
           {presets.map((p) => (
@@ -286,38 +271,21 @@ function BulkCreditsModal({ user, onClose }) {
             }}>{p.toLocaleString()}</button>
           ))}
         </div>
-
-        {/* Custom */}
         <div style={{ marginBottom: 20 }}>
           <label style={{ fontSize: 12, fontWeight: 600, color: "#64748B", display: "block", marginBottom: 6 }}>Or enter custom amount</label>
           <input
             type="number" min={100} step={100} value={credits}
             onChange={(e) => setCredits(Math.max(100, parseInt(e.target.value) || 100))}
-            style={{
-              width: "100%", height: 44, padding: "0 14px", borderRadius: 10,
-              border: "1.5px solid #E2E8F0", outline: "none", fontSize: 14,
-              color: "#0F172A", boxSizing: "border-box",
-            }}
+            style={{ width: "100%", height: 44, padding: "0 14px", borderRadius: 10, border: "1.5px solid #E2E8F0", outline: "none", fontSize: 14, color: "#0F172A", boxSizing: "border-box" }}
           />
         </div>
-
-        {/* Summary */}
-        <div style={{
-          background: "#F8FAFC", borderRadius: 10, padding: "13px 16px",
-          display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20,
-        }}>
+        <div style={{ background: "#F8FAFC", borderRadius: 10, padding: "13px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
           <span style={{ fontSize: 14, color: "#374151" }}>{credits.toLocaleString()} credits</span>
           <span style={{ fontSize: 22, fontWeight: 800, color: "#0F172A" }}>₹{amount}</span>
         </div>
-
-        {/* CTA */}
         <button
           onClick={() => alert(`Integrate Razorpay here — ₹${amount} for ${credits} credits`)}
-          style={{
-            width: "100%", height: 48, borderRadius: 12, border: "none", cursor: "pointer",
-            background: "linear-gradient(135deg, #2563EB 0%, #4F46E5 100%)",
-            color: "#fff", fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em",
-          }}
+          style={{ width: "100%", height: 48, borderRadius: 12, border: "none", cursor: "pointer", background: "linear-gradient(135deg, #2563EB 0%, #4F46E5 100%)", color: "#fff", fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em" }}
         >Pay ₹{amount} · Get {credits.toLocaleString()} Credits</button>
         <p style={{ textAlign: "center", fontSize: 11, color: "#94A3B8", margin: "10px 0 0" }}>
           Credits added instantly after payment
@@ -327,6 +295,60 @@ function BulkCreditsModal({ user, onClose }) {
   );
 }
 
+// ─── Mobile Preview Sheet ─────────────────────────────────────────────────────
+
+function MobilePreviewSheet({ previewRef, PreviewComponent, data, onDownload, downloading, onClose }) {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 800, display: "flex", flexDirection: "column" }}>
+      {/* Backdrop */}
+      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(7,1,31,0.6)" }} />
+      {/* Sheet */}
+      <div style={{
+        position: "relative", marginTop: "auto",
+        background: "#fff", borderRadius: "20px 20px 0 0",
+        maxHeight: "90vh", display: "flex", flexDirection: "column",
+        animation: "sheetUp 0.25s cubic-bezier(0.16,1,0.3,1)",
+      }}>
+        <style>{`@keyframes sheetUp { from { transform: translateY(100%) } to { transform: translateY(0) } }`}</style>
+
+        {/* Sheet header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid #F1F5F9", flexShrink: 0 }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: "#0F172A" }}>Preview</span>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <button onClick={onDownload} disabled={downloading} style={{
+              background: "linear-gradient(135deg, #2563EB, #4F46E5)", border: "none", borderRadius: 8,
+              padding: "8px 16px", color: "#fff", fontSize: 13, fontWeight: 600,
+              cursor: downloading ? "wait" : "pointer", opacity: downloading ? 0.7 : 1,
+              display: "flex", alignItems: "center", gap: 6,
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              {downloading ? "Saving…" : "Save PDF"}
+            </button>
+            <button onClick={onClose} style={{ background: "#F1F5F9", border: "none", borderRadius: 8, width: 32, height: 32, cursor: "pointer", color: "#64748B", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+          </div>
+        </div>
+
+        {/* Scrollable preview */}
+        <div style={{ overflowY: "auto", padding: "20px 16px 32px", flex: 1 }}>
+          <div style={{ overflowX: "auto" }}>
+            <div ref={previewRef} style={{ minWidth: 300 }}>
+              <PreviewComponent data={data} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
@@ -336,16 +358,20 @@ export default function FuelBillPage() {
   const [modal, setModal] = useState(null);
   const [modalUser, setModalUser] = useState(null);
   const [downloading, setDownloading] = useState(false);
+  const [showMobilePreview, setShowMobilePreview] = useState(false);
   const previewRef = useRef(null);
+  const mobilePreviewRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDownloadPDF = async () => {
-    if (!previewRef.current || downloading) return;
+  const doDownloadPDF = async (ref) => {
+    if (!ref.current || downloading) return;
     setDownloading(true);
+    const { default: jsPDF } = await import("jspdf");
+const { default: html2canvas } = await import("html2canvas");
     try {
       const printId = `PRINT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
       try {
@@ -355,24 +381,18 @@ export default function FuelBillPage() {
         });
       } catch (_) {}
 
-      // Templates now use pure inline styles — no Tailwind oklch
-      const canvas = await html2canvas(previewRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff",
-        logging: false,
+      const canvas = await html2canvas(ref.current, {
+        scale: 2, useCORS: true, allowTaint: true,
+        backgroundColor: "#ffffff", logging: false,
       });
 
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-      // Target receipt width: 90mm (like a real thermal receipt on A4)
-      const targetW = 105;
-      const pxToMm = 25.4 / (96 * 2); // scale:2
+      const pxToMm = 25.4 / (96 * 2);
       const naturalW = canvas.width * pxToMm;
       const naturalH = canvas.height * pxToMm;
+      const targetW = 105;
       const ratio = targetW / naturalW;
       const finalW = targetW;
       const finalH = naturalH * ratio;
@@ -385,6 +405,12 @@ export default function FuelBillPage() {
     } finally {
       setDownloading(false);
     }
+  };
+
+  // Desktop uses previewRef, mobile sheet uses mobilePreviewRef
+  const handleDownloadPDF = () => {
+    const ref = showMobilePreview ? mobilePreviewRef : previewRef;
+    doDownloadPDF(ref);
   };
 
   const handleBulkClick = async () => {
@@ -409,14 +435,38 @@ export default function FuelBillPage() {
 
   return (
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .desktop-preview { display: none !important; }
+          .mobile-preview-btn { display: flex !important; }
+          .fuel-tool-padding { padding-left: 16px !important; padding-right: 16px !important; }
+          .fuel-hero-padding { padding: 28px 16px 24px !important; }
+          .seo-section { max-width: 100% !important; width: 100% !important; padding: 0 16px !important; }
+        }
+        @media (min-width: 769px) {
+          .mobile-preview-btn { display: none !important; }
+        }
+      `}</style>
 
       {/* Modals */}
       {modal === "login" && <LoginPromptModal onClose={() => setModal(null)} />}
       {modal === "credits" && modalUser && <BulkCreditsModal user={modalUser} onClose={() => setModal(null)} />}
 
+      {/* Mobile preview sheet */}
+      {showMobilePreview && (
+        <MobilePreviewSheet
+          previewRef={mobilePreviewRef}
+          PreviewComponent={PreviewComponent}
+          data={data}
+          onDownload={handleDownloadPDF}
+          downloading={downloading}
+          onClose={() => setShowMobilePreview(false)}
+        />
+      )}
+
       {/* Hero */}
-      <section style={{ background: "linear-gradient(160deg, #07011F 0%, #0D0630 60%, #1e1b4b 100%)", padding: "40px 24px 36px" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+      <section style={{ background: "linear-gradient(160deg, #07011F 0%, #0D0630 60%, #1e1b4b 100%)" }} className="fuel-hero-padding" >
+        <div style={{ padding: "40px 24px 36px", maxWidth: 1280, margin: "0 auto" }} className="fuel-hero-padding">
           <nav style={{ marginBottom: 16, fontSize: 13, color: "#475569" }}>
             <a href="/" style={{ color: "#475569", textDecoration: "none" }}>Home</a>
             <span style={{ margin: "0 8px" }}>›</span>
@@ -426,7 +476,7 @@ export default function FuelBillPage() {
           </nav>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
             <div>
-              <h1 style={{ fontSize: "clamp(22px,3vw,30px)", fontWeight: 800, color: "#fff", lineHeight: 1.2, margin: "0 0 8px", letterSpacing: "-0.02em" }}>
+              <h1 style={{ fontSize: "clamp(20px,3vw,30px)", fontWeight: 800, color: "#fff", lineHeight: 1.2, margin: "0 0 8px", letterSpacing: "-0.02em" }}>
                 Free Fuel Bill Generator
               </h1>
               <p style={{ fontSize: 14, color: "#94A3B8", lineHeight: 1.6, margin: 0 }}>
@@ -450,42 +500,80 @@ export default function FuelBillPage() {
                 </svg>
                 Generate in Bulk
               </button>
-
             </div>
           </div>
         </div>
       </section>
 
       {/* Tool */}
-      <div className="max-w-[1280px] mx-auto px-6 py-8">
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px" }} className="fuel-tool-padding no-print">
 
         {/* Template Picker */}
-        <div className="no-print mb-8">
-          <p className="text-[12px] font-semibold uppercase tracking-widest text-[#64748B] mb-3">Choose Template</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="no-print" style={{ marginBottom: 28 }}>
+          <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#64748B", marginBottom: 10 }}>Choose Template</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }} className="template-grid">
+            <style>{`@media (min-width: 640px) { .template-grid { grid-template-columns: repeat(4, 1fr) !important; } }`}</style>
             {TEMPLATES.map((t) => (
-              <button key={t.id} onClick={() => setActiveTemplate(t.id)}
-                className={`text-left p-4 rounded-xl border-2 transition-all duration-150 ${
-                  activeTemplate === t.id ? "border-[#2563EB] bg-[#EFF6FF]" : "border-[#E2E8F0] bg-white hover:border-[#2563EB]/40"
-                }`}>
-                <p className={`text-[14px] font-semibold ${activeTemplate === t.id ? "text-[#2563EB]" : "text-[#0F172A]"}`}>{t.label}</p>
-                <p className="text-[12px] text-[#64748B] mt-0.5">{t.desc}</p>
+              <button key={t.id} onClick={() => setActiveTemplate(t.id)} style={{
+                textAlign: "left", padding: "14px 14px", borderRadius: 12,
+                border: activeTemplate === t.id ? "2px solid #2563EB" : "2px solid #E2E8F0",
+                background: activeTemplate === t.id ? "#EFF6FF" : "#fff",
+                cursor: "pointer", transition: "all 0.15s",
+              }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: activeTemplate === t.id ? "#2563EB" : "#0F172A", margin: "0 0 3px" }}>{t.label}</p>
+                <p style={{ fontSize: 11.5, color: "#64748B", margin: 0 }}>{t.desc}</p>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Form + Preview */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
+        {/* Form + Desktop Preview */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 28 }} className="tool-grid">
+          <style>{`@media (min-width: 1024px) { .tool-grid { grid-template-columns: 1fr 320px !important; } }`}</style>
+
+          {/* Form */}
           <div className="no-print">
             <BillForm data={data} onChange={handleChange} template={activeTemplate} />
+
+            {/* Mobile: Preview + Save PDF buttons below form */}
+            <div className="mobile-preview-btn" style={{ marginTop: 20, gap: 10 }}>
+              <button
+                onClick={() => setShowMobilePreview(true)}
+                style={{
+                  flex: 1, height: 48, borderRadius: 12, border: "2px solid #2563EB",
+                  background: "#EFF6FF", color: "#2563EB", fontSize: 14, fontWeight: 700,
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Preview Bill
+              </button>
+              <button
+                onClick={() => { setShowMobilePreview(true); }}
+                style={{
+                  flex: 1, height: 48, borderRadius: 12, border: "none",
+                  background: "linear-gradient(135deg, #2563EB, #4F46E5)",
+                  color: "#fff", fontSize: 14, fontWeight: 700,
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Save PDF
+              </button>
+            </div>
           </div>
-          <div className="lg:sticky lg:top-24">
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }} className="no-print mb-3">
-              <p className="text-[12px] font-semibold uppercase tracking-widest text-[#64748B]">Live Preview</p>
-              <button onClick={handleDownloadPDF} disabled={downloading} className="no-print" style={{
+
+          {/* Desktop sticky preview */}
+          <div className="desktop-preview" style={{ position: "sticky", top: 96 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }} className="no-print">
+              <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#64748B", margin: 0 }}>Live Preview</p>
+              <button onClick={() => doDownloadPDF(previewRef)} disabled={downloading} className="no-print" style={{
                 background: "linear-gradient(135deg, #2563EB 0%, #4F46E5 100%)",
-                border: "none", borderRadius: 8, padding: "5px 12px",
+                border: "none", borderRadius: 8, padding: "6px 14px",
                 color: "#fff", fontSize: 12, fontWeight: 600,
                 cursor: downloading ? "wait" : "pointer",
                 display: "flex", alignItems: "center", gap: 5,
@@ -498,8 +586,8 @@ export default function FuelBillPage() {
                 </svg>
                 {downloading ? "Saving…" : "Save PDF"}
               </button>
-
             </div>
+            {/* Scale trick only on desktop where it's safe */}
             <div ref={previewRef} style={{ transform: "scale(0.82)", transformOrigin: "top left", width: "122%", marginBottom: "-18%" }}>
               <PreviewComponent data={data} />
             </div>
@@ -507,14 +595,9 @@ export default function FuelBillPage() {
         </div>
       </div>
 
-      {/* SEO content — wider layout */}
+      {/* SEO content */}
       <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
-        {/* Force 80% width — overrides any inner maxWidth in DocumentPageSEO */}
-        <style>{`
-          .seo-content-wrap > * { max-width: 100% !important; width: 100% !important; }
-          .seo-content-wrap section, .seo-content-wrap div[style] { max-width: 100% !important; }
-        `}</style>
-        <div className="seo-content-wrap" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
+        <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
           <DocumentPageSEO
             documentName="Fuel Bill"
             documentSlug="fuel-bill"

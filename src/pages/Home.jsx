@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../supabase";
+import { supabase } from "../supabase-public";
+
 
 const DOC_ICON_MAP = {
   "fuel-bill": { bg: "#DBEAFE", svg: <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="5" y="3" width="14" height="19" rx="2" fill="#BFDBFE"/><rect x="8" y="7" width="8" height="1.5" rx="0.75" fill="#3B82F6"/><rect x="8" y="10.5" width="6" height="1.5" rx="0.75" fill="#3B82F6"/><rect x="8" y="14" width="8" height="1.5" rx="0.75" fill="#3B82F6"/><circle cx="20" cy="19" r="5" fill="#FDE68A"/><path d="M19 17.5l1.5 1.5-1.5 1.5" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M18 17.5v3" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round"/></svg> },
@@ -45,105 +46,153 @@ export default function Home() {
 
   return (
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
+      <style>{`
+        .hero-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 48px;
+          align-items: center;
+        }
+        .hero-cards {
+          display: block;
+        }
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+        }
+        @media (max-width: 768px) {
+          .hero-grid {
+            grid-template-columns: 1fr !important;
+            gap: 36px !important;
+          }
+          .hero-cards {
+            display: none !important;
+          }
+          .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+          .stats-grid > div {
+            border-right: none !important;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+          }
+          .stats-grid > div:nth-child(odd) {
+            border-right: 1px solid rgba(255,255,255,0.06) !important;
+          }
+          .stats-grid > div:nth-last-child(-n+2) {
+            border-bottom: none !important;
+          }
+          .hero-section {
+            padding: 44px 20px 40px !important;
+          }
+          .why-grid {
+            grid-template-columns: 1fr 1fr !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .why-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
 
       {/* Hero */}
-      <section style={{ background: "linear-gradient(160deg, #07011F 0%, #0D0630 55%, #1e1b4b 100%)", padding: "72px 24px 64px", overflow: "hidden" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
+      <section className="hero-section" style={{ background: "linear-gradient(160deg, #07011F 0%, #0D0630 55%, #1e1b4b 100%)", padding: "72px 24px 64px", overflow: "hidden" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div className="hero-grid">
 
-          {/* Left — copy */}
-          <div>
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.35)", color: "#A5B4FC", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 12px", borderRadius: 999, marginBottom: 24 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#818CF8", display: "inline-block" }} />
-              Free · No sign-up · India-ready
-            </span>
-            <h1 style={{ fontSize: "clamp(28px, 3.5vw, 46px)", fontWeight: 800, color: "#fff", lineHeight: 1.12, margin: "0 0 18px", letterSpacing: "-0.025em" }}>
-              Professional documents,{" "}
-              <span style={{ background: "linear-gradient(90deg, #60A5FA, #818CF8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                ready in seconds
+            {/* Left — copy */}
+            <div>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.35)", color: "#A5B4FC", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 12px", borderRadius: 999, marginBottom: 24 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#818CF8", display: "inline-block" }} />
+                Free · No sign-up · India-ready
               </span>
-            </h1>
-            <p style={{ fontSize: 17, color: "#94A3B8", lineHeight: 1.7, margin: "0 0 32px", maxWidth: 440 }}>
-              Fuel bills, rent receipts, GST invoices — filled and downloaded without a single login or rupee spent.
-            </p>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 36 }}>
-              <Link to="/documents/fuel-bill" style={{ background: "linear-gradient(135deg, #2563EB 0%, #4F46E5 100%)", color: "#fff", padding: "12px 26px", borderRadius: 10, fontWeight: 600, fontSize: 15, textDecoration: "none" }}>
-                Generate a fuel bill →
-              </Link>
-              <a href="#tools" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)", color: "#CBD5E1", padding: "12px 26px", borderRadius: 10, fontWeight: 500, fontSize: 15, textDecoration: "none" }}>
-                Browse all tools
-              </a>
-            </div>
-            {/* Trust row */}
-            <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-              {[
-                { icon: "🔒", text: "No data stored" },
-                { icon: "⚡", text: "Instant PDF" },
-                { icon: "🇮🇳", text: "India-specific formats" },
-              ].map(t => (
-                <div key={t.text} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748B" }}>
-                  <span>{t.icon}</span>
-                  <span>{t.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right — floating doc previews */}
-          <div style={{ position: "relative", height: 320, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {/* Main card — Fuel Bill */}
-            <div style={{ position: "absolute", left: "5%", top: "10%", background: "#fff", borderRadius: 14, padding: "16px 18px", width: 210, boxShadow: "0 20px 60px rgba(0,0,0,0.35)", zIndex: 3 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: "#DBEAFE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>⛽</div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "#0F172A" }}>Fuel Bill</div>
-                  <div style={{ fontSize: 10, color: "#94A3B8" }}>PK Fuel Station</div>
-                </div>
+              <h1 style={{ fontSize: "clamp(26px, 3.5vw, 46px)", fontWeight: 800, color: "#fff", lineHeight: 1.12, margin: "0 0 18px", letterSpacing: "-0.025em" }}>
+                Professional documents,{" "}
+                <span style={{ background: "linear-gradient(90deg, #60A5FA, #818CF8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                  ready in seconds
+                </span>
+              </h1>
+              <p style={{ fontSize: 16, color: "#94A3B8", lineHeight: 1.7, margin: "0 0 32px", maxWidth: 440 }}>
+                Fuel bills, rent receipts, GST invoices — filled and downloaded without a single login or rupee spent.
+              </p>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 32 }}>
+                <Link to="/documents/fuel-bill" style={{ background: "linear-gradient(135deg, #2563EB 0%, #4F46E5 100%)", color: "#fff", padding: "13px 26px", borderRadius: 10, fontWeight: 600, fontSize: 15, textDecoration: "none", display: "inline-block" }}>
+                  Generate a fuel bill →
+                </Link>
+                <a href="#tools" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)", color: "#CBD5E1", padding: "13px 26px", borderRadius: 10, fontWeight: 500, fontSize: 15, textDecoration: "none", display: "inline-block" }}>
+                  Browse all tools
+                </a>
               </div>
-              <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: 10 }}>
-                {[["Fuel Type", "Petrol"], ["Rate/Litre", "₹104.29"], ["Volume", "9.52 L"], ["Amount", "₹992.00"]].map(([k,v]) => (
-                  <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 5 }}>
-                    <span style={{ color: "#94A3B8" }}>{k}</span>
-                    <span style={{ fontWeight: 600, color: "#0F172A" }}>{v}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{ marginTop: 10, background: "#DBEAFE", borderRadius: 6, padding: "4px 8px", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#2563EB", display: "inline-block" }} />
-                <span style={{ fontSize: 10, fontWeight: 700, color: "#2563EB" }}>Live</span>
-              </div>
-            </div>
-
-            {/* Second card — Rent Receipt */}
-            <div style={{ position: "absolute", right: "2%", top: "5%", background: "#fff", borderRadius: 14, padding: "16px 18px", width: 196, boxShadow: "0 20px 60px rgba(0,0,0,0.3)", zIndex: 2 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: "#D1FAE5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🏠</div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "#0F172A" }}>Rent Receipt</div>
-                  <div style={{ fontSize: 10, color: "#94A3B8" }}>June 2026</div>
-                </div>
-              </div>
-              <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: 10 }}>
-                {[["Tenant", "Puneet Sharma"], ["Rent", "₹18,000"], ["Period", "Jun 2026"], ["PAN", "ABCDE1234F"]].map(([k,v]) => (
-                  <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 5 }}>
-                    <span style={{ color: "#94A3B8" }}>{k}</span>
-                    <span style={{ fontWeight: 600, color: "#0F172A", fontSize: 10 }}>{v}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+                {[
+                  { icon: "🔒", text: "No data stored" },
+                  { icon: "⚡", text: "Instant PDF" },
+                  { icon: "🇮🇳", text: "India-specific formats" },
+                ].map(t => (
+                  <div key={t.text} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#64748B" }}>
+                    <span>{t.icon}</span><span>{t.text}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Third card — GST coming soon */}
-            <div style={{ position: "absolute", left: "18%", bottom: "4%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 14px", width: 160, zIndex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 7, background: "rgba(124,58,237,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>🧾</div>
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.8)" }}>GST Invoice</div>
-                  <div style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>Coming soon</div>
+            {/* Right — floating cards, hidden on mobile */}
+            <div className="hero-cards" style={{ position: "relative", height: 320, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {/* Fuel Bill card */}
+              <div style={{ position: "absolute", left: "5%", top: "10%", background: "#fff", borderRadius: 14, padding: "16px 18px", width: 210, boxShadow: "0 20px 60px rgba(0,0,0,0.35)", zIndex: 3 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "#DBEAFE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>⛽</div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#0F172A" }}>Fuel Bill</div>
+                    <div style={{ fontSize: 10, color: "#94A3B8" }}>PK Fuel Station</div>
+                  </div>
+                </div>
+                <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: 10 }}>
+                  {[["Fuel Type", "Petrol"], ["Rate/Litre", "₹104.29"], ["Volume", "9.52 L"], ["Amount", "₹992.00"]].map(([k,v]) => (
+                    <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 5 }}>
+                      <span style={{ color: "#94A3B8" }}>{k}</span>
+                      <span style={{ fontWeight: 600, color: "#0F172A" }}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 10, background: "#DBEAFE", borderRadius: 6, padding: "4px 8px", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#2563EB", display: "inline-block" }} />
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "#2563EB" }}>Live</span>
                 </div>
               </div>
-              <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3, marginBottom: 4 }} />
-              <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3, width: "70%", marginBottom: 4 }} />
-              <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3, width: "85%" }} />
+
+              {/* Rent Receipt card */}
+              <div style={{ position: "absolute", right: "2%", top: "5%", background: "#fff", borderRadius: 14, padding: "16px 18px", width: 196, boxShadow: "0 20px 60px rgba(0,0,0,0.3)", zIndex: 2 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "#D1FAE5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🏠</div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#0F172A" }}>Rent Receipt</div>
+                    <div style={{ fontSize: 10, color: "#94A3B8" }}>June 2026</div>
+                  </div>
+                </div>
+                <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: 10 }}>
+                  {[["Tenant", "Puneet Sharma"], ["Rent", "₹18,000"], ["Period", "Jun 2026"], ["PAN", "ABCDE1234F"]].map(([k,v]) => (
+                    <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 5 }}>
+                      <span style={{ color: "#94A3B8" }}>{k}</span>
+                      <span style={{ fontWeight: 600, color: "#0F172A", fontSize: 10 }}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* GST coming soon card */}
+              <div style={{ position: "absolute", left: "18%", bottom: "4%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 14px", width: 160, zIndex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 7, background: "rgba(124,58,237,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>🧾</div>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.8)" }}>GST Invoice</div>
+                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>Coming soon</div>
+                  </div>
+                </div>
+                <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3, marginBottom: 4 }} />
+                <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3, width: "70%", marginBottom: 4 }} />
+                <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3, width: "85%" }} />
+              </div>
             </div>
           </div>
         </div>
@@ -151,33 +200,31 @@ export default function Home() {
 
       {/* Stats */}
       <section style={{ background: "#07011F", borderBottom: "1px solid rgba(255,255,255,0.07)", padding: "0 24px" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
-          {stats.map((s, i) => (
-            <div key={s.label} style={{
-              textAlign: "center", padding: "20px 16px",
-              borderRight: i < stats.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none",
-            }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", lineHeight: 1, letterSpacing: "-0.02em" }}>{s.value}</div>
-              <div style={{ fontSize: 12, color: "#475569", marginTop: 5, fontWeight: 500, letterSpacing: "0.02em" }}>{s.label}</div>
-            </div>
-          ))}
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <div className="stats-grid">
+            {stats.map((s, i) => (
+              <div key={s.label} style={{
+                textAlign: "center", padding: "20px 16px",
+                borderRight: i < stats.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none",
+              }}>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", lineHeight: 1, letterSpacing: "-0.02em" }}>{s.value}</div>
+                <div style={{ fontSize: 12, color: "#475569", marginTop: 5, fontWeight: 500, letterSpacing: "0.02em" }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Tools */}
-      <section id="tools" style={{ padding: "72px 0 80px" }}>
-        <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 24px" }}>
-
-          {/* Retail */}
-          <div style={{ marginBottom: 56 }}>
+      <section id="tools" style={{ padding: "64px 0 72px" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 20px" }}>
+          <div style={{ marginBottom: 52 }}>
             <div style={{ marginBottom: 20 }}>
               <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", margin: "0 0 4px", letterSpacing: "-0.01em" }}>Document Generator</h2>
               <p style={{ fontSize: 14, color: "#64748B", margin: 0 }}>Print-ready documents in seconds — no templates to buy, no software to install.</p>
             </div>
             <Carousel docs={retailDocs} />
           </div>
-
-          {/* Business */}
           <div>
             <div style={{ marginBottom: 20 }}>
               <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", margin: "0 0 4px", letterSpacing: "-0.01em" }}>Business Calculators</h2>
@@ -189,13 +236,13 @@ export default function Home() {
       </section>
 
       {/* Why OpsTools */}
-      <section style={{ background: "linear-gradient(135deg, #07011F 0%, #0D0630 100%)", padding: "72px 24px", textAlign: "center" }}>
+      <section style={{ background: "linear-gradient(135deg, #07011F 0%, #0D0630 100%)", padding: "64px 20px", textAlign: "center" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
-          <h2 style={{ fontSize: 28, fontWeight: 700, color: "#fff", margin: "0 0 16px", letterSpacing: "-0.02em" }}>Built for the operator, not the accountant</h2>
-          <p style={{ fontSize: 16, color: "#94A3B8", lineHeight: 1.75, margin: "0 0 48px" }}>
+          <h2 style={{ fontSize: "clamp(20px, 3vw, 28px)", fontWeight: 700, color: "#fff", margin: "0 0 16px", letterSpacing: "-0.02em" }}>Built for the operator, not the accountant</h2>
+          <p style={{ fontSize: 15, color: "#94A3B8", lineHeight: 1.75, margin: "0 0 40px" }}>
             Most document tools are built for chartered accountants — complex, expensive, and full of fields you don't understand. OpsTools is different.
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 24, textAlign: "left" }}>
+          <div className="why-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 20, textAlign: "left" }}>
             {[
               { icon: "⚡", title: "Instant", body: "Fill the form, hit print. No account, no waiting." },
               { icon: "🔒", title: "Private", body: "Nothing stored on our servers. Your data stays in your browser." },
@@ -242,20 +289,14 @@ function Carousel({ docs }) {
 
   return (
     <div style={{ position: "relative" }}>
-      {/* Left arrow */}
       {canScrollLeft && (
         <button onClick={() => scroll(-1)} style={{ position: "absolute", left: -16, top: "50%", transform: "translateY(-50%)", width: 32, height: 32, borderRadius: "50%", background: "#fff", border: "1px solid #E2E8F0", boxShadow: "0 2px 8px rgba(0,0,0,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
       )}
-
-      {/* Scrollable row */}
       <div ref={scrollRef} onScroll={checkScroll} style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 8, scrollbarWidth: "none", msOverflowStyle: "none" }}>
-        <style>{`.carousel-scroll::-webkit-scrollbar { display: none; }`}</style>
         {docs.map(doc => <ToolCard key={doc.slug} doc={doc} />)}
       </div>
-
-      {/* Right arrow */}
       {canScrollRight && (
         <button onClick={() => scroll(1)} style={{ position: "absolute", right: -16, top: "50%", transform: "translateY(-50%)", width: 32, height: 32, borderRadius: "50%", background: "#fff", border: "1px solid #E2E8F0", boxShadow: "0 2px 8px rgba(0,0,0,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
@@ -265,7 +306,7 @@ function Carousel({ docs }) {
   );
 }
 
-// ─── Tool Card — original style restored ──────────────────────────────────────
+// ─── Tool Card ────────────────────────────────────────────────────────────────
 
 function ToolCard({ doc }) {
   const isLive = doc.status === "live";
@@ -284,21 +325,13 @@ function ToolCard({ doc }) {
       onMouseEnter={e => { if (isLive) { e.currentTarget.style.boxShadow = "0 8px 30px rgba(0,0,0,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}}
       onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}
     >
-      {/* Icon */}
       <div style={{ width: 48, height: 48, borderRadius: 12, background: accentColor, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         {iconData?.svg || <span style={{ fontSize: 22 }}>{doc.icon}</span>}
       </div>
-
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 15, fontWeight: 650, color: "#0F172A", marginBottom: 4, lineHeight: 1.3 }}>
-          {doc.name}
-        </div>
-        <div style={{ fontSize: 12.5, color: "#64748B", lineHeight: 1.5 }}>
-          {doc.description || doc.tagline}
-        </div>
+        <div style={{ fontSize: 15, fontWeight: 650, color: "#0F172A", marginBottom: 4, lineHeight: 1.3 }}>{doc.name}</div>
+        <div style={{ fontSize: 12.5, color: "#64748B", lineHeight: 1.5 }}>{doc.description || doc.tagline}</div>
       </div>
-
-      {/* Badge */}
       {isLive ? (
         <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11.5, fontWeight: 600, color: "#1D4ED8", background: accentColor, padding: "3px 10px", borderRadius: 999, alignSelf: "flex-start" }}>
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#1D4ED8", display: "inline-block" }} />

@@ -275,7 +275,7 @@ const FALLBACK_RETAIL = [
 ];
 
 const FALLBACK_BUSINESS = [
-  { slug: "roi-calculator", name: "ROI Calculator", href: "/roi", description: "Measure returns on any investment", status: "live" },
+  { slug: "roi-calculator", name: "ROI Calculator", href: "/business/roi-calculator", description: "Measure returns on any investment", status: "live" },
   { slug: "gst-calculator", name: "GST Calculator", href: "#", description: "Split or add GST in one click", status: "soon" },
   { slug: "gst-invoice", name: "GST Invoice", href: "#", description: "Tax-compliant invoices with GSTIN", status: "soon" },
   { slug: "salary-slip", name: "Salary Slip", href: "#", description: "Professional payslips with deductions", status: "soon" },

@@ -28,6 +28,9 @@ function PageLoader() {
   );
 }
 
+const ROICalculatorPage = lazy(() => import("./pages/business/ROICalculatorPage"));
+// inside <Routes>:
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -35,7 +38,7 @@ export default function App() {
         <ScrollToTop />
         <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
           <TopHeader />
-          <div className="flex-1">
+          <main className="flex-1">
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -46,9 +49,11 @@ export default function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/account" element={<AccountPage />} />
+                <Route path="/business/roi-calculator" element={<ROICalculatorPage />} />
+
               </Routes>
             </Suspense>
-          </div>
+          </main>
           <Footer />
         </div>
       </AuthProvider>

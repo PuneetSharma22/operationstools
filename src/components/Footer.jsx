@@ -112,11 +112,24 @@ export default function Footer() {
               <span style={{ fontSize: 18, fontWeight: 700, color: "#fff", letterSpacing: "-0.02em" }}>OpsTools</span>
             </Link>
 
-            <p style={{ fontSize: 13.5, lineHeight: 1.75, color: "#64748B", margin: "0 0 20px", maxWidth: 280 }}>
+            <p style={{ fontSize: 13.5, lineHeight: 1.75, color: "#94A3B8", margin: "0 0 20px", maxWidth: 280 }}>
               Free business document tools built for Indian small businesses — fuel bills, rent receipts, invoices, and more.
             </p>
 
-            <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "12px 14px", fontSize: 12, color: "#64748B", lineHeight: 1.65 }}>
+            {/* LinkedIn */}
+            <a href="https://www.linkedin.com/company/109654759" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 8, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", textDecoration: "none", marginBottom: 16, transition: "background 0.15s" }}
+              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
+              onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#94A3B8">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                <rect x="2" y="9" width="4" height="12"/>
+                <circle cx="4" cy="4" r="2"/>
+              </svg>
+              <span style={{ fontSize: 13, color: "#94A3B8", fontWeight: 500 }}>Follow on LinkedIn</span>
+            </a>
+
+            <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "12px 14px", fontSize: 12, color: "#94A3B8", lineHeight: 1.65 }}>
               <span style={{ color: "#818CF8", fontWeight: 600, fontSize: 11, display: "block", marginBottom: 4, letterSpacing: "0.06em", textTransform: "uppercase" }}>
                 Did you know
               </span>
@@ -127,7 +140,7 @@ export default function Footer() {
           {/* Link columns */}
           {footerLinks.map((col) => (
             <div key={col.heading}>
-              <h3 style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#475569", margin: "0 0 16px" }}>
+              <h3 style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#64748B", margin: "0 0 16px" }}>
                 {col.heading}
               </h3>
               <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 10 }}>
@@ -135,13 +148,13 @@ export default function Footer() {
                   <li key={link.label}>
                     <Link
                       to={link.href}
-                      style={{ fontSize: 13.5, color: link.soon || link.tip ? "#334155" : "#94A3B8", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}
+                      style={{ fontSize: 13.5, color: link.soon || link.tip ? "#475569" : "#94A3B8", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}
                       onMouseEnter={(e) => !link.soon && (e.target.style.color = "#E2E8F0")}
-                      onMouseLeave={(e) => !link.soon && (e.target.style.color = link.soon || link.tip ? "#334155" : "#94A3B8")}
+                      onMouseLeave={(e) => !link.soon && (e.target.style.color = link.soon || link.tip ? "#475569" : "#94A3B8")}
                     >
                       {link.label}
                       {link.soon && (
-                        <span style={{ fontSize: 10, fontWeight: 600, color: "#475569", background: "rgba(255,255,255,0.07)", padding: "1px 6px", borderRadius: 999 }}>
+                        <span style={{ fontSize: 10, fontWeight: 600, color: "#64748B", background: "rgba(255,255,255,0.07)", padding: "1px 6px", borderRadius: 999 }}>
                           Soon
                         </span>
                       )}
@@ -160,13 +173,13 @@ export default function Footer() {
       {/* Bottom bar */}
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "18px 20px" }}>
         <div className="footer-bottom" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <div style={{ fontSize: 12.5, color: "#334155" }}>
+          <div style={{ fontSize: 12.5, color: "#64748B" }}>
             © {new Date().getFullYear()} OpsTools — free for Indian small businesses
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-            <Link to="/about" style={{ fontSize: 12.5, color: "#334155", textDecoration: "none" }} onMouseEnter={(e) => (e.target.style.color = "#94A3B8")} onMouseLeave={(e) => (e.target.style.color = "#334155")}>Privacy</Link>
-            <Link to="/about" style={{ fontSize: 12.5, color: "#334155", textDecoration: "none" }} onMouseEnter={(e) => (e.target.style.color = "#94A3B8")} onMouseLeave={(e) => (e.target.style.color = "#334155")}>Terms</Link>
-            <span style={{ fontSize: 12.5, color: "#1E293B", display: "flex", alignItems: "center", gap: 5 }}>
+            <Link to="/about" style={{ fontSize: 12.5, color: "#64748B", textDecoration: "none" }} onMouseEnter={(e) => (e.target.style.color = "#94A3B8")} onMouseLeave={(e) => (e.target.style.color = "#64748B")}>Privacy</Link>
+            <Link to="/about" style={{ fontSize: 12.5, color: "#64748B", textDecoration: "none" }} onMouseEnter={(e) => (e.target.style.color = "#94A3B8")} onMouseLeave={(e) => (e.target.style.color = "#64748B")}>Terms</Link>
+            <span style={{ fontSize: 12.5, color: "#64748B", display: "flex", alignItems: "center", gap: 5 }}>
               Made with <span style={{ color: "#4F46E5", fontSize: 14 }}>♥</span> in India
             </span>
           </div>

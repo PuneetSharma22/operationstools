@@ -14,6 +14,11 @@ const SignupPage = lazy(() => import("./pages/SignupPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
 const BlogsPage = lazy(() => import("./pages/BlogsPage"));
 const FuelBillBlog = lazy(() => import("./pages/blogs/FuelBillBlog"));
+const LDBillPage = lazy(() => import("./pages/documents/LDBillPage"));
+const GSTInvoicePage = lazy(() => import("./pages/documents/GSTInvoicePage"));
+const SalarySlipPage = lazy(() => import("./pages/documents/SalarySlipPage"));
+
+
 
 
 function ScrollToTop() {
@@ -50,6 +55,9 @@ export default function App() {
                 <Route path="/documents/rent-receipt" element={<RentReceiptPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/documents/ld-bill" element={<LDBillPage />} />
+                <Route path="/documents/gst-invoice" element={<GSTInvoicePage />} />
+                <Route path="/documents/salary-slip" element={<SalarySlipPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/business/roi-calculator" element={<ROICalculatorPage />} />

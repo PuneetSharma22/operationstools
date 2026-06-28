@@ -41,6 +41,7 @@ const footerLinks = [
   {
     heading: "Company",
     links: [
+      { label: "Blog", href: "/blogs" },
       { label: "About OpsTools", href: "/about" },
       { label: "What's planned", href: "/about#roadmap" },
       { label: "Contact us", href: "/about#contact" },

@@ -12,6 +12,9 @@ const AboutPage = lazy(() => import("./pages/AboutPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const SignupPage = lazy(() => import("./pages/SignupPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
+const BlogsPage = lazy(() => import("./pages/BlogsPage"));
+const FuelBillBlog = lazy(() => import("./pages/blogs/FuelBillBlog"));
+
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -50,7 +53,8 @@ export default function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/business/roi-calculator" element={<ROICalculatorPage />} />
-
+                <Route path="/blogs" element={<BlogsPage />} />
+                <Route path="/blogs/how-to-generate-fuel-bill-online-india" element={<FuelBillBlog />} />
               </Routes>
             </Suspense>
           </main>

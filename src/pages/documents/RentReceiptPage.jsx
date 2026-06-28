@@ -95,7 +95,7 @@ const BENEFITS = [
 const FORMAT_FIELDS = [
   { field: "Receipt No.", description: "Unique serial number for the receipt", example: "001" },
   { field: "Date", description: "Date of payment / receipt issue", example: "01 June 2026" },
-  { field: "Tenant Name", description: "Full name of the person paying rent", example: "Puneet Sharma" },
+  { field: "Tenant Name", description: "Full name of the person paying rent", example: "Rajesh Sharma" },
   { field: "Rent Amount", description: "Monthly rent in figures and words", example: "₹15,000 / Fifteen Thousand Rupees Only" },
   { field: "Property Address", description: "Full address of the rented property", example: "Flat 4B, Sunrise Apartments, Andheri West, Mumbai - 400053" },
   { field: "Period", description: "Month and year of rent payment", example: "June 2026" },

@@ -93,7 +93,7 @@ export default function RentReceiptForm({ data, onChange }) {
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
             <Field label="Tenant Name">
-              <input className={inputClass} name="tenantName" value={data.tenantName} onChange={onChange} placeholder="e.g. Puneet Sharma" />
+              <input className={inputClass} name="tenantName" value={data.tenantName} onChange={onChange} placeholder="e.g. Rajesh Sharma" />
             </Field>
           </div>
         </div>

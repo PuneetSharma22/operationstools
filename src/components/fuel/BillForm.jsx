@@ -234,7 +234,7 @@ export default function BillForm({ data, onChange, template }) {
       <Section title="🚗 Customer Details" defaultOpen={false}>
         <div className="grid grid-cols-2 gap-4">
           <Field label="Customer Name">
-            <input className={inputClass} name="customerName" value={data.customerName} onChange={onChange} placeholder="e.g. Puneet Sharma" />
+            <input className={inputClass} name="customerName" value={data.customerName} onChange={onChange} placeholder="e.g. Rajesh Sharma" />
           </Field>
           <Field label="Vehicle Number">
             <input className={inputClass} name="vehicleNumber" value={data.vehicleNumber} onChange={onChange} placeholder="MH01AB1234" />

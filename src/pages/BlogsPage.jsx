@@ -15,6 +15,20 @@ export const ALL_BLOGS = [
     gradientTo: "#312e81",
     tool: { name: "Try Fuel Bill Generator →", href: "/documents/fuel-bill" },
   },
+  {
+    slug: "how-to-generate-ld-bill-online-india",
+    title: "How to Generate an L&D Tax Invoice Online in India (2026)",
+    excerpt: "A complete guide to generating professional tax invoices for training, courses, and learning & development expenses — with CGST/SGST and instant PDF.",
+    date: "July 2, 2026",
+    readTime: "6 min read",
+    category: "Guide",
+    categoryColor: "#7C3AED",
+    categoryBg: "#F5F3FF",
+    icon: "🎓",
+    gradientFrom: "#1e1b4b",
+    gradientTo: "#312e81",
+    tool: { name: "Try L&D Bill Generator →", href: "/documents/ld-bill" },
+  },
 ];
 
 function BlogCard({ blog, featured }) {

@@ -14,6 +14,7 @@ const SignupPage = lazy(() => import("./pages/SignupPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
 const BlogsPage = lazy(() => import("./pages/BlogsPage"));
 const FuelBillBlog = lazy(() => import("./pages/blogs/FuelBillBlog"));
+const LDBillBlog = lazy(() => import("./pages/blogs/LDBillBlog"));
 const LDBillPage = lazy(() => import("./pages/documents/LDBillPage"));
 const GSTInvoicePage = lazy(() => import("./pages/documents/GSTInvoicePage"));
 const SalarySlipPage = lazy(() => import("./pages/documents/SalarySlipPage"));
@@ -58,6 +59,7 @@ export default function App() {
                 <Route path="/business/roi-calculator" element={<ROICalculatorPage />} />
                 <Route path="/blogs" element={<BlogsPage />} />
                 <Route path="/blogs/how-to-generate-fuel-bill-online-india" element={<FuelBillBlog />} />
+                <Route path="/blogs/how-to-generate-ld-bill-online-india" element={<LDBillBlog />} />
               </Routes>
             </Suspense>
           </main>

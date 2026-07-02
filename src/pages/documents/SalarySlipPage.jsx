@@ -199,6 +199,8 @@ export default function SalarySlipPage() {
           <nav style={{ marginBottom: 16, fontSize: 13, color: "#F9A8D4" }}>
             <a href="/" style={{ color: "#F9A8D4", textDecoration: "none" }}>Home</a>
             <span style={{ margin: "0 8px" }}>›</span>
+            <a href="/documents" style={{ color: "#F9A8D4", textDecoration: "none" }}>Documents</a>
+            <span style={{ margin: "0 8px" }}>›</span>
             <span style={{ color: "#FBCFE8" }}>Salary Slip</span>
           </nav>
           <h1 style={{ fontSize: "clamp(20px,3vw,30px)", fontWeight: 800, color: "#fff", margin: "0 0 8px", letterSpacing: "-0.02em" }}>Salary Slip Generator</h1>

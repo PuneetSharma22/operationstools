@@ -17,9 +17,7 @@ const FuelBillBlog = lazy(() => import("./pages/blogs/FuelBillBlog"));
 const LDBillPage = lazy(() => import("./pages/documents/LDBillPage"));
 const GSTInvoicePage = lazy(() => import("./pages/documents/GSTInvoicePage"));
 const SalarySlipPage = lazy(() => import("./pages/documents/SalarySlipPage"));
-
-
-
+const ROICalculatorPage = lazy(() => import("./pages/business/ROICalculatorPage"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -29,15 +27,12 @@ function ScrollToTop() {
 
 function PageLoader() {
   return (
-    <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ minHeight: "calc(100vh - 64px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ width: 32, height: 32, borderRadius: "50%", border: "3px solid #E2E8F0", borderTopColor: "#2563EB", animation: "spin 0.7s linear infinite" }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
   );
 }
-
-const ROICalculatorPage = lazy(() => import("./pages/business/ROICalculatorPage"));
-// inside <Routes>:
 
 export default function App() {
   return (
@@ -46,18 +41,18 @@ export default function App() {
         <ScrollToTop />
         <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
           <TopHeader />
-          <main className="flex-1">
+          <main className="flex-1" style={{ minHeight: "calc(100vh - 64px)" }}>
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/documents" element={<DocumentsPage />} />
                 <Route path="/documents/fuel-bill" element={<FuelBillPage />} />
                 <Route path="/documents/rent-receipt" element={<RentReceiptPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/login" element={<LoginPage />} />
                 <Route path="/documents/ld-bill" element={<LDBillPage />} />
                 <Route path="/documents/gst-invoice" element={<GSTInvoicePage />} />
                 <Route path="/documents/salary-slip" element={<SalarySlipPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/business/roi-calculator" element={<ROICalculatorPage />} />

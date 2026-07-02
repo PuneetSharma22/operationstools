@@ -1,1 +1,11 @@
 @import "tailwindcss";
+/* CLS fix — prevent layout shift from lazy routes */
+main {
+  min-height: calc(100vh - 64px);
+  contain: layout;
+}
+
+/* Prevent font swap CLS */
+* {
+  font-display: optional;
+}

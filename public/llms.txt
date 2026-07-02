@@ -1,0 +1,11 @@
+# OpsTools
+
+Free business document tools for Indian small businesses.
+
+## Tools
+- [Fuel Bill Generator](https://www.opstools.ai/documents/fuel-bill)
+- [Rent Receipt Generator](https://www.opstools.ai/documents/rent-receipt)
+- [GST Invoice Generator](https://www.opstools.ai/documents/gst-invoice)
+- [Salary Slip Generator](https://www.opstools.ai/documents/salary-slip)
+- [L&D Bill Generator](https://www.opstools.ai/documents/ld-bill)
+- [ROI Calculator](https://www.opstools.ai/business/roi-calculator)

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { supabase } from "../../supabase-public.js";
 
 // ─── Benchmarks ───────────────────────────────────────────────────────────────
 const BENCHMARKS = [
@@ -963,7 +964,10 @@ export default function ROICalculatorPage() {
               {/* Results header with Save PDF button */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
                 <h2 style={{ fontSize: 14, fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>Results</h2>
-                <button onClick={() => window.print()} style={{
+                <button onClick={async () => {
+                  try { await supabase.from("save_requests").insert({ template: "roi-calculator", print_id: `ROI-${Date.now()}`, user_id: null }); } catch (_) {}
+                  window.print();
+                }} style={{
                   display: "flex", alignItems: "center", gap: 7, height: 36, padding: "0 16px",
                   borderRadius: 8, border: "none", cursor: "pointer",
                   background: "linear-gradient(135deg,#2563EB,#4F46E5)",
@@ -1012,7 +1016,10 @@ export default function ROICalculatorPage() {
           {/* RIGHT — Others result panel */}
           {activeTab === "others" && (
             <div style={{ position: "sticky", top: 88 }}>
-              <OthersResultPanel result={othersResult} onPrint={() => window.print()} />
+              <OthersResultPanel result={othersResult} onPrint={async () => {
+                try { await supabase.from("save_requests").insert({ template: "roi-calculator-others", print_id: `ROI-${Date.now()}`, user_id: null }); } catch (_) {}
+                window.print();
+              }} />
             </div>
           )}
         </div>

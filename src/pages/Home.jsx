@@ -5,7 +5,6 @@ import { supabase } from "../supabase-public";
 const DOC_ICON_MAP = {
   "fuel-bill": { bg: "#DBEAFE", svg: <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="5" y="3" width="14" height="19" rx="2" fill="#BFDBFE"/><rect x="8" y="7" width="8" height="1.5" rx="0.75" fill="#3B82F6"/><rect x="8" y="10.5" width="6" height="1.5" rx="0.75" fill="#3B82F6"/><rect x="8" y="14" width="8" height="1.5" rx="0.75" fill="#3B82F6"/><circle cx="20" cy="19" r="5" fill="#FDE68A"/><path d="M19 17.5l1.5 1.5-1.5 1.5" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M18 17.5v3" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round"/></svg> },
   "rent-receipt": { bg: "#D1FAE5", svg: <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="4" y="5" width="20" height="18" rx="2.5" fill="#A7F3D0"/><path d="M9 10h10M9 14h6" stroke="#059669" strokeWidth="1.5" strokeLinecap="round"/><path d="M16 17l2 2 4-4" stroke="#059669" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-  "ld-bill": { bg: "#EDE9FE", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#DDD6FE"/><path d="M8 10h12M8 14h8M8 18h10" stroke="#7C3AED" strokeWidth="1.5" strokeLinecap="round"/></svg> },
   "restaurant-bill": { bg: "#FCE7F3", svg: <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#FBCFE8"/><path d="M9 8v5a3 3 0 0 0 6 0V8" stroke="#DB2777" strokeWidth="1.5" strokeLinecap="round"/><line x1="12" y1="13" x2="12" y2="20" stroke="#DB2777" strokeWidth="1.5" strokeLinecap="round"/><line x1="18" y1="8" x2="18" y2="20" stroke="#DB2777" strokeWidth="1.5" strokeLinecap="round"/></svg> },
   "medical-bill": { bg: "#DCFCE7", svg: <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#BBF7D0"/><rect x="12" y="8" width="4" height="12" rx="2" fill="#16A34A"/><rect x="8" y="12" width="12" height="4" rx="2" fill="#16A34A"/></svg> },
   "hotel-bill": { bg: "#DBEAFE", svg: <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#BFDBFE"/><rect x="7" y="12" width="6" height="10" rx="1" fill="#2563EB"/><rect x="15" y="12" width="6" height="10" rx="1" fill="#2563EB"/><rect x="5" y="10" width="18" height="3" rx="1" fill="#3B82F6"/><rect x="11" y="6" width="6" height="4" rx="1" fill="#60A5FA"/></svg> },
@@ -237,7 +236,7 @@ function Carousel({ docs }) {
 }
 
 function ToolCard({ doc }) {
-  const isLive = doc.status === "live";
+  const isLive = doc.status === "live" || doc.status === "new";
   const iconData = DOC_ICON_MAP[doc.slug];
   const accentColor = iconData?.bg || "#F1F5F9";
   const inner = (
@@ -252,9 +251,13 @@ function ToolCard({ doc }) {
         <div style={{ fontSize: 15, fontWeight: 650, color: "#0F172A", marginBottom: 4, lineHeight: 1.3 }}>{doc.name}</div>
         <div style={{ fontSize: 12.5, color: "#64748B", lineHeight: 1.5 }}>{doc.description || doc.tagline}</div>
       </div>
-      {isLive ? (
+      {doc.status === "live" ? (
         <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11.5, fontWeight: 600, color: "#1D4ED8", background: accentColor, padding: "3px 10px", borderRadius: 999, alignSelf: "flex-start" }}>
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#1D4ED8", display: "inline-block" }} />Live
+        </div>
+      ) : doc.status === "new" ? (
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11.5, fontWeight: 600, color: "#059669", background: "#ECFDF5", padding: "3px 10px", borderRadius: 999, alignSelf: "flex-start" }}>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#10B981", display: "inline-block" }} />New
         </div>
       ) : (
         <div style={{ display: "inline-flex", alignItems: "center", fontSize: 11.5, fontWeight: 600, color: "#94A3B8", background: "#F1F5F9", padding: "3px 10px", borderRadius: 999, alignSelf: "flex-start" }}>Coming soon</div>
@@ -269,19 +272,25 @@ const FALLBACK_RETAIL = [
   { slug: "rent-receipt", name: "Rent Receipt", href: "/documents/rent-receipt", description: "HRA-compliant receipts for tenants", bundle: "Housing Suite", status: "live" },
   { slug: "ld-bill", name: "L&D Bill", href: "/documents/ld-bill", description: "Tax invoices for training & courses", bundle: "Education Suite", status: "live" },
   { slug: "gst-invoice", name: "GST Invoice", href: "/documents/gst-invoice", description: "Tax-compliant GST invoices with HSN codes", bundle: "GST Suite", status: "live" },
-  { slug: "medical-bill", name: "Medical Bill", href: "#", description: "Medical & pharmacy expense receipts", status: "soon" },
-  { slug: "hotel-bill", name: "Hotel Bill", href: "#", description: "Hotel stay receipts for reimbursement", status: "soon" },
-  { slug: "electricity-bill", name: "Electricity Bill", href: "#", description: "Utility bills for expense claims", status: "soon" },
-  { slug: "vehicle-expense", name: "Vehicle Expense", href: "#", description: "Vehicle maintenance & fuel expense report", status: "soon" },
-  { slug: "travel-expense", name: "Travel Expense", href: "#", description: "Business travel expense summary", status: "soon" },
+  { slug: "salary-slip", name: "Salary Slip", href: "/documents/salary-slip", description: "Payslips with CTC, deductions & net pay", bundle: "HR Suite", status: "live" },
+  { slug: "restaurant-bill", name: "Restaurant Bill", href: "/documents/restaurant-bill", description: "Restaurant bills and food receipts", bundle: "Food Suite", status: "new" },
+  { slug: "medical-bill", name: "Medical Bill", href: "/documents/medical-bill", description: "Medical & pharmacy expense receipts", bundle: "Healthcare Suite", status: "new" },
+  { slug: "hotel-bill", name: "Hotel Bill", href: "/documents/hotel-bill", description: "Hotel stay receipts for reimbursement", bundle: "Hospitality Suite", status: "new" },
+  { slug: "electricity-bill", name: "Electricity Bill", href: "/documents/electricity-bill", description: "Utility bills for expense claims", bundle: "Utility Suite", status: "new" },
+  { slug: "invoice", name: "Invoice Generator", href: "/documents/invoice", description: "Professional invoices with line items", bundle: "Invoice Suite", status: "new" },
+  { slug: "quotation", name: "Quotation Generator", href: "/documents/quotation", description: "Price quotes with validity and terms", bundle: "Invoice Suite", status: "new" },
+  { slug: "freelancer-invoice", name: "Freelancer Invoice", href: "/documents/freelancer-invoice", description: "Hourly & fixed price invoices", bundle: "Freelancer Suite", status: "new" },
+  { slug: "vehicle-expense", name: "Vehicle Expense", href: "#", description: "Vehicle maintenance & fuel expense report", bundle: "Transport Suite", status: "soon" },
+  { slug: "travel-expense", name: "Travel Expense", href: "#", description: "Business travel expense summary", bundle: "Transport Suite", status: "soon" },
 ];
 
 const FALLBACK_BUSINESS = [
-  { slug: "roi-calculator", name: "ROI Calculator", href: "/business/roi-calculator", description: "Measure returns on any investment", status: "live" },
-  { slug: "gst-calculator", name: "GST Calculator", href: "#", description: "Split or add GST in one click", status: "soon" },
-  { slug: "gst-invoice", name: "GST Invoice", href: "#", description: "Tax-compliant invoices with GSTIN", status: "soon" },
-  { slug: "salary-slip", name: "Salary Slip", href: "#", description: "Professional payslips with deductions", status: "soon" },
-  { slug: "quotation", name: "Quotation", href: "#", description: "Professional business quotations", status: "soon" },
-  { slug: "service-invoice", name: "Service Invoice", href: "#", description: "Invoices for service-based businesses", status: "soon" },
-  { slug: "freelancer-invoice", name: "Freelancer Invoice", href: "#", description: "Invoices for freelancers & consultants", status: "soon" },
+  { slug: "roi-calculator", name: "ROI Calculator", href: "/business/roi-calculator", description: "Measure returns on any investment", bundle: "Finance Suite", status: "live" },
+  { slug: "gst-invoice", name: "GST Invoice", href: "/documents/gst-invoice", description: "Tax-compliant invoices with GSTIN", bundle: "GST Suite", status: "live" },
+  { slug: "salary-slip", name: "Salary Slip", href: "/documents/salary-slip", description: "Professional payslips with deductions", bundle: "HR Suite", status: "live" },
+  { slug: "eway-bill", name: "E-Way Bill", href: "/documents/eway-bill", description: "GST e-way bill reference document", bundle: "GST Suite", status: "new" },
+  { slug: "e-invoice", name: "E-Invoice", href: "/documents/e-invoice", description: "GST e-invoice with IRN", bundle: "GST Suite", status: "new" },
+  { slug: "service-invoice", name: "Service Invoice", href: "/documents/service-invoice", description: "Invoices for service-based businesses", bundle: "Service Suite", status: "new" },
+  { slug: "quotation", name: "Quotation", href: "/documents/quotation", description: "Professional business quotations", bundle: "Invoice Suite", status: "new" },
+  { slug: "freelancer-invoice", name: "Freelancer Invoice", href: "/documents/freelancer-invoice", description: "Invoices for freelancers & consultants", bundle: "Freelancer Suite", status: "new" },
 ];

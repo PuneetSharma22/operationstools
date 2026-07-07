@@ -18,6 +18,16 @@ const LDBillBlog = lazy(() => import("./pages/blogs/LDBillBlog"));
 const LDBillPage = lazy(() => import("./pages/documents/LDBillPage"));
 const GSTInvoicePage = lazy(() => import("./pages/documents/GSTInvoicePage"));
 const SalarySlipPage = lazy(() => import("./pages/documents/SalarySlipPage"));
+const InvoiceGeneratorPage = lazy(() => import("./pages/documents/InvoiceGeneratorPage"));
+const QuotationGeneratorPage = lazy(() => import("./pages/documents/QuotationGeneratorPage"));
+const RestaurantBillPage = lazy(() => import("./pages/documents/RestaurantBillPage"));
+const MedicalBillPage = lazy(() => import("./pages/documents/MedicalBillPage"));
+const FreelancerInvoicePage = lazy(() => import("./pages/documents/FreelancerInvoicePage"));
+const HotelBillPage = lazy(() => import("./pages/documents/HotelBillPage"));
+const ServiceInvoicePage = lazy(() => import("./pages/documents/ServiceInvoicePage"));
+const EWayBillPage = lazy(() => import("./pages/documents/EWayBillPage"));
+const ElectricityBillPage = lazy(() => import("./pages/documents/ElectricityBillPage"));
+const EInvoicePage = lazy(() => import("./pages/documents/EInvoicePage"));
 const ROICalculatorPage = lazy(() => import("./pages/business/ROICalculatorPage"));
 
 function ScrollToTop() {
@@ -52,6 +62,16 @@ export default function App() {
                 <Route path="/documents/ld-bill" element={<LDBillPage />} />
                 <Route path="/documents/gst-invoice" element={<GSTInvoicePage />} />
                 <Route path="/documents/salary-slip" element={<SalarySlipPage />} />
+                <Route path="/documents/invoice" element={<InvoiceGeneratorPage />} />
+                <Route path="/documents/quotation" element={<QuotationGeneratorPage />} />
+                <Route path="/documents/restaurant-bill" element={<RestaurantBillPage />} />
+                <Route path="/documents/medical-bill" element={<MedicalBillPage />} />
+                <Route path="/documents/freelancer-invoice" element={<FreelancerInvoicePage />} />
+                <Route path="/documents/hotel-bill" element={<HotelBillPage />} />
+                <Route path="/documents/service-invoice" element={<ServiceInvoicePage />} />
+                <Route path="/documents/eway-bill" element={<EWayBillPage />} />
+                <Route path="/documents/electricity-bill" element={<ElectricityBillPage />} />
+                <Route path="/documents/e-invoice" element={<EInvoicePage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />

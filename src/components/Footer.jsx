@@ -34,8 +34,9 @@ const footerLinks = [
     links: [
       { label: "Fuel Bill Generator", href: "/documents/fuel-bill" },
       { label: "Rent Receipt", href: "/documents/rent-receipt" },
-      { label: "GST Invoice", href: "#", soon: true },
-      { label: "Salary Slip", href: "#", soon: true },
+      { label: "GST Invoice", href: "/documents/gst-invoice" },
+      { label: "Salary Slip", href: "/documents/salary-slip" },
+      { label: "L&D Bill", href: "/documents/ld-bill" },
     ],
   },
   {
@@ -45,6 +46,7 @@ const footerLinks = [
       { label: "About OpsTools", href: "/about" },
       { label: "What's planned", href: "/about#roadmap" },
       { label: "Contact us", href: "/about#contact" },
+      { label: "hello@opstools.ai", href: "mailto:hello@opstools.ai", email: true },
     ],
   },
   {
@@ -146,6 +148,14 @@ export default function Footer() {
               <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 10 }}>
                 {col.links.map((link) => (
                   <li key={link.label}>
+                    {link.email ? (
+                      <a href={link.href} style={{ fontSize: 13.5, color: "#818CF8", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, fontWeight: 500 }}
+                        onMouseEnter={e => e.target.style.color = "#A5B4FC"}
+                        onMouseLeave={e => e.target.style.color = "#818CF8"}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                        {link.label}
+                      </a>
+                    ) : (
                     <Link
                       to={link.href}
                       style={{ fontSize: 13.5, color: link.soon || link.tip ? "#475569" : "#94A3B8", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}
@@ -159,6 +169,7 @@ export default function Footer() {
                         </span>
                       )}
                     </Link>
+                    )}
                   </li>
                 ))}
               </ul>

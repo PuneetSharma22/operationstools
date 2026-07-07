@@ -287,7 +287,7 @@ export default function LDBillPage() {
           </nav>
           <h1 style={{ fontSize: "clamp(20px,3vw,30px)", fontWeight: 800, color: "#fff", margin: "0 0 8px", letterSpacing: "-0.02em" }}>
             Learning & Development Bill Generator
-          </h2>
+          </h1>
           <p style={{ fontSize: 14, color: "#94A3B8", margin: 0 }}>
             Generate professional tax invoices for training, courses, and L&D expenses — with CGST/SGST/IGST.
           </p>

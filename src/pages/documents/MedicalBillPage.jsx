@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase-public.js";
 
@@ -124,6 +125,22 @@ export default function MedicalBillPage() {
   const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#10B981", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
   return (
+    <>
+      <Helmet>
+        <title>Free Medical Bill Generator — Hospital and Pharmacy Receipt | OpsTools</title>
+        <meta name="description" content="Generate medical bills with patient details, medicines and consultation fees. Free, no login, instant PDF." />
+        <meta property="og:title" content="Free Medical Bill Generator — Hospital and Pharmacy Receipt | OpsTools" />
+        <meta property="og:description" content="Generate medical bills with patient details, medicines and consultation fees. Free, no login, instant PDF." />
+        <meta property="og:url" content="https://www.opstools.ai/documents/medical-bill" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Free Medical Bill Generator — Hospital and Pharmacy Receipt | OpsTools" />
+        <meta name="twitter:description" content="Generate medical bills with patient details, medicines and consultation fees. Free, no login, instant PDF." />
+        <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
+      </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
       <style>{`@media(max-width:768px){.mb-grid{grid-template-columns:1fr!important;}.mb-prev{display:none!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#052e16 100%)", padding:"40px 24px 36px" }} className="no-print">
@@ -208,5 +225,6 @@ export default function MedicalBillPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

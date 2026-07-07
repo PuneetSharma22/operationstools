@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase-public.js";
 
@@ -107,6 +108,22 @@ export default function QuotationGeneratorPage() {
   );
 
   return (
+    <>
+      <Helmet>
+        <title>Free Quotation Generator India — Price Quotes with Validity | OpsTools</title>
+        <meta name="description" content="Generate professional business quotations with line items and validity period. Free, no login, instant PDF." />
+        <meta property="og:title" content="Free Quotation Generator India — Price Quotes with Validity | OpsTools" />
+        <meta property="og:description" content="Generate professional business quotations with line items and validity period. Free, no login, instant PDF." />
+        <meta property="og:url" content="https://www.opstools.ai/documents/quotation" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Free Quotation Generator India — Price Quotes with Validity | OpsTools" />
+        <meta name="twitter:description" content="Generate professional business quotations with line items and validity period. Free, no login, instant PDF." />
+        <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
+      </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
       <style>{`@media(max-width:768px){.qt-grid{grid-template-columns:1fr!important;}.qt-prev{display:none!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#0c2340 100%)", padding:"40px 24px 36px" }} className="no-print">
@@ -179,5 +196,6 @@ export default function QuotationGeneratorPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

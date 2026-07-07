@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase-public.js";
 
@@ -124,6 +125,22 @@ export default function FreelancerInvoicePage() {
   const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#7C3AED", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
   return (
+    <>
+      <Helmet>
+        <title>Free Freelancer Invoice Generator India — Hourly and Fixed Price | OpsTools</title>
+        <meta name="description" content="Generate freelancer invoices with hourly or fixed pricing and tax. Free, no login, instant PDF." />
+        <meta property="og:title" content="Free Freelancer Invoice Generator India — Hourly and Fixed Price | OpsTools" />
+        <meta property="og:description" content="Generate freelancer invoices with hourly or fixed pricing and tax. Free, no login, instant PDF." />
+        <meta property="og:url" content="https://www.opstools.ai/documents/freelancer-invoice" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Free Freelancer Invoice Generator India — Hourly and Fixed Price | OpsTools" />
+        <meta name="twitter:description" content="Generate freelancer invoices with hourly or fixed pricing and tax. Free, no login, instant PDF." />
+        <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
+      </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
       <style>{`@media(max-width:768px){.fl-grid{grid-template-columns:1fr!important;}.fl-prev{display:none!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#2e1065 100%)", padding:"40px 24px 36px" }} className="no-print">
@@ -209,5 +226,6 @@ export default function FreelancerInvoicePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

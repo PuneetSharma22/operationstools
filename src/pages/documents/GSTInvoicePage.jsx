@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase-public.js";
 
@@ -65,7 +66,7 @@ function GSTPreview({ data, supplier, buyer, items }) {
             </div>
             <div style={{ display: "flex", gap: 16, justifyContent: "flex-end", marginTop: 4 }}>
               <span style={{ color: "#64748B" }}>Date</span>
-              <strong>{data.invoiceDate ? new Date(data.invoiceDate + 'T00:00:00').toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "—"}</strong>
+              <strong>{data.invoiceDate ? new Date(data.invoiceDate).toLocaleDateString("en-IN") : "—"}</strong>
             </div>
             {data.dueDate && <div style={{ display: "flex", gap: 16, justifyContent: "flex-end", marginTop: 4 }}>
               <span style={{ color: "#64748B" }}>Due Date</span>
@@ -195,7 +196,7 @@ export default function GSTInvoicePage() {
     if (!previewRef.current || downloading) return;
     setDownloading(true);
     try {
-      try { await supabase.from("save_requests").insert({ template: "gst-invoice", print_id: `GST-${Date.now()}`, user_id: null }); } catch (_) {}
+      try { await supabase.from("print_requests").insert({ template: "gst-invoice", print_id: `GST-${Date.now()}`, user_id: null }); } catch (_) {}
       const { default: jsPDF } = await import("jspdf");
       const { default: html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(previewRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false });
@@ -218,6 +219,22 @@ export default function GSTInvoicePage() {
   );
 
   return (
+    <>
+      <Helmet>
+        <title>Free GST Invoice Generator India — Tax Invoice with HSN | OpsTools</title>
+        <meta name="description" content="Generate GST-compliant tax invoices with CGST, SGST, IGST and HSN codes. Free, no login, instant PDF." />
+        <meta property="og:title" content="Free GST Invoice Generator India — Tax Invoice with HSN | OpsTools" />
+        <meta property="og:description" content="Generate GST-compliant tax invoices with CGST, SGST, IGST and HSN codes. Free, no login, instant PDF." />
+        <meta property="og:url" content="https://www.opstools.ai/documents/gst-invoice" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Free GST Invoice Generator India — Tax Invoice with HSN | OpsTools" />
+        <meta name="twitter:description" content="Generate GST-compliant tax invoices with CGST, SGST, IGST and HSN codes. Free, no login, instant PDF." />
+        <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
+      </Helmet>
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
       <style>{`@media(max-width:768px){.gst-grid{grid-template-columns:1fr !important;}.gst-prev{display:none !important;}}@media print{.no-print{display:none !important;}}`}</style>
 
@@ -225,8 +242,6 @@ export default function GSTInvoicePage() {
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <nav style={{ marginBottom: 16, fontSize: 13, color: "#6EE7B7" }}>
             <a href="/" style={{ color: "#6EE7B7", textDecoration: "none" }}>Home</a>
-            <span style={{ margin: "0 8px" }}>›</span>
-            <a href="/documents" style={{ color: "#6EE7B7", textDecoration: "none" }}>Documents</a>
             <span style={{ margin: "0 8px" }}>›</span>
             <span style={{ color: "#A7F3D0" }}>GST Invoice</span>
           </nav>
@@ -319,5 +334,6 @@ export default function GSTInvoicePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

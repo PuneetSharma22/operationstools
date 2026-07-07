@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase-public.js";
 
@@ -226,7 +227,7 @@ export default function LDBillPage() {
     setDownloading(true);
     try {
       const printId = `LD-${Date.now()}-${Math.random().toString(36).substr(2,6).toUpperCase()}`;
-      try { await supabase.from("save_requests").insert({ template: "ld-bill", print_id: printId, user_id: null }); } catch (_) {}
+      try { await supabase.from("print_requests").insert({ template: "ld-bill", print_id: printId, user_id: null }); } catch (_) {}
       const { default: jsPDF } = await import("jspdf");
       const { default: html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(previewRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false });
@@ -251,7 +252,23 @@ export default function LDBillPage() {
   };
 
   return (
-    <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
+    <>
+      <Helmet>
+        <title>Free L&D Tax Invoice Generator — Training & Courses | OpsTools</title>
+        <meta name="description" content="Generate GST tax invoices for learning and development expenses. HSN 998433, CGST/SGST support. Free, no login, instant PDF." />
+        <meta property="og:title" content="Free L&D Tax Invoice Generator — Training & Courses | OpsTools" />
+        <meta property="og:description" content="Generate GST tax invoices for learning and development expenses. HSN 998433, CGST/SGST support. Free, no login, instant PDF." />
+        <meta property="og:url" content="https://www.opstools.ai/documents/ld-bill" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Free L&D Tax Invoice Generator — Training & Courses | OpsTools" />
+        <meta name="twitter:description" content="Generate GST tax invoices for learning and development expenses. HSN 998433, CGST/SGST support. Free, no login, instant PDF." />
+        <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
+      </Helmet>
+      <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
       <style>{`
         @media(max-width:768px){.ld-grid{grid-template-columns:1fr !important;} .ld-preview{display:none !important;} .ld-mobile-pdf{display:flex !important;}}
         @media(min-width:769px){.ld-mobile-pdf{display:none !important;}}
@@ -270,7 +287,7 @@ export default function LDBillPage() {
           </nav>
           <h1 style={{ fontSize: "clamp(20px,3vw,30px)", fontWeight: 800, color: "#fff", margin: "0 0 8px", letterSpacing: "-0.02em" }}>
             Learning & Development Bill Generator
-          </h1>
+          </h2>
           <p style={{ fontSize: 14, color: "#94A3B8", margin: 0 }}>
             Generate professional tax invoices for training, courses, and L&D expenses — with CGST/SGST/IGST.
           </p>
@@ -410,5 +427,6 @@ export default function LDBillPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

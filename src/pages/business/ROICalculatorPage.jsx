@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "../../supabase-public.js";
 
@@ -749,7 +750,23 @@ export default function ROICalculatorPage() {
   ];
 
   return (
-    <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
+    <>
+      <Helmet>
+        <title>Free ROI Calculator India — Return on Investment Tool | OpsTools</title>
+        <meta name="description" content="Calculate ROI, compare investments, run what-if scenarios. FD, RD and savings account comparisons included. Free." />
+        <meta property="og:title" content="Free ROI Calculator India — Return on Investment Tool | OpsTools" />
+        <meta property="og:description" content="Calculate ROI, compare investments, run what-if scenarios. FD, RD and savings account comparisons included. Free." />
+        <meta property="og:url" content="https://www.opstools.ai/business/roi-calculator" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Free ROI Calculator India — Return on Investment Tool | OpsTools" />
+        <meta name="twitter:description" content="Calculate ROI, compare investments, run what-if scenarios. FD, RD and savings account comparisons included. Free." />
+        <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
+      </Helmet>
+      <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
       <style>{`
         .roi-tab { cursor:pointer; padding:8px 18px; border-radius:8px; font-size:13px; font-weight:600; border:none; transition:all 0.15s; background:transparent; }
         .roi-tab.active { background:linear-gradient(135deg,#2563EB,#4F46E5); color:#fff; }
@@ -1028,5 +1045,6 @@ export default function ROICalculatorPage() {
       {/* SEO Section */}
       <SEOSection />
     </div>
+    </>
   );
 }

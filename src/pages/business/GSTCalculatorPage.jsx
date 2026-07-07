@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { useState } from "react";
 
 const GST_RATES = [0, 0.25, 0.5, 1, 1.5, 3, 5, 7.5, 12, 18, 28];
@@ -48,6 +49,22 @@ export default function GSTCalculatorPage() {
   const clearHistory = () => setHistory([]);
 
   return (
+    <>
+      <Helmet>
+        <title>Free GST Calculator India — Add or Remove GST with CGST/SGST | OpsTools</title>
+        <meta name="description" content="Calculate GST instantly. Add or remove GST. CGST, SGST and IGST breakdown for any rate. Free." />
+        <meta property="og:title" content="Free GST Calculator India — Add or Remove GST with CGST/SGST | OpsTools" />
+        <meta property="og:description" content="Calculate GST instantly. Add or remove GST. CGST, SGST and IGST breakdown for any rate. Free." />
+        <meta property="og:url" content="https://www.opstools.ai/business/gst-calculator" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Free GST Calculator India — Add or Remove GST with CGST/SGST | OpsTools" />
+        <meta name="twitter:description" content="Calculate GST instantly. Add or remove GST. CGST, SGST and IGST breakdown for any rate. Free." />
+        <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
+      </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
       <style>{`@media(max-width:768px){.gst-layout{grid-template-columns:1fr!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#083344 100%)", padding:"40px 24px 36px" }}>
@@ -238,5 +255,6 @@ export default function GSTCalculatorPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

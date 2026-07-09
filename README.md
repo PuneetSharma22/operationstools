@@ -1,137 +1,228 @@
-# OpsTools
+# OpsTools — Free Business Document Generator for India
 
-**Free business operations tools. No sign-up. No cost. Just open and use.**
+> Generate fuel bills, rent receipts, GST invoices, salary slips and more — free, no login, instant PDF.
 
-OpsTools is a web application built for small business owners, freelancers, and operators in India who need fast, professional documents without the friction of paid software or complex sign-ups.
-
----
-
-## 🚀 Live Tools
-
-| Tool | Status | Description |
-|------|--------|-------------|
-| Fuel Bill Generator | ✅ Live | 4 real templates — IOCL, Classic POS, Thermal Full, Thermal Compact |
-| Rent Receipt Generator | 🔜 Coming Soon | GST-ready rent receipts |
-| ROI Calculator | 🔜 Coming Soon | Business investment calculator |
+**Live:** [opstools.ai](https://www.opstools.ai) · **Built by:** Puneet Sharma · **Stack:** React 18 + Vite 8 + Supabase + Vercel
 
 ---
 
-## 🛠️ Tech Stack
+## What Is OpsTools?
+
+OpsTools is a free browser-based toolkit for Indian small business operators to generate professional business documents without sign-ups, subscriptions, or software installations. Fill in the form, download the PDF. That's it.
+
+---
+
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
 | Frontend | React 18 |
-| Build Tool | Vite |
-| Styling | Tailwind CSS v4 (Vite plugin) |
-| Routing | React Router v6 |
-| Language | JavaScript (JSX) |
+| Build Tool | Vite 8 |
+| Styling | Tailwind CSS v4 (via `@tailwindcss/vite` plugin) |
+| Routing | React Router v7 |
+| Auth | Supabase Auth (email + password) |
+| Database | Supabase (PostgreSQL) |
+| Analytics | Vercel Analytics + Speed Insights |
+| Hosting | Vercel |
+| SEO | react-helmet-async + useSEO hook |
+| PDF | jsPDF + html2canvas (lazy loaded) |
+
+> **Tailwind note:** Uses `@tailwindcss/vite` plugin — no `tailwind.config.js`. `src/index.css` contains only `@import "tailwindcss";`
 
 ---
 
-## 📁 Project Structure
+## Live Tools (19)
+
+### Retail Documents
+| Tool | URL |
+|------|-----|
+| Fuel Bill Generator | `/documents/fuel-bill` |
+| Rent Receipt Generator | `/documents/rent-receipt` |
+| L&D Tax Invoice | `/documents/ld-bill` |
+| GST Invoice | `/documents/gst-invoice` |
+| Salary Slip | `/documents/salary-slip` |
+| Restaurant Bill | `/documents/restaurant-bill` |
+| Medical Bill | `/documents/medical-bill` |
+| Hotel Bill | `/documents/hotel-bill` |
+| Electricity Bill | `/documents/electricity-bill` |
+| Invoice Generator | `/documents/invoice` |
+| Quotation Generator | `/documents/quotation` |
+| Freelancer Invoice | `/documents/freelancer-invoice` |
+| Service Invoice | `/documents/service-invoice` |
+| E-Way Bill | `/documents/eway-bill` |
+| E-Invoice (IRN) | `/documents/e-invoice` |
+| Vehicle Expense Report | `/documents/vehicle-expense` |
+| Travel Expense Report | `/documents/travel-expense` |
+
+### Business Tools
+| Tool | URL |
+|------|-----|
+| ROI Calculator | `/business/roi-calculator` |
+| GST Calculator | `/business/gst-calculator` |
+
+---
+
+## Project Structure
 
 ```
 src/
-├── App.jsx                          # Root with BrowserRouter + layout
-├── App.css                          # Print styles
-│
+├── App.jsx                          # Routes (all lazy loaded)
+├── main.jsx                         # Entry + HelmetProvider + Analytics
+├── supabase.js                      # Full Supabase client (auth)
+├── supabase-public.js               # Anon client (document pages)
+├── context/
+│   └── AuthContext.jsx
 ├── components/
-│   ├── TopHeader.jsx                # Sticky nav with dropdown menus
-│   ├── Footer.jsx                   # Dark footer with links + donate
-│   └── fuel/
-│       ├── BillForm.jsx             # Dynamic form (fields change per template)
-│       ├── TemplateIOCL.jsx         # IOCL Formal receipt
-│       ├── TemplatePOS.jsx          # Classic POS monospace receipt
-│       ├── TemplateThermalFull.jsx  # Thermal dot-matrix full fields
-│       └── TemplateThermalCompact.jsx # Thermal minimal
-│
-└── pages/
-    ├── Home.jsx                     # Landing page
-    ├── DocumentsPage.jsx            # Document hub + sub-nav
-    ├── AboutPage.jsx                # About + mission + contact
-    └── documents/
-        ├── FuelBillPage.jsx         # Fuel bill tool page
-        └── RentReceiptPage.jsx      # Rent receipt (coming soon)
+│   ├── TopHeader.jsx
+│   ├── Footer.jsx
+│   └── fuel/                        # Fuel bill templates
+├── pages/
+│   ├── Home.jsx
+│   ├── DocumentsPage.jsx
+│   ├── AboutPage.jsx
+│   ├── AccountPage.jsx
+│   ├── AdminPage.jsx
+│   ├── BlogsPage.jsx
+│   ├── LoginPage.jsx
+│   ├── SignupPage.jsx
+│   ├── blogs/                       # 5 blog posts
+│   ├── business/                    # ROI + GST calculators
+│   └── documents/                   # 17 document generators
+└── seo/
+    ├── useSEO.js                    # SEO hook (FuelBillPage)
+    └── DocumentPageSEO.jsx
+public/
+├── sitemap.xml                      # 28 URLs
+├── robots.txt
+├── llms.txt
+├── og-image.png
+└── favicon.svg
+api/
+└── og-meta.js                       # OG tags serverless function
 ```
 
 ---
 
-## ⚙️ Getting Started
+## Getting Started
 
 ### Prerequisites
+- Node.js v24+
+- A Supabase project
+- Vercel CLI (`npm i -g vercel`)
 
-- Node.js v20 or higher
-- npm
-
-### Installation
+### Local Development
 
 ```bash
-# Clone the repo
-git clone https://github.com/your-username/opstools.git
-cd opstools
-
-# Install dependencies
+git clone https://github.com/PuneetSharma22/operationstools.git
+cd operationstools
 npm install
-
-# Start development server
+cp .env.example .env  # add your Supabase keys
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+### Environment Variables
 
-### Build for Production
-
-```bash
-npm run build
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
-Output goes to the `dist/` folder. Deploy to Vercel, Netlify, or any static host.
+Set the same variables in Vercel project settings.
 
 ---
 
-## 🧾 Fuel Bill Generator — Templates
+## Deployment
 
-### 1. IOCL Formal
-Replicates the official IndianOil receipt format. Supports a logo via any public image URL. Fields: station info, receipt no, shift, pump, nozzle, product, rate, qty, customer, vehicle, payment mode, total.
+> **Important:** Vercel webhook is NOT connected to GitHub. Always deploy manually.
 
-### 2. Classic POS
-Monospace thermal printer style used at most petrol stations. Fields: TXN no, invoice no, vehicle no, preset type, nozzle, product, density, rate, volume, amount.
-
-### 3. Thermal Full
-Dot-matrix style with all extended fields. Fields: FCC ID, FIP no, nozzle no, product, rate, amount, volume, vehicle type/no, customer name, date/time, payment mode, LST no, VAT no, attendant ID.
-
-### 4. Thermal Compact
-Minimal thermal receipt. Fields: receipt no, product, rate, amount, volume, vehicle type/no, customer name, date/time, payment mode.
+```bash
+git add .
+git commit -m "your message"
+git push
+vercel --prod
+```
 
 ---
 
-## 🖨️ Printing / Saving as PDF
+## Database Schema (Supabase)
 
-Click **Print / Save PDF** on any tool page. In the print dialog:
-- Set **Destination** to "Save as PDF"
-- Set **Margins** to "None" or "Minimum"
-- Disable **Headers and footers**
-- Enable **Background graphics** if using the IOCL template
+| Table | Purpose |
+|-------|---------|
+| `save_requests` | Tracks every PDF save — template, print_id, user_id |
+| `documents` | Drives nav dropdown and home carousel |
+| `user_credits` | Credit balance per user |
+| `credit_transactions` | Credit history (grants, usage) |
+| `credit_requests` | User credit requests pending admin approval |
+| `profiles` | User profile (email, name) |
 
----
+### Credits System
 
-## 🤝 Contributing
-
-Contributions are welcome! To add a new tool:
-
-1. Create a new page in `src/pages/`
-2. Add it to the nav in `TopHeader.jsx`
-3. Add it to the tools grid in `Home.jsx`
-4. Submit a pull request
-
----
-
-## 💛 Support
-
-OpsTools is free forever. If it saves you time, consider [buying us a coffee](https://buymeacoffee.com).
+- Guests: use all tools freely, Save PDF works
+- Logged-in: same + can request credits (10/15/25/100 per request)
+- Max 100 credits requestable per month
+- Admin approves at `/admin` → credits added to balance
+- For >100/month: email hello@opstools.ai
 
 ---
 
-## 📄 License
+## Key Technical Decisions
 
-MIT License — free to use, modify, and distribute.
+1. **Two Supabase clients** — `supabase.js` (full auth) for user-specific queries, `supabase-public.js` (anon) for public data. Prevents multiple GoTrueClient warnings.
+2. **Lazy routes** — all pages lazy loaded via `React.lazy()` for fast initial load
+3. **Browser PDF** — jsPDF + html2canvas, lazy imported inside the save handler
+4. **vercel.json rewrite** — excludes `sitemap.xml`, `robots.txt` and static files from SPA rewrite
+5. **useSEO hook** — FuelBillPage uses a custom hook that sets OG tags via `document.head`. All other pages use `react-helmet-async`
+6. **supabaseFull in document pages** — `save_requests` inserts use the full client to capture `auth.uid()` correctly
+
+---
+
+## Blog Posts
+
+| Post | URL |
+|------|-----|
+| How to Generate a Fuel Bill Online | `/blogs/how-to-generate-fuel-bill-online-india` |
+| How to Generate an L&D Invoice | `/blogs/how-to-generate-ld-bill-online-india` |
+| How to Generate a GST Invoice | `/blogs/how-to-generate-gst-invoice-online-india` |
+| How to Generate a Salary Slip | `/blogs/how-to-generate-salary-slip-online-india` |
+| How to Generate a Rent Receipt | `/blogs/how-to-generate-rent-receipt-online-india` |
+
+---
+
+## Design System
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| Navy Dark | `#07011F` | Header, footer, hero |
+| Navy Mid | `#0D0630` | Dropdowns |
+| Blue Primary | `#2563EB` | CTAs, active states |
+| Indigo | `#4F46E5` | Gradient endpoint |
+| Surface | `#F8FAFC` | Page background |
+| Border | `#E2E8F0` | Cards, dividers |
+| Text Primary | `#0F172A` | Headings |
+| Text Secondary | `#64748B` | Labels |
+
+Primary button: `linear-gradient(135deg, #2563EB 0%, #4F46E5 100%)`
+
+---
+
+## Roadmap
+
+### Next
+- Bill history UI (data already tracked in `save_requests`)
+- WhatsApp share button on each tool
+- Purchase Order generator
+- Delivery Challan generator
+
+### Future
+- Credits monetisation with Razorpay
+- Multi-language support (Hindi, Marathi, Tamil)
+- Cloud save + share via link
+- Mobile app (PWA already configured)
+
+---
+
+## Contact
+
+- **Email:** hello@opstools.ai
+- **GitHub:** [PuneetSharma22](https://github.com/PuneetSharma22)
+- **Live:** [opstools.ai](https://www.opstools.ai)

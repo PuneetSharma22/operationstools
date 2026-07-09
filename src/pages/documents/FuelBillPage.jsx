@@ -1,4 +1,5 @@
 import { supabase } from "../../supabase-public";
+import { supabase as supabaseFull } from "../../supabase";
 import { useState, useRef, useEffect } from "react";
 import BillForm from "../../components/fuel/BillForm";
 import TemplatePOS from "../../components/fuel/TemplatePOS";
@@ -375,8 +376,8 @@ const { default: html2canvas } = await import("html2canvas");
     try {
       const printId = `PRINT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        await supabase.from("save_requests").insert({
+        const { data: { user } } = await supabaseFull.auth.getUser();
+        await supabaseFull.from("save_requests").insert({
           template: activeTemplate, print_id: printId, user_id: user?.id ?? null,
         });
       } catch (_) {}
@@ -415,7 +416,7 @@ const { default: html2canvas } = await import("html2canvas");
 
   const handleBulkClick = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await supabaseFull.auth.getUser();
       if (!user) { setModal("login"); }
       else { setModalUser(user); setModal("credits"); }
     } catch { setModal("login"); }

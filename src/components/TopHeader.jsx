@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { supabase } from "../supabase-public";
+import { supabase } from "../supabase";
+import { supabase as supabaseAnon } from "../supabase-public";
 
 function OpsToolsLogo() {
   return (
@@ -183,9 +184,10 @@ export default function TopHeader() {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const creditsFetchedRef = useRef(false);
+  const [pendingCreditRequest, setPendingCreditRequest] = useState(false);
 
   useEffect(() => {
-    supabase.from("documents").select("*").order("sort_order", { ascending: true })
+    supabaseAnon.from("documents").select("*").order("sort_order", { ascending: true })
       .then(({ data, error }) => {
         if (error || !data?.length) return;
         setRetailDocs(data.filter(d => d.category === "retail"));
@@ -195,10 +197,11 @@ export default function TopHeader() {
 
   useEffect(() => {
     if (!user) { setCredits(null); creditsFetchedRef.current = false; return; }
-    if (creditsFetchedRef.current) return;
     creditsFetchedRef.current = true;
     supabase.from("user_credits").select("balance").eq("user_id", user.id).maybeSingle()
       .then(({ data }) => setCredits(data?.balance ?? 0));
+    supabase.from("credit_requests").select("id").eq("user_id", user.id).eq("status", "pending").maybeSingle()
+      .then(({ data }) => setPendingCreditRequest(!!data));
   }, [user]);
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
@@ -238,7 +241,10 @@ export default function TopHeader() {
               <>
                 <Link to="/account" aria-label="View credits" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "0 12px", height: 32, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, textDecoration: "none" }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                  <span style={{ fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>{credits === null ? "—" : credits.toLocaleString()} credits</span>
+                  <span style={{ fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", gap: 5 }}>
+                  {pendingCreditRequest && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#F59E0B", display: "inline-block", flexShrink: 0 }} />}
+                  {credits === null ? "—" : credits.toLocaleString()} credits
+                </span>
                 </Link>
                 <div style={{ position: "relative" }}>
                   <button onClick={() => setShowUserMenu(!showUserMenu)} aria-label="User menu" aria-expanded={showUserMenu} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "0 12px", height: 36, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, cursor: "pointer" }}>

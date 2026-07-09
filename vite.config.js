@@ -18,6 +18,9 @@ export default defineConfig({
 
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'script-defer',
+      injectRegister: 'script-defer',
+      injectRegister: 'script-defer',
       includeAssets: ['favicon.svg', 'pwa-192.png', 'pwa-512.png'],
       manifest: {
         name: 'OpsTools — Free Business Tools for India',

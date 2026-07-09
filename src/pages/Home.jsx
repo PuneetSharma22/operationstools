@@ -204,12 +204,14 @@ function Carousel({ docs }) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  const checkScroll = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 8);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 8);
-  };
+ const checkScroll = () => {
+   requestAnimationFrame(() => {
+     const el = scrollRef.current;
+     if (!el) return;
+     setCanScrollLeft(el.scrollLeft > 8);
+     setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 8);
+   });
+ };
 
   useEffect(() => {
     checkScroll();

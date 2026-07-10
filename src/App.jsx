@@ -13,6 +13,7 @@ const LoginPage = lazy(() => import("./pages/LoginPage"));
 const SignupPage = lazy(() => import("./pages/SignupPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
+const EmailVerifiedPage = lazy(() => import("./pages/EmailVerifiedPage"));
 const BlogsPage = lazy(() => import("./pages/BlogsPage"));
 const FuelBillBlog = lazy(() => import("./pages/blogs/FuelBillBlog"));
 const LDBillBlog = lazy(() => import("./pages/blogs/LDBillBlog"));
@@ -87,6 +88,7 @@ export default function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/admin" element={<AdminPage />} />
+                <Route path="/verified" element={<EmailVerifiedPage />} />
                 <Route path="/business/roi-calculator" element={<ROICalculatorPage />} />
                 <Route path="/blogs" element={<BlogsPage />} />
                 <Route path="/blogs/how-to-generate-fuel-bill-online-india" element={<FuelBillBlog />} />

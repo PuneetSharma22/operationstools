@@ -53,8 +53,8 @@ const footerLinks = [
     heading: "Resources",
     links: [
       { label: "How to save as PDF", href: "#", tip: true },
-      { label: "What is HRA?", href: "#", tip: true },
-      { label: "GST for small business", href: "#", tip: true },
+      { label: "What is HRA?", href: "/blogs/how-to-generate-rent-receipt-online-india", tip: false },
+      { label: "GST for small business", href: "/blogs/how-to-generate-gst-invoice-online-india", tip: false },
     ],
   },
 ];

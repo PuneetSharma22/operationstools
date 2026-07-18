@@ -1,12 +1,17 @@
+import BankStrip from "./BankStrip";
+
 const mono = { fontFamily: "'Courier New', monospace" };
-const wrap = { background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" };
+const wrap = { background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 0, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", position: "relative", zIndex: 0 };
 const thickDivider = { borderTop: "2px solid #000", borderBottom: "2px solid #000", margin: "8px 0" };
 const thickLine = { borderTop: "2px solid #000", margin: "8px 0" };
 
 export default function TemplateIOCL({ data }) {
   const qty = parseFloat(data.quantity) || 0;
   const rate = parseFloat(data.pricePerLitre) || 0;
-  const total = qty * rate;
+  // Amount is the authoritative user-entered value when present (single-bill
+  // form flow); bulk CSV generation doesn''t set data.amount, so fall back
+  // to qty*rate there.
+  const total = data.amount !== undefined && data.amount !== "" ? (parseFloat(data.amount) || 0) : qty * rate;
 
   const formatDate = (d) => {
     if (!d) return "";
@@ -22,6 +27,7 @@ export default function TemplateIOCL({ data }) {
 
   return (
     <div style={wrap}>
+      <BankStrip logoUrl={data.bankLogoUrl} bank="BANK" color="#1B3A6B" codes={["5001", "A02/2024"]} />
       <div style={{ padding: "32px" }}>
 
         {/* Logo + header */}
@@ -36,9 +42,10 @@ export default function TemplateIOCL({ data }) {
         <div style={thickDivider} />
 
         <Row label="TEL:" value={data.stationPhone} />
+        {data.vatTin && <Row label="GST NO:" value={data.vatTin} />}
         <div style={{ height: 8 }} />
         <Row label="RECEIPT NO:" value={data.billNumber} />
-        <Row label="DATE & TIME:" value={`${formatDate(data.billDate)}, ${data.billTime}`} />
+        <Row label="DATE & TIME:" value={data.billDate || data.billTime ? `${formatDate(data.billDate)}, ${data.billTime}` : ""} />
         <Row label="SHIFT:" value={data.shift} />
         <Row label="PUMP NO:" value={data.pumpNo} />
         <Row label="NOZZLE NO:" value={data.nozzleNo} />
@@ -50,6 +57,7 @@ export default function TemplateIOCL({ data }) {
         <Row label="CUSTOMER:" value={data.customerName || "Not Entered"} />
         <Row label="VEHICLE NO:" value={data.vehicleNumber || "Not Entered"} />
         <Row label="VEHICLE TYPE:" value={data.vehicleType} />
+        <Row label="MOBILE NO:" value={data.mobileNo || "Not Entered"} />
         <div style={{ height: 8 }} />
         <Row label="PAYMENT:" value={data.paymentMode} />
 

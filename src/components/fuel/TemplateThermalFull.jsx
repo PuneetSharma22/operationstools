@@ -1,12 +1,28 @@
+import BankStrip from "./BankStrip";
+
 const dot = { fontFamily: "'Courier New', monospace", fontSize: "13px" };
-const wrap = { background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" };
-const inner = { maxWidth: "320px", margin: "0 auto", padding: "24px 20px" };
+const CONTENT_WIDTH = 320;
+const wrap = {
+  background: "#fff",
+  border: "1px solid #e5e7eb",
+  borderRadius: 0,
+  overflow: "hidden",
+  boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+  position: "relative",
+  zIndex: 0,
+  maxWidth: CONTENT_WIDTH + 40,
+  margin: "0 auto",
+};
+const inner = { padding: "24px 20px" };
 const divider = { borderTop: "1px dashed #999", margin: "12px 0" };
 
 export default function TemplateThermalFull({ data }) {
   const qty = parseFloat(data.quantity) || 0;
   const rate = parseFloat(data.pricePerLitre) || 0;
-  const total = qty * rate;
+  // Amount is the authoritative user-entered value when present (single-bill
+  // form flow); bulk CSV generation doesn''t set data.amount, so fall back
+  // to qty*rate there.
+  const total = data.amount !== undefined && data.amount !== "" ? (parseFloat(data.amount) || 0) : qty * rate;
   const atot = data.atot || "";
   const vtot = data.vtot || "";
 
@@ -34,6 +50,7 @@ export default function TemplateThermalFull({ data }) {
 
   return (
     <div style={wrap}>
+      <BankStrip logoUrl={data.bankLogoUrl} bank="BANK" color="#1B3A6B" codes={["5001", "A01/2019"]} />
       <div style={inner}>
         <div style={{ ...dot, textAlign: "center", marginBottom: 4 }}>
           {data.logoUrl && (
@@ -48,6 +65,7 @@ export default function TemplateThermalFull({ data }) {
         <div style={divider} />
 
         <InfoRow label="Inv.No" value={data.invoiceNo || data.billNumber || ""} indent={10} />
+        {data.localId && <InfoRow label="Local ID" value={data.localId} indent={10} />}
         {data.fccId && <InfoRow label="FCC ID" value={data.fccId} indent={10} />}
         {data.fipNo && <InfoRow label="FIP No." value={data.fipNo} indent={10} />}
         <InfoRow label="Nozzle No." value={data.nozzleNo || ""} indent={10} />
@@ -66,6 +84,8 @@ export default function TemplateThermalFull({ data }) {
         <div style={divider} />
 
         <InfoRow label="Vehicle No" value={data.vehicleNumber || ""} indent={12} />
+        {data.vehicleType && <InfoRow label="Vehicle Type" value={data.vehicleType} indent={12} />}
+        {data.customerName && <InfoRow label="Customer" value={data.customerName} indent={12} />}
         <InfoRow label="Mobile No" value={data.mobileNo || "Not Entered"} indent={12} />
 
         <div style={divider} />
@@ -79,8 +99,7 @@ export default function TemplateThermalFull({ data }) {
             <InfoRow label="Mode" value={data.paymentMode} indent={6} />
           </>
         )}
-        {data.lstNumber && <InfoRow label="LST No." value={data.lstNumber} indent={10} />}
-        {data.vatTin && <InfoRow label="VAT No." value={data.vatTin} indent={10} />}
+        {data.vatTin && <InfoRow label="GST No." value={data.vatTin} indent={10} />}
         {data.attendantId && <InfoRow label="Attendant ID" value={data.attendantId} indent={14} />}
 
         <div style={divider} />

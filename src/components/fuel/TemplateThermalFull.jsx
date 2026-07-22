@@ -1,10 +1,10 @@
 import BankStrip from "./BankStrip";
 
-const dot = { fontFamily: "'Courier New', monospace", fontSize: "13px" };
+const dot = { fontFamily: "monospace", fontSize: "13px", letterSpacing: "0.3px" };
 const CONTENT_WIDTH = 320;
 const wrap = {
-  background: "#fff",
-  border: "1px solid #e5e7eb",
+  background: "#FBFAF6",
+  border: "1px solid #e9e6dd",
   borderRadius: 0,
   overflow: "hidden",
   boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
@@ -14,7 +14,13 @@ const wrap = {
   margin: "0 auto",
 };
 const inner = { padding: "24px 20px" };
-const divider = { borderTop: "1px dashed #999", margin: "12px 0" };
+// A literal dash-character line rather than a CSS dashed border — see
+// TemplatePOS.jsx for why.
+const Divider = () => (
+  <div style={{ ...dot, color: "#4b5563", margin: "12px 0" }}>
+    {"-".repeat(34)}
+  </div>
+);
 
 export default function TemplateThermalFull({ data }) {
   const qty = parseFloat(data.quantity) || 0;
@@ -23,8 +29,6 @@ export default function TemplateThermalFull({ data }) {
   // form flow); bulk CSV generation doesn''t set data.amount, so fall back
   // to qty*rate there.
   const total = data.amount !== undefined && data.amount !== "" ? (parseFloat(data.amount) || 0) : qty * rate;
-  const atot = data.atot || "";
-  const vtot = data.vtot || "";
 
   const formatDate = (d) => {
     if (!d) return "";
@@ -54,7 +58,7 @@ export default function TemplateThermalFull({ data }) {
       <div style={inner}>
         <div style={{ ...dot, textAlign: "center", marginBottom: 4 }}>
           {data.logoUrl && (
-            <img src={data.logoUrl} alt="logo" style={{ height: 48, objectFit: "contain", marginBottom: 6, display: "block", margin: "0 auto 6px" }} />
+            <img src={data.logoUrl} alt="logo" crossOrigin="anonymous" style={{ height: 48, objectFit: "contain", marginBottom: 6, display: "block", margin: "0 auto 6px" }} />
           )}
           <div style={{ fontWeight: "bold", fontSize: 17, letterSpacing: 1 }}>{data.stationName || "IndianOil"}</div>
           <div style={{ fontSize: 13, fontStyle: "italic" }}>Welcomes You</div>
@@ -62,53 +66,48 @@ export default function TemplateThermalFull({ data }) {
           <div style={{ fontSize: 12, marginTop: 2 }}>Tel. No.: {data.stationPhone || ""}</div>
         </div>
 
-        <div style={divider} />
+        <Divider />
 
         <InfoRow label="Inv.No" value={data.invoiceNo || data.billNumber || ""} indent={10} />
-        {data.localId && <InfoRow label="Local ID" value={data.localId} indent={10} />}
-        {data.fccId && <InfoRow label="FCC ID" value={data.fccId} indent={10} />}
-        {data.fipNo && <InfoRow label="FIP No." value={data.fipNo} indent={10} />}
         <InfoRow label="Nozzle No." value={data.nozzleNo || ""} indent={10} />
         <InfoRow label="Product" value={data.fuelType || ""} indent={10} />
-        {data.density && <InfoRow label="Density" value={`${data.density}Kg/Cu.mtr`} indent={10} />}
+        {data.density && <InfoRow label="Density" value={`${data.density} Kg/Cu.mtr`} indent={10} />}
         {data.presetType && <InfoRow label="Preset Type" value={data.presetType} indent={10} />}
 
-        <div style={divider} />
+        <Divider />
 
         <InfoRow label="Rate(Rs/L)" value={rate.toFixed(2)} indent={12} />
         <InfoRow label="Volume(L)" value={fmtVol(qty)} indent={12} />
         <InfoRow label="Amount(Rs)" value={fmtAmt(total)} indent={12} />
-        {atot && <InfoRow label="Atot" value={atot} indent={12} />}
-        {vtot && <InfoRow label="Vtot" value={vtot} indent={12} />}
 
-        <div style={divider} />
+        <Divider />
 
         <InfoRow label="Vehicle No" value={data.vehicleNumber || ""} indent={12} />
         {data.vehicleType && <InfoRow label="Vehicle Type" value={data.vehicleType} indent={12} />}
         {data.customerName && <InfoRow label="Customer" value={data.customerName} indent={12} />}
         <InfoRow label="Mobile No" value={data.mobileNo || "Not Entered"} indent={12} />
 
-        <div style={divider} />
+        <Divider />
 
         <InfoRow label="Date" value={formatDate(data.billDate)} indent={6} />
         <InfoRow label="Time" value={data.billTime || ""} indent={6} />
 
         {data.paymentMode && (
           <>
-            <div style={divider} />
+            <Divider />
             <InfoRow label="Mode" value={data.paymentMode} indent={6} />
           </>
         )}
         {data.vatTin && <InfoRow label="GST No." value={data.vatTin} indent={10} />}
         {data.attendantId && <InfoRow label="Attendant ID" value={data.attendantId} indent={14} />}
 
-        <div style={divider} />
+        <Divider />
 
         <div style={{ ...dot, textAlign: "center", fontSize: 12, lineHeight: 1.5 }}>
           Thank You! Please Visit<br />Again..
         </div>
 
-        <div style={divider} />
+        <Divider />
 
         <div style={{ ...dot, fontSize: 11 }}>
           Printed on:<br />{printedOn}

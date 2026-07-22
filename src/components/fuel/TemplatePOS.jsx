@@ -1,8 +1,16 @@
 import BankStrip from "./BankStrip";
 
-const mono = { fontFamily: "'Courier New', monospace" };
-const wrap = { background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 0, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", position: "relative", zIndex: 0 };
-const divider = { borderTop: "1px dashed #666", margin: "12px 0" };
+const mono = { fontFamily: "monospace", letterSpacing: "0.3px" };
+const wrap = { background: "#FBFAF6", border: "1px solid #e9e6dd", borderRadius: 0, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", position: "relative", zIndex: 0 };
+// A literal dash-character line rather than a CSS dashed border — CSS
+// border-style:dashed can rasterize inconsistently (often much thicker than
+// on-screen) when captured via html2canvas, and real thermal printers print
+// this as actual characters anyway, not a rule line.
+const Divider = () => (
+  <div style={{ ...mono, fontSize: 13, color: "#4b5563", margin: "12px 0" }}>
+    {"-".repeat(40)}
+  </div>
+);
 
 export default function TemplatePOS({ data }) {
   const qty = parseFloat(data.quantity) || 0;
@@ -31,7 +39,7 @@ export default function TemplatePOS({ data }) {
       <div style={{ padding: "28px" }}>
         {data.logoUrl && (
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
-            <img src={data.logoUrl} alt="logo" style={{ height: 56, objectFit: "contain" }} onError={(e) => e.target.style.display = "none"} />
+            <img src={data.logoUrl} alt="logo" crossOrigin="anonymous" style={{ height: 56, objectFit: "contain" }} onError={(e) => e.target.style.display = "none"} />
           </div>
         )}
 
@@ -49,7 +57,6 @@ export default function TemplatePOS({ data }) {
           {formatDate(data.billDate)} &nbsp; {data.billTime}
         </div>
 
-        <Line label="TXN NO:" value={data.txnNo} />
         <Line label="INVOICE NO:" value={data.invoiceNo} />
         {data.billNumber && <Line label="BILL NO:" value={data.billNumber} />}
         <Line label="VEHICLE NO:" value={data.vehicleNumber || "NOT ENTERED"} />
@@ -58,7 +65,7 @@ export default function TemplatePOS({ data }) {
         {data.mobileNo && <Line label="MOBILE NO:" value={data.mobileNo} />}
         <Line label="PRESET:" value={data.presetType?.toUpperCase()} />
 
-        <div style={divider} />
+        <Divider />
 
         <Line label="NOZZLE NO:" value={data.nozzleNo} />
         <Line label="PRODUCT:" value={data.fuelType?.toUpperCase()} />
@@ -69,7 +76,7 @@ export default function TemplatePOS({ data }) {
 
         {data.paymentMode && <Line label="MODE    :" value={data.paymentMode?.toUpperCase()} />}
 
-        <div style={divider} />
+        <Divider />
 
         <div style={{ ...mono, textAlign: "center", fontSize: 13, fontWeight: "bold" }}>Thank You! Visit Again</div>
       </div>

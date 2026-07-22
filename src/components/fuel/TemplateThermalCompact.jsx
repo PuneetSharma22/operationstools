@@ -1,8 +1,14 @@
 import BankStrip from "./BankStrip";
 
-const dot = { fontFamily: "'Courier New', monospace", fontSize: "13px" };
-const wrap = { background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 0, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", position: "relative", zIndex: 0 };
-const divider = { borderTop: "1px dashed #999", margin: "12px 0" };
+const dot = { fontFamily: "monospace", fontSize: "13px", letterSpacing: "0.3px" };
+const wrap = { background: "#FBFAF6", border: "1px solid #e9e6dd", borderRadius: 0, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", position: "relative", zIndex: 0 };
+// A literal dash-character line rather than a CSS dashed border — see
+// TemplatePOS.jsx for why.
+const Divider = () => (
+  <div style={{ ...dot, color: "#4b5563", margin: "12px 0" }}>
+    {"-".repeat(36)}
+  </div>
+);
 
 export default function TemplateThermalCompact({ data }) {
   const qty = parseFloat(data.quantity) || 0;
@@ -30,7 +36,7 @@ export default function TemplateThermalCompact({ data }) {
       <div style={{ padding: "24px" }}>
         {data.logoUrl && (
           <div style={{ textAlign: "center", marginBottom: 8 }}>
-  <img src={data.logoUrl} alt="logo" style={{ height: 40, objectFit: "contain", display: "block", margin: "0 auto" }} onError={(e) => e.target.style.display = "none"} />
+  <img src={data.logoUrl} alt="logo" crossOrigin="anonymous" style={{ height: 40, objectFit: "contain", display: "block", margin: "0 auto" }} onError={(e) => e.target.style.display = "none"} />
 </div>
         )}
         <div style={{ ...dot, textAlign: "center", fontWeight: "bold", fontSize: 14, marginBottom: 4 }}>
@@ -48,25 +54,25 @@ export default function TemplateThermalCompact({ data }) {
         )}
 
         <Row label="Receipt No.:" value={data.billNumber} />
-        <div style={divider} />
+        <Divider />
         <Row label="PRODUCT:" value={data.fuelType} />
         <Row label="RATE/LTR:" value={`₹ ${rate.toFixed(2)}`} />
         <Row label="AMOUNT:" value={`₹ ${total.toFixed(2)}`} />
         <Row label="VOLUME(LTR.):" value={`${qty.toFixed(2)} lt`} />
-        <div style={divider} />
+        <Divider />
         <Row label="VEH TYPE:" value={data.vehicleType} />
         <Row label="VEH NO:" value={data.vehicleNumber} />
         <Row label="CUSTOMER NAME:" value={data.customerName} />
-        <div style={divider} />
+        <Divider />
         <div style={{ ...dot, display: "flex", justifyContent: "space-between" }}>
           <span><span style={{ fontWeight: "bold" }}>Date:</span> {formatDate(data.billDate)}</span>
           <span><span style={{ fontWeight: "bold" }}>Time:</span> {data.billTime}</span>
         </div>
-        <div style={divider} />
+        <Divider />
         <Row label="MODE:" value={data.paymentMode} />
-        {data.vatTin && <div style={divider} />}
+        {data.vatTin && <Divider />}
         {data.vatTin && <Row label="GST NO.:" value={data.vatTin} />}
-        <div style={divider} />
+        <Divider />
         <div style={{ ...dot, textAlign: "center", fontSize: 12 }}>
           SAVE FUEL YAANI SAVE MONEY!! THANKS FOR FUELLING WITH US.
         </div>

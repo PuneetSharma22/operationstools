@@ -148,35 +148,15 @@ export default function BillForm({ data, onChange }) {
           <Field label="Invoice No." htmlFor="invoiceNo">
             <input id="invoiceNo" className={inputClass} name="invoiceNo" value={data.invoiceNo} onChange={onChange} placeholder="e.g. 224105525C306687" />
           </Field>
-          <Field label="TXN No." htmlFor="txnNo">
-            <input id="txnNo" className={inputClass} name="txnNo" value={data.txnNo} onChange={onChange} />
-          </Field>
-
           <Field label="Date" htmlFor="billDate">
             <input id="billDate" className={inputClass} type="date" name="billDate" value={data.billDate} onChange={onChange} />
           </Field>
+
           <Field label="Time" htmlFor="billTime">
             <input id="billTime" className={inputClass} type="time" name="billTime" value={data.billTime} onChange={onChange} />
           </Field>
           <Field label="Nozzle No." htmlFor="nozzleNo">
             <input id="nozzleNo" className={inputClass} name="nozzleNo" value={data.nozzleNo} onChange={onChange} placeholder="e.g. 4" />
-          </Field>
-
-          <Field label="Shift" htmlFor="shift">
-            <input id="shift" className={inputClass} name="shift" value={data.shift} onChange={onChange} placeholder="S-1" />
-          </Field>
-          <Field label="Pump No." htmlFor="pumpNo">
-            <input id="pumpNo" className={inputClass} name="pumpNo" value={data.pumpNo} onChange={onChange} placeholder="P-05" />
-          </Field>
-          <Field label="FIP No." htmlFor="fipNo">
-            <input id="fipNo" className={inputClass} name="fipNo" value={data.fipNo} onChange={onChange} placeholder="e.g. 01" />
-          </Field>
-
-          <Field label="FCC ID" htmlFor="fccId">
-            <input id="fccId" className={inputClass} name="fccId" value={data.fccId} onChange={onChange} placeholder="e.g. 000000001697748" />
-          </Field>
-          <Field label="Local ID" htmlFor="localId">
-            <input id="localId" className={inputClass} name="localId" value={data.localId} onChange={onChange} />
           </Field>
         </div>
       </Section>
@@ -218,13 +198,6 @@ export default function BillForm({ data, onChange }) {
               <option>Volume</option>
               <option>Full Tank</option>
             </select>
-          </Field>
-
-          <Field label="Atot (cumulative amt)" htmlFor="atot">
-            <input id="atot" className={inputClass} name="atot" value={data.atot} onChange={onChange} placeholder="e.g. 00121730171.27" />
-          </Field>
-          <Field label="Vtot (cumulative vol)" htmlFor="vtot">
-            <input id="vtot" className={inputClass} name="vtot" value={data.vtot} onChange={onChange} placeholder="e.g. 0001155464.120" />
           </Field>
 
           <Field label="Payment Mode" htmlFor="paymentMode">

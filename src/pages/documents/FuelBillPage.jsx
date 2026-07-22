@@ -26,11 +26,11 @@ const defaultData = {
   billNumber: "G64695",
   billDate: new Date().toISOString().split("T")[0],
   billTime: new Date().toTimeString().slice(0, 5),
-  shift: "S-1", pumpNo: "P-05", nozzleNo: "N-02",
-  fccId: "", fipNo: "07", txnNo: "6242805", invoiceNo: "927267", localId: "00024735",
+  nozzleNo: "N-02",
+  invoiceNo: "927267",
   customerName: "", vehicleNumber: "", vehicleType: "4W", mobileNo: "", attendantId: "",
   fuelType: "Petrol", density: "745.0", amount: "", quantity: "", pricePerLitre: "104.29",
-  presetType: "Amount", paymentMode: "Cash", atot: "", vtot: "",
+  presetType: "Amount", paymentMode: "Cash",
 };
 
 const TEMPLATE_COMPONENTS = {
@@ -38,8 +38,31 @@ const TEMPLATE_COMPONENTS = {
   "thermal-full": TemplateThermalFull, "thermal-compact": TemplateThermalCompact,
 };
 
-const CSV_TEMPLATE_HEADERS = "date,time,bill_number,vehicle_number,vehicle_type,fuel_type,quantity,price_per_litre,amount,payment_mode,customer_name,mobile_no";
-const CSV_SAMPLE_ROW = "2026-07-10,14:30,G64695,MH12AB1234,4W,Petrol,9.52,104.29,992.00,Cash,Rajesh Sharma,9876543210";
+// Required: date, price_per_litre, amount — these are the only facts that
+// can't be sensibly defaulted. Volume/quantity is NOT a column at all — like
+// the single-bill form, it's derived from amount ÷ rate rather than typed.
+// Everything else is optional: a blank cell gets a sensible default (falling
+// back to whatever the main form currently has — including station_name,
+// logo_url, etc., so you can leave them blank for a normal same-station batch,
+// or fill them in per-row to generate bills for a different station on
+// specific rows). The bulk preview table shows exactly what default will be
+// used, and typing the literal text "NA" explicitly means "leave this blank"
+// and skips the default entirely.
+const CSV_REQUIRED_COLUMNS = ["date", "price_per_litre", "amount"];
+const CSV_COLUMN_ORDER = [
+  "station_name", "station_address", "station_phone", "gst_no", "logo_url", "bank_logo_url",
+  "date", "time", "bill_number", "invoice_no",
+  "vehicle_number", "vehicle_type", "customer_name", "mobile_no",
+  "fuel_type", "price_per_litre", "amount", "density", "preset_type", "payment_mode",
+  "nozzle_no", "attendant_id",
+];
+const CSV_OPTIONAL_COLUMNS = CSV_COLUMN_ORDER.filter((c) => !CSV_REQUIRED_COLUMNS.includes(c));
+const CSV_TEMPLATE_HEADERS = CSV_COLUMN_ORDER.join(",");
+// Row 2 of the downloadable template — derived from CSV_REQUIRED_COLUMNS
+// itself, so this label row can never drift out of sync with what the
+// parser actually enforces.
+const CSV_MANDATORY_ROW = CSV_COLUMN_ORDER.map((c) => (CSV_REQUIRED_COLUMNS.includes(c) ? "Mandatory" : "Optional")).join(",");
+const CSV_SAMPLE_ROW = "PK FUEL STATION,\"PAREKH NAGAR S V RD, KANDIVALI W, MUMBAI - 400067\",38055913,27AABCU9603R1ZX,https://example.com/logo.png,https://example.com/bank-logo.png,2026-07-10,14:30,G64695,927267,MH12AB1234,4W,Rajesh Sharma,9876543210,Petrol,104.29,992.00,745.0,Amount,Cash,N-02,AT-102";
 
 // ─── SEO ─────────────────────────────────────────────────────────────────────
 const SEO_TITLE = "Free Fuel Bill Generator Online — Petrol & Diesel Bill PDF (2026)";
@@ -94,6 +117,106 @@ function LoginPromptModal({ onClose }) {
   );
 }
 
+// Resolves one optional CSV cell against its default:
+//  - blank/missing  -> use the default (flagged isDefault so the preview can show it distinctly)
+//  - literal "NA"   -> explicitly blank, default is skipped entirely (flagged isNA)
+//  - anything else  -> the typed value, used as-is
+// Parses raw CSV text into rows of fields, respecting RFC4180-style quoting:
+// a quoted field can contain commas AND actual line breaks (e.g. a spreadsheet
+// export wrapping a multi-line address in quotes) without ending the row.
+// Splitting on "\n" before understanding quotes — the previous approach —
+// breaks the moment any field spans more than one physical line, since it
+// chops that one row into several fake ones and misaligns every column
+// after it. This scans the whole text char-by-char instead, only starting a
+// new row on a newline that's genuinely outside a quoted field.
+function parseCSVText(text) {
+  const normalized = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < normalized.length; i++) {
+    const ch = normalized[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (normalized[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else {
+        field += ch;
+      }
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ",") {
+      row.push(field);
+      field = "";
+    } else if (ch === "\n") {
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = "";
+    } else {
+      field += ch;
+    }
+  }
+  if (field.length > 0 || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
+  // Drop blank trailing lines.
+  return rows.filter((r) => !(r.length === 1 && r[0].trim() === ""));
+}
+
+function resolveOptional(raw, fallback) {
+  const trimmed = (raw || "").trim();
+  if (trimmed.toUpperCase() === "NA") return { value: "", isDefault: false, isNA: true };
+  if (trimmed === "") return { value: fallback, isDefault: true, isNA: false };
+  return { value: trimmed, isDefault: false, isNA: false };
+}
+
+// Builds the full resolved field set for one row — used identically by the
+// preview table (so what you see is what you get) and by handleGenerate.
+function resolveRow(row, stationData, index) {
+  const rate = parseFloat(row.price_per_litre) || 0;
+  const amount = parseFloat(row.amount) || 0;
+  // Volume is derived (amount ÷ rate), same as the single-bill form — never
+  // a raw CSV column, since a user typing it independently risks it not
+  // matching amount/rate at all.
+  const quantity = amount > 0 && rate > 0 ? (amount / rate).toFixed(2) : "";
+  return {
+    date: row.date,
+    rate,
+    amount,
+    quantity,
+    // Station identity — defaults to the main form's current value, so a
+    // normal same-station batch can leave these blank entirely, while a
+    // specific row can still override to generate for a different station.
+    stationName: resolveOptional(row.station_name, stationData.stationName),
+    stationAddress: resolveOptional(row.station_address, stationData.stationAddress),
+    stationPhone: resolveOptional(row.station_phone, stationData.stationPhone),
+    vatTin: resolveOptional(row.gst_no, stationData.vatTin),
+    logoUrl: resolveOptional(row.logo_url, stationData.logoUrl),
+    bankLogoUrl: resolveOptional(row.bank_logo_url, stationData.bankLogoUrl),
+    time: resolveOptional(row.time, stationData.billTime),
+    billNumber: resolveOptional(row.bill_number, `BLK-${String(index + 1).padStart(4, "0")}`),
+    // Genuinely unique-per-transaction identifier — default to blank rather
+    // than duplicating the main form's single value across the whole batch.
+    invoiceNo: resolveOptional(row.invoice_no, ""),
+    // Vehicle / customer — no shared default makes sense across a batch.
+    vehicleNumber: resolveOptional(row.vehicle_number, ""),
+    vehicleType: resolveOptional(row.vehicle_type, "4W"),
+    customerName: resolveOptional(row.customer_name, ""),
+    mobileNo: resolveOptional(row.mobile_no, ""),
+    // Fuel / payment.
+    fuelType: resolveOptional(row.fuel_type, "Petrol"),
+    density: resolveOptional(row.density, stationData.density),
+    presetType: resolveOptional(row.preset_type, stationData.presetType),
+    paymentMode: resolveOptional(row.payment_mode, "Cash"),
+    // Dispenser info — typically stable across one station's batch.
+    nozzleNo: resolveOptional(row.nozzle_no, stationData.nozzleNo),
+    attendantId: resolveOptional(row.attendant_id, stationData.attendantId),
+  };
+}
+
 // ─── Bulk Generation Modal ────────────────────────────────────────────────────
 function BulkGenerateModal({ user, stationData, activeTemplate, onClose }) {
   const [step, setStep] = useState("upload"); // upload | preview | generating | done
@@ -112,24 +235,21 @@ function BulkGenerateModal({ user, stationData, activeTemplate, onClose }) {
   }, [user.id]);
 
   const parseCSV = (text) => {
-    const lines = text.trim().split("\n").filter(l => l.trim());
-    if (lines.length < 2) return { rows: [], errors: ["CSV must have a header row and at least one data row"] };
-    const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
-    const required = ["date", "vehicle_number", "fuel_type", "quantity", "price_per_litre", "amount"];
-    const missing = required.filter(r => !headers.includes(r));
+    const allRows = parseCSVText(text);
+    if (allRows.length < 2) return { rows: [], errors: ["CSV must have a header row and at least one data row"] };
+    const headers = allRows[0].map((h) => h.trim().toLowerCase());
+    const missing = CSV_REQUIRED_COLUMNS.filter(r => !headers.includes(r));
     if (missing.length) return { rows: [], errors: [`Missing required columns: ${missing.join(", ")}`] };
 
     const rows = [];
     const errors = [];
-    lines.slice(1).forEach((line, i) => {
-      const vals = line.split(",").map(v => v.trim());
+    allRows.slice(1).forEach((vals, i) => {
       const row = {};
-      headers.forEach((h, j) => row[h] = vals[j] || "");
+      headers.forEach((h, j) => row[h] = (vals[j] || "").trim());
       const rowErrors = [];
       if (!row.date) rowErrors.push("date required");
-      if (!row.vehicle_number) rowErrors.push("vehicle_number required");
+      if (!row.price_per_litre || isNaN(Number(row.price_per_litre))) rowErrors.push("price_per_litre must be a number");
       if (!row.amount || isNaN(Number(row.amount))) rowErrors.push("amount must be a number");
-      if (!row.quantity || isNaN(Number(row.quantity))) rowErrors.push("quantity must be a number");
       rows.push({ ...row, _line: i + 2, _errors: rowErrors });
       if (rowErrors.length) errors.push(`Row ${i + 2}: ${rowErrors.join(", ")}`);
     });
@@ -151,7 +271,7 @@ function BulkGenerateModal({ user, stationData, activeTemplate, onClose }) {
   const handleDrop = (e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); };
 
   const downloadTemplate = () => {
-    const content = CSV_TEMPLATE_HEADERS + "\n" + CSV_SAMPLE_ROW;
+    const content = [CSV_TEMPLATE_HEADERS, CSV_MANDATORY_ROW, CSV_SAMPLE_ROW].join("\n");
     const blob = new Blob([content], { type: "text/csv" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
     a.download = "fuel-bill-bulk-template.csv"; a.click();
@@ -175,33 +295,46 @@ function BulkGenerateModal({ user, stationData, activeTemplate, onClose }) {
 
       // Create a hidden container for rendering
       const container = document.createElement("div");
-      container.style.cssText = "position:fixed;left:-9999px;top:0;width:400px;background:#fff;";
+      container.style.cssText = "position:fixed;left:-9999px;top:0;width:400px;background:#FBFAF6;";
       document.body.appendChild(container);
 
       for (let i = 0; i < validRows.length; i++) {
         setProgress(Math.round((i / validRows.length) * 100));
         const row = validRows[i];
 
-        // Merge station data with row data
+        // Merge station data with the row's resolved (defaulted/NA-aware) fields
+        const resolved = resolveRow(row, stationData, i);
         const billData = {
           ...stationData,
-          billDate: row.date || stationData.billDate,
-          billTime: row.time || stationData.billTime,
-          billNumber: row.bill_number || `BLK-${String(i + 1).padStart(4, "0")}`,
-          vehicleNumber: row.vehicle_number || "",
-          vehicleType: row.vehicle_type || "4W",
-          fuelType: row.fuel_type || "Petrol",
-          quantity: row.quantity || "",
-          pricePerLitre: row.price_per_litre || "",
-          atot: row.amount || "",
-          paymentMode: row.payment_mode || "Cash",
-          customerName: row.customer_name || "",
-          mobileNo: row.mobile_no || "",
+          stationName: resolved.stationName.value,
+          stationAddress: resolved.stationAddress.value,
+          stationPhone: resolved.stationPhone.value,
+          vatTin: resolved.vatTin.value,
+          logoUrl: resolved.logoUrl.value,
+          bankLogoUrl: resolved.bankLogoUrl.value,
+          billDate: resolved.date || stationData.billDate,
+          billTime: resolved.time.value,
+          billNumber: resolved.billNumber.value,
+          invoiceNo: resolved.invoiceNo.value,
+          vehicleNumber: resolved.vehicleNumber.value,
+          vehicleType: resolved.vehicleType.value,
+          customerName: resolved.customerName.value,
+          mobileNo: resolved.mobileNo.value,
+          fuelType: resolved.fuelType.value,
+          density: resolved.density.value,
+          presetType: resolved.presetType.value,
+          paymentMode: resolved.paymentMode.value,
+          nozzleNo: resolved.nozzleNo.value,
+          attendantId: resolved.attendantId.value,
+          pricePerLitre: resolved.rate || "",
+          amount: resolved.amount || "",
+          quantity: resolved.quantity,
         };
 
         // Render component to DOM
         const { createRoot } = await import("react-dom/client");
         const wrapper = document.createElement("div");
+        wrapper.style.display = "inline-block";
         container.appendChild(wrapper);
         const root = createRoot(wrapper);
 
@@ -209,15 +342,21 @@ function BulkGenerateModal({ user, stationData, activeTemplate, onClose }) {
           root.render(<PreviewComp data={billData} />);
           setTimeout(resolve, 300);
         });
+        if (document.fonts && document.fonts.ready) {
+          try { await document.fonts.ready; } catch (_) {}
+        }
 
-        const canvas = await html2canvas(wrapper, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false });
+        const canvas = await html2canvas(wrapper, { scale: 2, useCORS: true, backgroundColor: "#FBFAF6", logging: false });
         const pxToMm = 25.4 / (96 * 2);
         const naturalW = canvas.width * pxToMm;
         const naturalH = canvas.height * pxToMm;
-        const targetW = 105;
-        const ratio = targetW / naturalW;
-        const finalW = targetW;
-        const finalH = naturalH * ratio;
+        // Fit within half the page height (not a fixed width) — a tall,
+        // narrow receipt was otherwise stretching to fill the entire page.
+        const maxW = pageW - 20;
+        const maxH = pdf.internal.pageSize.getHeight() / 2 - 10;
+        const fitScale = Math.min(maxW / naturalW, maxH / naturalH);
+        const finalW = naturalW * fitScale;
+        const finalH = naturalH * fitScale;
         const x = (pageW - finalW) / 2;
 
         if (i > 0) pdf.addPage();
@@ -255,7 +394,10 @@ function BulkGenerateModal({ user, stationData, activeTemplate, onClose }) {
       setStep("done");
     } catch (err) {
       console.error("Bulk generation failed:", err);
-      alert("Generation failed: " + (err?.message || "Unknown error"));
+      const isTainted = /tainted|cross-origin|SecurityError/i.test(err?.message || err?.name || "");
+      alert(isTainted
+        ? "Generation failed: one of the logo/bank-strip image URLs doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again."
+        : "Generation failed: " + (err?.message || "Unknown error"));
       setStep("preview");
     }
     setGenerating(false);
@@ -317,8 +459,11 @@ function BulkGenerateModal({ user, stationData, activeTemplate, onClose }) {
             <div style={{ background: "#F8FAFC", borderRadius: 12, padding: "16px 20px", border: "1px solid #E2E8F0" }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>CSV Format</div>
               <div style={{ fontSize: 12, color: "#64748B", marginBottom: 10, lineHeight: 1.6 }}>
-                Required columns: <code style={{ background: "#EFF6FF", padding: "1px 6px", borderRadius: 4, color: "#2563EB" }}>date, vehicle_number, fuel_type, quantity, price_per_litre, amount</code><br/>
-                Optional: <code style={{ background: "#F1F5F9", padding: "1px 6px", borderRadius: 4 }}>time, bill_number, vehicle_type, payment_mode, customer_name, mobile_no</code>
+                Required columns: <code style={{ background: "#EFF6FF", padding: "1px 6px", borderRadius: 4, color: "#2563EB" }}>date, price_per_litre, amount</code><br/>
+                Optional: <code style={{ background: "#F1F5F9", padding: "1px 6px", borderRadius: 4 }}>{CSV_OPTIONAL_COLUMNS.join(", ")}</code><br/>
+                <span style={{ display: "inline-block", marginTop: 6 }}>Blank station/dispenser fields (station_name, station_address, station_phone, gst_no, logo_url, bank_logo_url, nozzle_no, density, preset_type, attendant_id) default to the main form's current value — leave them blank for a normal same-station batch. Blank invoice_no defaults to blank, since it's unique per transaction.</span><br/>
+                <span style={{ display: "inline-block", marginTop: 6 }}>Volume isn't a column — it's calculated automatically from amount ÷ rate.</span><br/>
+                Leave an optional cell <b>blank</b> to use a sensible default (shown in italics in the preview table), or type <code style={{ background: "#FEF9C3", padding: "1px 6px", borderRadius: 4 }}>NA</code> to force it blank instead of defaulting.
               </div>
               <button onClick={downloadTemplate} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, background: "#fff", border: "1.5px solid #2563EB", color: "#2563EB", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                 ⬇ Download CSV Template
@@ -338,8 +483,11 @@ function BulkGenerateModal({ user, stationData, activeTemplate, onClose }) {
               <button onClick={() => { setStep("upload"); setCsvRows([]); setCsvErrors([]); }} style={{ fontSize: 12, color: "#64748B", background: "none", border: "none", cursor: "pointer" }}>← Upload different file</button>
             </div>
 
-            {/* Table preview */}
-            <div style={{ border: "1px solid #E2E8F0", borderRadius: 12, overflow: "hidden", marginBottom: 16, maxHeight: 300, overflowY: "auto" }}>
+            {/* Table preview — shows the *resolved* values (after defaults
+                and NA-overrides are applied), computed with the exact same
+                resolveRow() function used at generation time, so nothing
+                shown here can drift from what actually gets produced. */}
+            <div style={{ border: "1px solid #E2E8F0", borderRadius: 12, overflow: "hidden", marginBottom: 16 }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                 <thead style={{ background: "#F8FAFC", position: "sticky", top: 0 }}>
                   <tr>{["#", "Date", "Vehicle", "Fuel Type", "Qty (L)", "Rate ₹", "Amount ₹", "Status"].map(h => (
@@ -347,25 +495,40 @@ function BulkGenerateModal({ user, stationData, activeTemplate, onClose }) {
                   ))}</tr>
                 </thead>
                 <tbody>
-                  {csvRows.map((row, i) => (
-                    <tr key={i} style={{ borderBottom: "1px solid #F1F5F9", background: row._errors.length ? "#FEF2F2" : i % 2 === 0 ? "#fff" : "#FAFAFA" }}>
-                      <td style={{ padding: "8px 12px", color: "#94A3B8" }}>{row._line}</td>
-                      <td style={{ padding: "8px 12px" }}>{row.date}</td>
-                      <td style={{ padding: "8px 12px", fontWeight: 600 }}>{row.vehicle_number}</td>
-                      <td style={{ padding: "8px 12px" }}>{row.fuel_type}</td>
-                      <td style={{ padding: "8px 12px" }}>{row.quantity}</td>
-                      <td style={{ padding: "8px 12px" }}>₹{row.price_per_litre}</td>
-                      <td style={{ padding: "8px 12px", fontWeight: 700 }}>₹{row.amount}</td>
-                      <td style={{ padding: "8px 12px" }}>
-                        {row._errors.length === 0
-                          ? <span style={{ color: "#059669", fontWeight: 600 }}>✓ Valid</span>
-                          : <span style={{ color: "#DC2626", fontSize: 11 }}>{row._errors.join(", ")}</span>}
-                      </td>
-                    </tr>
-                  ))}
+                  {(() => {
+                    let validIndex = -1;
+                    return csvRows.map((row, i) => {
+                      if (row._errors.length === 0) validIndex += 1;
+                      const resolved = resolveRow(row, stationData, validIndex);
+                      const cell = (r) => r.isNA
+                        ? <span style={{ color: "#CBD5E1" }} title="Explicitly left blank (NA)">—</span>
+                        : r.isDefault
+                          ? <span style={{ color: "#94A3B8", fontStyle: "italic" }} title="Not entered — using default">{r.value || "—"}</span>
+                          : <span>{r.value}</span>;
+                      return (
+                        <tr key={i} style={{ borderBottom: "1px solid #F1F5F9", background: row._errors.length ? "#FEF2F2" : i % 2 === 0 ? "#fff" : "#FAFAFA" }}>
+                          <td style={{ padding: "8px 12px", color: "#94A3B8" }}>{row._line}</td>
+                          <td style={{ padding: "8px 12px" }}>{row.date}</td>
+                          <td style={{ padding: "8px 12px", fontWeight: 600 }}>{cell(resolved.vehicleNumber)}</td>
+                          <td style={{ padding: "8px 12px" }}>{cell(resolved.fuelType)}</td>
+                          <td style={{ padding: "8px 12px" }}>{resolved.quantity || "—"}</td>
+                          <td style={{ padding: "8px 12px" }}>₹{row.price_per_litre}</td>
+                          <td style={{ padding: "8px 12px", fontWeight: 700 }}>₹{row.amount}</td>
+                          <td style={{ padding: "8px 12px" }}>
+                            {row._errors.length === 0
+                              ? <span style={{ color: "#059669", fontWeight: 600 }}>✓ Valid</span>
+                              : <span style={{ color: "#DC2626", fontSize: 11 }}>{row._errors.join(", ")}</span>}
+                          </td>
+                        </tr>
+                      );
+                    });
+                  })()}
                 </tbody>
               </table>
             </div>
+            <p style={{ fontSize: 11.5, color: "#94A3B8", margin: "-10px 0 16px" }}>
+              <span style={{ fontStyle: "italic" }}>Italic</span> = left blank, default value shown · <span style={{ color: "#CBD5E1" }}>—</span> = "NA" entered, left blank on purpose
+            </p>
 
             {/* Credit cost */}
             <div style={{ background: "#F8FAFC", borderRadius: 12, padding: "16px 20px", border: "1px solid #E2E8F0", marginBottom: 16 }}>
@@ -491,7 +654,7 @@ function MobilePreviewSheet({ previewRef, PreviewComponent, data, onDownload, do
         </div>
         <div style={{ overflowY: "auto", padding: "20px 16px 32px", flex: 1 }}>
           <div style={{ overflowX: "auto" }}>
-            <div ref={previewRef} style={{ minWidth: 300 }}><PreviewComponent data={data} /></div>
+            <div ref={previewRef} style={{ minWidth: 300, display: "inline-block" }}><PreviewComponent data={data} /></div>
           </div>
         </div>
       </div>
@@ -525,14 +688,37 @@ export default function FuelBillPage() {
     });
   };
 
-  const doDownload = async (ref, format = "pdf") => {
-    if (!ref.current || downloading) return;
+  // Renders a fresh, unscaled, off-screen copy of the current receipt
+  // specifically for capture, instead of capturing the on-screen preview
+  // directly. The on-screen preview is wrapped in a CSS scale() transform
+  // purely so it fits the sidebar column — html2canvas doesn't reliably
+  // handle capturing through that transform (it was the source of both a
+  // persistent off-white "bleed" past the card's real edge, and dividers
+  // that render fine on-screen but don't paint at all in the export). A
+  // dedicated off-screen render sidesteps the whole problem, and mirrors
+  // the bulk-generation path, which never had either issue.
+  const doDownload = async (format = "pdf") => {
+    if (downloading) return;
     setDownloading(true);
     const { default: html2canvas } = await import("html2canvas");
+    const { createRoot } = await import("react-dom/client");
+    const container = document.createElement("div");
+    container.style.cssText = "position:fixed;left:-9999px;top:0;background:#FBFAF6;display:inline-block;";
+    document.body.appendChild(container);
+    const root = createRoot(container);
     try {
       const printId = `PRINT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
       try { const { data: { user } } = await supabaseFull.auth.getUser(); await supabaseFull.from("save_requests").insert({ template: activeTemplate, print_id: printId, user_id: user?.id ?? null }); } catch (_) {}
-      const canvas = await html2canvas(ref.current, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: "#ffffff", logging: false });
+
+      await new Promise((resolve) => {
+        root.render(<PreviewComponent data={data} />);
+        setTimeout(resolve, 300);
+      });
+      if (document.fonts && document.fonts.ready) {
+        try { await document.fonts.ready; } catch (_) {}
+      }
+
+      const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: "#FBFAF6", logging: false });
 
       if (format === "png") {
         // Just the preview section itself, as a flat image — no page layout.
@@ -546,17 +732,29 @@ export default function FuelBillPage() {
         const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
         const pageW = pdf.internal.pageSize.getWidth();
         const pxToMm = 25.4 / (96 * 2);
-        const targetW = 105;
-        const ratio = targetW / (canvas.width * pxToMm);
-        const finalH = (canvas.height * pxToMm) * ratio;
-        pdf.addImage(imgData, "PNG", (pageW - targetW) / 2, 10, targetW, finalH);
+        const naturalW = canvas.width * pxToMm;
+        const naturalH = canvas.height * pxToMm;
+        // Fit within half the page height (not a fixed width) — a tall,
+        // narrow receipt was otherwise stretching to fill the entire page.
+        const maxW = pageW - 20;
+        const maxH = pdf.internal.pageSize.getHeight() / 2 - 10;
+        const fitScale = Math.min(maxW / naturalW, maxH / naturalH);
+        const finalW = naturalW * fitScale;
+        const finalH = naturalH * fitScale;
+        pdf.addImage(imgData, "PNG", (pageW - finalW) / 2, 10, finalW, finalH);
         pdf.save(`fuel-bill-${Date.now()}.pdf`);
       }
-    } catch (err) { alert("Save failed: " + (err?.message || "Unknown error")); }
-    finally { setDownloading(false); }
+    } catch (err) {
+      const isTainted = /tainted|cross-origin|SecurityError/i.test(err?.message || err?.name || "");
+      alert(isTainted
+        ? "Save failed: one of the logo/bank-strip image URLs doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again."
+        : "Save failed: " + (err?.message || "Unknown error"));
+    } finally {
+      root.unmount();
+      document.body.removeChild(container);
+      setDownloading(false);
+    }
   };
-
-  const handleDownload = (format) => doDownload(showMobilePreview ? mobilePreviewRef : previewRef, format);
 
   const handleBulkClick = async () => {
     try {
@@ -601,7 +799,7 @@ export default function FuelBillPage() {
       {modal === "login" && <LoginPromptModal onClose={() => setModal(null)} />}
       {modal === "bulk" && modalUser && <BulkGenerateModal user={modalUser} stationData={data} activeTemplate={activeTemplate} onClose={() => setModal(null)} />}
 
-      {showMobilePreview && <MobilePreviewSheet previewRef={mobilePreviewRef} PreviewComponent={PreviewComponent} data={data} onDownload={handleDownload} downloading={downloading} onClose={() => setShowMobilePreview(false)} />}
+      {showMobilePreview && <MobilePreviewSheet previewRef={mobilePreviewRef} PreviewComponent={PreviewComponent} data={data} onDownload={doDownload} downloading={downloading} onClose={() => setShowMobilePreview(false)} />}
 
       <section style={{ background: "linear-gradient(160deg,#07011F 0%,#0D0630 60%,#1e1b4b 100%)" }} className="fuel-hero-padding">
         <div style={{ padding: "40px 24px 36px", maxWidth: 1280, margin: "0 auto" }} className="fuel-hero-padding">
@@ -659,6 +857,7 @@ export default function FuelBillPage() {
                       border: activeTemplate === t.id ? "2px solid #2563EB" : "2px solid #E2E8F0",
                       background: activeTemplate === t.id ? "#2563EB" : "#fff",
                       color: activeTemplate === t.id ? "#fff" : "#0F172A",
+                      boxShadow: activeTemplate === t.id ? "0 2px 8px rgba(37,99,235,0.35)" : "none",
                       fontSize: 15, fontWeight: 700, cursor: "pointer", transition: "all 0.15s",
                     }}
                   >
@@ -675,10 +874,22 @@ export default function FuelBillPage() {
             <div className="desktop-preview">
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }} className="no-print">
                 <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#64748B", margin: 0 }}>Live Preview</p>
-                <SaveMenu onSave={(format) => doDownload(previewRef, format)} downloading={downloading} small />
+                <SaveMenu onSave={doDownload} downloading={downloading} small />
               </div>
-              <div ref={previewRef} style={{ transform: "scale(0.82)", transformOrigin: "top left", width: "122%", marginBottom: "-18%" }}>
-                <PreviewComponent data={data} />
+              {/* The outer div's scale/width/margin combo is purely a visual
+                  on-screen fit trick — html2canvas captures the untransformed
+                  box, which is 22% wider than the actual card. display:
+                  inline-block on the ref'd inner div makes it shrink-wrap to
+                  the card's own rendered width instead of filling its full
+                  block-level parent — without this, ThermalFull specifically
+                  (whose card self-centers via maxWidth+margin:auto, narrower
+                  than the other three templates) leaves blank space on both
+                  sides that gets exported filled with the background color,
+                  reading as an off-white bleed past the card's real edge. */}
+              <div style={{ transform: "scale(0.82)", transformOrigin: "top left", width: "122%", marginBottom: "-18%" }}>
+                <div ref={previewRef} style={{ display: "inline-block" }}>
+                  <PreviewComponent data={data} />
+                </div>
               </div>
             </div>
           </div>

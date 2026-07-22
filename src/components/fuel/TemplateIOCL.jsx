@@ -1,7 +1,7 @@
 import BankStrip from "./BankStrip";
 
-const mono = { fontFamily: "'Courier New', monospace" };
-const wrap = { background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 0, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", position: "relative", zIndex: 0 };
+const mono = { fontFamily: "monospace", letterSpacing: "0.3px" };
+const wrap = { background: "#FBFAF6", border: "1px solid #e9e6dd", borderRadius: 0, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", position: "relative", zIndex: 0 };
 const thickDivider = { borderTop: "2px solid #000", borderBottom: "2px solid #000", margin: "8px 0" };
 const thickLine = { borderTop: "2px solid #000", margin: "8px 0" };
 
@@ -33,7 +33,7 @@ export default function TemplateIOCL({ data }) {
         {/* Logo + header */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 24 }}>
           {data.logoUrl && (
-            <img src={data.logoUrl} alt="station logo" style={{ height: 64, objectFit: "contain", marginBottom: 12 }} onError={(e) => e.target.style.display = "none"} />
+            <img src={data.logoUrl} alt="station logo" crossOrigin="anonymous" style={{ height: 64, objectFit: "contain", marginBottom: 12 }} onError={(e) => e.target.style.display = "none"} />
           )}
           <p style={{ ...mono, textAlign: "center", fontSize: 13 }}>{data.stationName}</p>
           <p style={{ ...mono, textAlign: "center", fontSize: 12, color: "#4b5563", marginTop: 4 }}>{data.stationAddress}</p>
@@ -46,8 +46,6 @@ export default function TemplateIOCL({ data }) {
         <div style={{ height: 8 }} />
         <Row label="RECEIPT NO:" value={data.billNumber} />
         <Row label="DATE & TIME:" value={data.billDate || data.billTime ? `${formatDate(data.billDate)}, ${data.billTime}` : ""} />
-        <Row label="SHIFT:" value={data.shift} />
-        <Row label="PUMP NO:" value={data.pumpNo} />
         <Row label="NOZZLE NO:" value={data.nozzleNo} />
         <div style={{ height: 8 }} />
         <Row label="PRODUCT:" value={data.fuelType} />

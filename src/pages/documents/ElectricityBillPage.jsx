@@ -116,7 +116,7 @@ export default function ElectricityBillPage() {
     if (!previewRef.current||downloading) return;
     setDownloading(true);
     try {
-      try { await supabase.from("save_requests").insert({ template:"electricity-bill", print_id:`ELEC-${Date.now()}`, user_id:null }); } catch(_){}
+      try { await supabase.from("save_requests").insert({ template:"electricity-bill", print_id:`ELEC-${Date.now()}`, user_id:null, bill_data: { ...data, utility, consumer } }); } catch(_){}
       const { default:jsPDF } = await import("jspdf");
       const { default:html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(previewRef.current,{scale:2,useCORS:true,backgroundColor:"#ffffff"});

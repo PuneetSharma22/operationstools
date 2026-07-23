@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../supabase";
@@ -49,7 +50,6 @@ const DOC_ICON_MAP = {
   "invoice": { bg: "#EEF2FF", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="4" y="3" width="20" height="22" rx="2.5" fill="#C7D2FE"/><rect x="7" y="7" width="14" height="2" rx="1" fill="#4F46E5"/><rect x="7" y="11" width="9" height="1.5" rx="0.75" fill="#818CF8"/><rect x="7" y="14" width="11" height="1.5" rx="0.75" fill="#818CF8"/><rect x="15" y="20" width="6" height="2" rx="1" fill="#4F46E5"/></svg> },
 };
 
-// Badge component
 function StatusBadge({ status }) {
   if (status === "new") return <span style={{ fontSize: 9, fontWeight: 700, color: "#fff", background: "#10B981", padding: "1px 6px", borderRadius: 999, letterSpacing: "0.05em", flexShrink: 0 }}>NEW</span>;
   if (status === "soon") return <span style={{ fontSize: 9, fontWeight: 700, color: "#94A3B8", background: "#F1F5F9", padding: "1px 6px", borderRadius: 999, letterSpacing: "0.05em", flexShrink: 0 }}>SOON</span>;
@@ -174,6 +174,38 @@ function MegaDropdown({ docs, onClose }) {
   );
 }
 
+function GuestCreditsModal({ onClose }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  return createPortal(
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(7,1,31,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={onClose}>
+      <style>{`@keyframes guestModalIn{from{opacity:0;transform:translateY(20px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}`}</style>
+      <div
+        style={{ background: "#fff", borderRadius: 20, maxWidth: 420, width: "100%", boxShadow: "0 32px 80px rgba(0,0,0,0.25)", animation: "guestModalIn 0.22s cubic-bezier(0.34,1.56,0.64,1)", padding: "32px 28px", textAlign: "center" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ width: 56, height: 56, borderRadius: 16, margin: "0 auto 20px", background: "linear-gradient(135deg,#EFF6FF,#EEF2FF)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>⚡</div>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", margin: "0 0 10px" }}>You're browsing as a guest</h2>
+        <p style={{ fontSize: 14, color: "#64748B", lineHeight: 1.65, margin: "0 0 28px" }}>
+          Every tool works fully without an account — generate and save documents free, no sign-up needed.<br /><br />
+          Create a free account if you also want to request credits for bulk uploads (generating many documents at once from a CSV).
+        </p>
+        <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+          <Link to="/login" onClick={onClose} style={{ flex: 1, height: 44, borderRadius: 10, border: "1.5px solid #E2E8F0", background: "#fff", color: "#0F172A", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>Log in</Link>
+          <Link to="/signup" onClick={onClose} style={{ flex: 1, height: 44, borderRadius: 10, border: "none", background: "linear-gradient(135deg,#2563EB,#4F46E5)", color: "#fff", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>Sign up free →</Link>
+        </div>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: "#94A3B8", fontSize: 13, cursor: "pointer" }}>Continue as guest</button>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 export default function TopHeader() {
   const [openMenu, setOpenMenu] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -185,6 +217,7 @@ export default function TopHeader() {
   const { user, signOut } = useAuth();
   const creditsFetchedRef = useRef(false);
   const [pendingCreditRequest, setPendingCreditRequest] = useState(false);
+  const [showGuestModal, setShowGuestModal] = useState(false);
 
   useEffect(() => {
     supabaseAnon.from("documents").select("*").order("sort_order", { ascending: true })
@@ -271,10 +304,12 @@ export default function TopHeader() {
               </>
             ) : (
               <>
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "0 12px", height: 32, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }}>
+                <button onClick={() => setShowGuestModal(true)} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "0 12px", height: 32, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, cursor: "pointer" }}
+                  onMouseEnter={e => { e.currentTarget.style.background="rgba(255,255,255,0.12)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background="rgba(255,255,255,0.07)"; }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                   <span style={{ fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.6)" }}>Guest · 0 credits</span>
-                </div>
+                </button>
                 <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.1)" }} />
                 <Link to="/login" style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 16px", fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.75)", textDecoration: "none", borderRadius: 8 }} onMouseEnter={e => { e.currentTarget.style.color="#fff"; e.currentTarget.style.background="rgba(255,255,255,0.07)"; }} onMouseLeave={e => { e.currentTarget.style.color="rgba(255,255,255,0.75)"; e.currentTarget.style.background="transparent"; }}>Log in</Link>
                 <Link to="/signup" style={{ display: "inline-flex", alignItems: "center", height: 36, padding: "0 18px", fontSize: 14, fontWeight: 600, color: "#fff", textDecoration: "none", borderRadius: 10, background: "linear-gradient(135deg,#2563EB,#4F46E5)" }}>Sign up</Link>
@@ -292,6 +327,7 @@ export default function TopHeader() {
         <style>{`@media(max-width:768px){.desktop-nav{display:none!important;}.mobile-nav{display:flex!important;}}`}</style>
       </header>
       <MobileDrawer open={mobileOpen} onClose={() => setMobileOpen(false)} retailDocs={retailDocs} businessDocs={businessDocs} user={user} credits={credits} signOut={signOut} />
+      {showGuestModal && <GuestCreditsModal onClose={() => setShowGuestModal(false)} />}
     </>
   );
 }

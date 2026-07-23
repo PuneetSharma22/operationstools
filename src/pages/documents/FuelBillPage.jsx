@@ -360,7 +360,11 @@ function BulkGenerateModal({ user, stationData, activeTemplate, onClose }) {
         const x = (pageW - finalW) / 2;
 
         if (i > 0) pdf.addPage();
-        pdf.addImage(canvas.toDataURL("image/png"), "PNG", x, 10, finalW, finalH);
+        // JPEG at high quality instead of PNG — PNG is lossless and produces
+        // multi-MB files for this kind of image (text + a color logo over a
+        // solid background); JPEG compresses it far better with no visible
+        // quality loss at this quality setting.
+        pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", x, 10, finalW, finalH);
 
         root.unmount();
         container.removeChild(wrapper);
@@ -728,7 +732,11 @@ export default function FuelBillPage() {
         link.click();
       } else {
         const { default: jsPDF } = await import("jspdf");
-        const imgData = canvas.toDataURL("image/png");
+        // JPEG at high quality instead of PNG — PNG is lossless and
+        // produces multi-MB files for this kind of image (text + a color
+        // logo over a solid background); JPEG compresses it far better
+        // with no visible quality loss at this quality setting.
+        const imgData = canvas.toDataURL("image/jpeg", 0.92);
         const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
         const pageW = pdf.internal.pageSize.getWidth();
         const pxToMm = 25.4 / (96 * 2);
@@ -741,7 +749,7 @@ export default function FuelBillPage() {
         const fitScale = Math.min(maxW / naturalW, maxH / naturalH);
         const finalW = naturalW * fitScale;
         const finalH = naturalH * fitScale;
-        pdf.addImage(imgData, "PNG", (pageW - finalW) / 2, 10, finalW, finalH);
+        pdf.addImage(imgData, "JPEG", (pageW - finalW) / 2, 10, finalW, finalH);
         pdf.save(`fuel-bill-${Date.now()}.pdf`);
       }
     } catch (err) {

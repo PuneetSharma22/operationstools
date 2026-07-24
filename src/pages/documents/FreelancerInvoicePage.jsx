@@ -1,6 +1,66 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase";
+import { useSEO } from "../../seo/useSEO";
+import DocumentPageSEO from "../../seo/DocumentPageSEO";
+
+// ─── SEO ─────────────────────────────────────────────────────────────────────
+const SEO_TITLE = "Free Freelancer Invoice Generator Online — Hourly & Fixed Price (2026)";
+const SEO_DESCRIPTION = "Generate a freelancer invoice online for free. Hourly or fixed-price billing, project details, and tax. No login. Instant PDF. India-compliant.";
+const CANONICAL = "https://www.opstools.ai/documents/freelancer-invoice";
+const softwareAppSchema = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "OpsTools Freelancer Invoice Generator", operatingSystem: "Web", applicationCategory: "BusinessApplication", offers: { "@type": "Offer", price: "0", priceCurrency: "INR" }, description: SEO_DESCRIPTION, url: CANONICAL, provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" } };
+const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
+  { "@type": "Question", name: "Is this freelancer invoice generator free?", acceptedAnswer: { "@type": "Answer", text: "Yes, completely free with no login required." } },
+  { "@type": "Question", name: "Can I bill hourly or fixed price?", acceptedAnswer: { "@type": "Answer", text: "Yes, you can toggle between hourly billing (hours × rate) and fixed-price billing (quantity × rate) depending on the engagement." } },
+  { "@type": "Question", name: "Does it include tax and discounts?", acceptedAnswer: { "@type": "Answer", text: "Yes, you can set a tax percentage and an optional discount, both reflected in the final total." } },
+  { "@type": "Question", name: "Can I add a project name?", acceptedAnswer: { "@type": "Answer", text: "Yes, an optional project name and description field appears on the invoice for context." } },
+] };
+const INTRO = (<><p style={{ marginBottom: 16 }}>Billing a client as a freelancer shouldn't mean fighting with a spreadsheet template every time. OpsTools Freelancer Invoice Generator gets you a clean, professional invoice in under a minute — hourly or fixed price, with tax and discount handled automatically.</p><p style={{ marginBottom: 16 }}>Toggle between hourly billing (log hours at a rate) and fixed-price billing (quantity at a rate) depending on how the engagement works. Add a project name and description for context, and the invoice total calculates itself from your line items, tax rate, and any discount.</p><p>The preview updates live as you type. Download directly as a PDF when ready — your data never leaves your browser.</p></>);
+const WHAT_IS = `A freelancer invoice is a bill issued by an independent contractor or freelancer to a client for work completed, itemizing hours or deliverables, rate, tax, and total amount due. It's used both for payment collection and as a record for tax filing.`;
+const WHY_USE = [
+  { title: "Freelancers & consultants", body: "Bill clients professionally without needing dedicated invoicing software." },
+  { title: "Hourly contractors", body: "Log hours against a rate and get an itemized invoice automatically." },
+  { title: "Fixed-price projects", body: "Bill for deliverables or milestones at agreed fixed rates." },
+  { title: "Side-project income", body: "Keep clean records of freelance income for tax purposes." },
+];
+const FEATURES = [
+  { icon: "⏱️", title: "Hourly or fixed pricing", body: "Toggle between billing types depending on the engagement." },
+  { icon: "📋", title: "Project details", body: "Optional project name and description field for context." },
+  { icon: "🧮", title: "Tax & discount", body: "Set a tax percentage and optional discount, reflected in the total automatically." },
+  { icon: "👁️", title: "Live preview", body: "See the invoice update in real time as you fill the form." },
+  { icon: "⬇️", title: "Direct PDF download", body: "One click downloads the invoice as a PDF." },
+  { icon: "🏷️", title: "Custom logo", body: "Paste any image URL to add your logo." },
+  { icon: "🔒", title: "100% private", body: "No data is stored or transmitted. Everything happens in your browser." },
+];
+const HOW_TO_STEPS = [
+  { step: 1, title: "Enter invoice details", body: "Invoice number, date, due date, and billing type (hourly or fixed)." },
+  { step: 2, title: "Add project details", body: "Optional project name and description." },
+  { step: 3, title: "Add line items", body: "List each task or deliverable with hours/quantity and rate." },
+  { step: 4, title: "Set tax & discount", body: "Enter tax percentage and any discount to apply." },
+  { step: 5, title: "Preview", body: "Check the live preview — totals update instantly." },
+  { step: 6, title: "Download PDF", body: "Click Save PDF to download the invoice." },
+];
+const BENEFITS = [
+  "Toggle between hourly and fixed-price billing.",
+  "Tax and discount calculated automatically.",
+  "No registration or sign-up required.",
+  "Direct PDF download — no print dialog.",
+  "All data stays in your browser — zero privacy risk.",
+  "Completely free — no subscription.",
+];
+const FORMAT_FIELDS = [
+  { field: "Invoice No.", description: "Unique identifier for the invoice", example: "FREEL-2026-1042" },
+  { field: "Billing Type", description: "Hourly or fixed-price billing basis", example: "Hourly" },
+  { field: "Project Name", description: "Optional project or engagement name", example: "Website Redesign" },
+  { field: "Line Items", description: "Task/deliverable with hours or quantity and rate", example: "UI Design — 12 hrs @ ₹1,500/hr" },
+  { field: "Tax %", description: "Applicable tax rate on the subtotal", example: "18%" },
+];
+const FAQS = faqSchema.mainEntity.map((i) => ({ q: i.name, a: i.acceptedAnswer.text }));
+const RELATED_DOCS = [
+  { name: "Service Invoice Generator", href: "/documents/service-invoice", description: "Invoices for service-based businesses." },
+  { name: "Invoice Generator", href: "/documents/invoice", description: "Professional invoices with line items." },
+  { name: "Quotation Generator", href: "/documents/quotation", description: "Price quotes with validity and terms." },
+];
 
 function Field({ label, value, onChange, placeholder, type="text", small }) {
   return (
@@ -129,6 +189,16 @@ export default function FreelancerInvoicePage() {
 
   const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#7C3AED", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
+  useSEO({
+    title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,
+    breadcrumbs: [
+      { name: "Home", url: "https://www.opstools.ai" },
+      { name: "Documents", url: "https://www.opstools.ai/documents" },
+      { name: "Freelancer Invoice Generator", url: CANONICAL },
+    ],
+    schemas: [softwareAppSchema, faqSchema],
+  });
+
   return (
     <>
       <Helmet>
@@ -147,7 +217,7 @@ export default function FreelancerInvoicePage() {
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
-      <style>{`@media(max-width:1023px){.fl-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .fl-grid{grid-template-columns:1fr!important;}}@media print{.no-print{display:none!important;}}`}</style>
+      <style>{`@media(max-width:1023px){.fl-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .fl-grid{grid-template-columns:1fr!important;}}@media(max-width:768px){.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#2e1065 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
           <nav style={{ marginBottom:16, fontSize:13, color:"#C4B5FD" }}><a href="/" style={{ color:"#C4B5FD", textDecoration:"none" }}>Home</a><span style={{ margin:"0 8px" }}>›</span><a href="/documents" style={{ color:"#C4B5FD", textDecoration:"none" }}>Documents</a><span style={{ margin:"0 8px" }}>›</span><span style={{ color:"#DDD6FE" }}>Freelancer Invoice</span></nav>
@@ -228,6 +298,12 @@ export default function FreelancerInvoicePage() {
               <div ref={previewRef}><FreelancerPreview data={data} freelancer={freelancer} client={client} items={items} /></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+        <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
+          <DocumentPageSEO documentName="Freelancer Invoice" documentSlug="freelancer-invoice" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
         </div>
       </div>
     </div>

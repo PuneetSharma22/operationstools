@@ -1,6 +1,63 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase";
+import { useSEO } from "../../seo/useSEO";
+import DocumentPageSEO from "../../seo/DocumentPageSEO";
+
+// ─── SEO ─────────────────────────────────────────────────────────────────────
+const SEO_TITLE = "Free Hotel Bill Generator Online — Stay Receipt PDF (2026)";
+const SEO_DESCRIPTION = "Generate a hotel bill online for free. Check-in/check-out dates, room charges, taxes, and GSTIN. No login. Instant PDF. India-compliant.";
+const CANONICAL = "https://www.opstools.ai/documents/hotel-bill";
+const softwareAppSchema = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "OpsTools Hotel Bill Generator", operatingSystem: "Web", applicationCategory: "BusinessApplication", offers: { "@type": "Offer", price: "0", priceCurrency: "INR" }, description: SEO_DESCRIPTION, url: CANONICAL, provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" } };
+const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
+  { "@type": "Question", name: "Is this hotel bill generator free?", acceptedAnswer: { "@type": "Answer", text: "Yes, completely free with no login required." } },
+  { "@type": "Question", name: "How is the number of nights calculated?", acceptedAnswer: { "@type": "Answer", text: "Nights are calculated automatically from your check-in and check-out dates — no manual counting needed." } },
+  { "@type": "Question", name: "Can I use this for travel reimbursement?", acceptedAnswer: { "@type": "Answer", text: "Yes, a properly formatted hotel bill with dates, charges, and GSTIN is exactly what most travel expense claims need." } },
+  { "@type": "Question", name: "Does it include additional charges?", acceptedAnswer: { "@type": "Answer", text: "Yes, optional fields are available for extra charges like room service, laundry, or amenities, alongside the room rate." } },
+] };
+const INTRO = (<><p style={{ marginBottom: 16 }}>Need a hotel bill for travel reimbursement, expense records, or a stay confirmation? OpsTools Hotel Bill Generator lays out a clean, professional receipt in under a minute — check-in/check-out dates, room charges, and tax, all calculated automatically.</p><p style={{ marginBottom: 16 }}>Enter the check-in and check-out dates and the number of nights computes itself. Add the room rate and any additional charges — room service, amenities, or extras — and the total, including applicable tax, is worked out for you.</p><p>The preview updates live as you type. Download directly as a PDF — your data never leaves your browser.</p></>);
+const WHAT_IS = `A hotel bill is the receipt issued to a guest at checkout, itemizing the room charge, number of nights, any additional charges, and applicable tax. It's commonly required for business travel reimbursement and expense record-keeping.`;
+const WHY_USE = [
+  { title: "Business travel reimbursement", body: "Attach a properly formatted hotel bill when claiming back travel expenses." },
+  { title: "Small hotels & guesthouses", body: "Generate professional bills without investing in dedicated hotel management software." },
+  { title: "Travel expense records", body: "Keep consistent records of accommodation spend across trips." },
+];
+const FEATURES = [
+  { icon: "🏨", title: "Auto-calculated nights", body: "Number of nights computed automatically from check-in and check-out dates." },
+  { icon: "🧮", title: "Room + additional charges", body: "Room rate plus optional extras like room service or amenities, all itemized." },
+  { icon: "🧾", title: "GSTIN & tax support", body: "Include the hotel's GSTIN and applicable tax on the bill." },
+  { icon: "👁️", title: "Live preview", body: "See the bill update in real time as you fill the form." },
+  { icon: "⬇️", title: "Direct PDF download", body: "One click downloads the bill as a PDF." },
+  { icon: "🔒", title: "100% private", body: "No data is stored or transmitted. Everything happens in your browser." },
+];
+const HOW_TO_STEPS = [
+  { step: 1, title: "Enter stay dates", body: "Check-in and check-out dates — nights calculate automatically." },
+  { step: 2, title: "Add hotel details", body: "Hotel name, address, and GSTIN." },
+  { step: 3, title: "Add guest details", body: "Guest name and address." },
+  { step: 4, title: "Enter charges", body: "Room rate and any additional charges." },
+  { step: 5, title: "Preview", body: "Check the live preview — totals update instantly." },
+  { step: 6, title: "Download PDF", body: "Click Save PDF to download the bill." },
+];
+const BENEFITS = [
+  "Nights calculated automatically from stay dates.",
+  "Room and additional charges itemized separately.",
+  "GSTIN and tax support included.",
+  "No registration or sign-up required.",
+  "All data stays in your browser — zero privacy risk.",
+  "Completely free — no subscription.",
+];
+const FORMAT_FIELDS = [
+  { field: "Check-in / Check-out", description: "Stay dates, used to calculate number of nights", example: "20 Jun – 22 Jun 2026" },
+  { field: "Room Rate", description: "Per-night charge for the room", example: "₹4,500" },
+  { field: "Additional Charges", description: "Extras like room service or amenities", example: "₹850" },
+  { field: "GSTIN", description: "Hotel's GST registration number", example: "27AABCU9603R1ZX" },
+];
+const FAQS = faqSchema.mainEntity.map((i) => ({ q: i.name, a: i.acceptedAnswer.text }));
+const RELATED_DOCS = [
+  { name: "Travel Expense Report", href: "/documents/travel-expense", description: "Business travel expense summary." },
+  { name: "Restaurant Bill Generator", href: "/documents/restaurant-bill", description: "Restaurant bills and food receipts." },
+  { name: "Fuel Bill Generator", href: "/documents/fuel-bill", description: "Petrol & diesel receipts." },
+];
 
 function Field({ label, value, onChange, placeholder, type="text", small }) {
   return (
@@ -127,6 +184,16 @@ export default function HotelBillPage() {
 
   const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#D97706", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
+  useSEO({
+    title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,
+    breadcrumbs: [
+      { name: "Home", url: "https://www.opstools.ai" },
+      { name: "Documents", url: "https://www.opstools.ai/documents" },
+      { name: "Hotel Bill Generator", url: CANONICAL },
+    ],
+    schemas: [softwareAppSchema, faqSchema],
+  });
+
   return (
     <>
       <Helmet>
@@ -145,7 +212,7 @@ export default function HotelBillPage() {
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
-      <style>{`@media(max-width:1023px){.hb-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .hb-grid{grid-template-columns:1fr!important;}}@media print{.no-print{display:none!important;}}`}</style>
+      <style>{`@media(max-width:1023px){.hb-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .hb-grid{grid-template-columns:1fr!important;}}@media(max-width:768px){.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#1c0a00 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
           <nav style={{ marginBottom:16, fontSize:13, color:"#FCD34D" }}><a href="/" style={{ color:"#FCD34D", textDecoration:"none" }}>Home</a><span style={{ margin:"0 8px" }}>›</span><a href="/documents" style={{ color:"#FCD34D", textDecoration:"none" }}>Documents</a><span style={{ margin:"0 8px" }}>›</span><span style={{ color:"#FDE68A" }}>Hotel Bill</span></nav>
@@ -232,6 +299,12 @@ export default function HotelBillPage() {
               <div ref={previewRef}><HotelPreview data={data} hotel={hotel} guest={guest} charges={charges} /></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+        <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
+          <DocumentPageSEO documentName="Hotel Bill" documentSlug="hotel-bill" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
         </div>
       </div>
     </div>

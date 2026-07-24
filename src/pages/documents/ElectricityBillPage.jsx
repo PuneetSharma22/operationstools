@@ -1,6 +1,64 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase";
+import { useSEO } from "../../seo/useSEO";
+import DocumentPageSEO from "../../seo/DocumentPageSEO";
+
+// ─── SEO ─────────────────────────────────────────────────────────────────────
+const SEO_TITLE = "Free Electricity Bill Generator Online — Utility Bill PDF (2026)";
+const SEO_DESCRIPTION = "Generate an electricity bill online for free. Meter reading, units consumed, energy charges, and tax — auto-calculated. No login. Instant PDF.";
+const CANONICAL = "https://www.opstools.ai/documents/electricity-bill";
+const softwareAppSchema = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "OpsTools Electricity Bill Generator", operatingSystem: "Web", applicationCategory: "BusinessApplication", offers: { "@type": "Offer", price: "0", priceCurrency: "INR" }, description: SEO_DESCRIPTION, url: CANONICAL, provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" } };
+const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
+  { "@type": "Question", name: "Is this electricity bill generator free?", acceptedAnswer: { "@type": "Answer", text: "Yes, completely free with no login required." } },
+  { "@type": "Question", name: "How are units consumed calculated?", acceptedAnswer: { "@type": "Answer", text: "Units consumed are calculated automatically as the difference between the current and previous meter readings — you just enter both readings and the rate per unit." } },
+  { "@type": "Question", name: "Can I use this for expense claims?", acceptedAnswer: { "@type": "Answer", text: "Yes, a properly formatted electricity bill with meter readings and charges is what most finance teams need for a utility expense claim." } },
+  { "@type": "Question", name: "Does it include fixed charges and fuel adjustment?", acceptedAnswer: { "@type": "Answer", text: "Yes, optional fields are available for fixed charges, fuel adjustment charges, arrears, and tax on top of the energy charge." } },
+] };
+const INTRO = (<><p style={{ marginBottom: 16 }}>Need an electricity bill for expense claims, record-keeping, or as a reference document — without hunting down a real utility provider's format? OpsTools Electricity Bill Generator lays out a properly formatted utility bill in under a minute: enter your meter readings and rate, and the rest — units consumed, energy charge, tax — calculates automatically.</p><p style={{ marginBottom: 16 }}>Built around how a real electricity bill actually breaks down: previous and current meter readings determine units consumed, which multiplied by your rate per unit gives the energy charge. Optional fixed charges, fuel adjustment, arrears, and tax stack on top for the final total.</p><p>The preview updates live as you type. Download directly as a PDF — your data never leaves your browser.</p></>);
+const WHAT_IS = `An electricity bill is a utility document issued by a power distribution company, showing meter readings, units consumed, and the resulting charges. It's commonly used for expense claims, record-keeping, and as address/utility proof.`;
+const WHY_USE = [
+  { title: "Expense claims", body: "Attach a properly formatted electricity bill when claiming utility expenses for a home office or business premises." },
+  { title: "Record-keeping", body: "Keep consistent records of utility charges across billing periods." },
+  { title: "Reference documents", body: "Generate a sample bill for templates, mockups, or documentation." },
+];
+const FEATURES = [
+  { icon: "⚡", title: "Auto-calculated units", body: "Units consumed computed automatically from previous and current meter readings." },
+  { icon: "🧮", title: "Full charge breakdown", body: "Energy charge, fixed charge, fuel adjustment, arrears, and tax all itemized." },
+  { icon: "📊", title: "Consumer details", body: "Consumer ID, meter number, and connection category included." },
+  { icon: "👁️", title: "Live preview", body: "See the bill update in real time as you fill the form." },
+  { icon: "⬇️", title: "Direct PDF download", body: "One click downloads the bill as a PDF." },
+  { icon: "🔒", title: "100% private", body: "No data is stored or transmitted. Everything happens in your browser." },
+];
+const HOW_TO_STEPS = [
+  { step: 1, title: "Enter bill details", body: "Bill number, billing period, and due date." },
+  { step: 2, title: "Add meter readings", body: "Previous and current readings — units consumed calculate automatically." },
+  { step: 3, title: "Set the rate", body: "Enter the rate per unit and any fixed or fuel adjustment charges." },
+  { step: 4, title: "Add consumer details", body: "Name, address, consumer ID, and meter number." },
+  { step: 5, title: "Preview", body: "Check the live preview — totals update instantly." },
+  { step: 6, title: "Download PDF", body: "Click Save PDF to download the bill." },
+];
+const BENEFITS = [
+  "Units consumed calculated automatically from meter readings.",
+  "Full charge breakdown — energy, fixed, fuel adjustment, tax.",
+  "No registration or sign-up required.",
+  "Direct PDF download — no print dialog.",
+  "All data stays in your browser — zero privacy risk.",
+  "Completely free — no subscription.",
+];
+const FORMAT_FIELDS = [
+  { field: "Meter Readings", description: "Previous and current readings, used to compute units consumed", example: "1240 → 1385" },
+  { field: "Units Consumed", description: "Automatically calculated: current minus previous reading", example: "145 units" },
+  { field: "Rate per Unit", description: "Price charged per unit of electricity", example: "₹7.50" },
+  { field: "Consumer ID", description: "Unique identifier for the connection", example: "CONS-4471023" },
+  { field: "Billing Period", description: "The month or cycle the bill covers", example: "June 2026" },
+];
+const FAQS = faqSchema.mainEntity.map((i) => ({ q: i.name, a: i.acceptedAnswer.text }));
+const RELATED_DOCS = [
+  { name: "Rent Receipt Generator", href: "/documents/rent-receipt", description: "HRA-compliant rent receipts." },
+  { name: "Hotel Bill Generator", href: "/documents/hotel-bill", description: "Hotel stay receipts for reimbursement." },
+  { name: "Fuel Bill Generator", href: "/documents/fuel-bill", description: "Petrol & diesel receipts." },
+];
 
 function Field({ label, value, onChange, placeholder, type="text", small }) {
   return (
@@ -136,6 +194,16 @@ export default function ElectricityBillPage() {
 
   const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#CA8A04", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
+  useSEO({
+    title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,
+    breadcrumbs: [
+      { name: "Home", url: "https://www.opstools.ai" },
+      { name: "Documents", url: "https://www.opstools.ai/documents" },
+      { name: "Electricity Bill Generator", url: CANONICAL },
+    ],
+    schemas: [softwareAppSchema, faqSchema],
+  });
+
   return (
     <>
       <Helmet>
@@ -154,7 +222,7 @@ export default function ElectricityBillPage() {
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
-      <style>{`@media(max-width:1023px){.eb-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .eb-grid{grid-template-columns:1fr!important;}}@media print{.no-print{display:none!important;}}`}</style>
+      <style>{`@media(max-width:1023px){.eb-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .eb-grid{grid-template-columns:1fr!important;}}@media(max-width:768px){.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#1c1400 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
           <nav style={{ marginBottom:16, fontSize:13, color:"#FCD34D" }}><a href="/" style={{ color:"#FCD34D", textDecoration:"none" }}>Home</a><span style={{ margin:"0 8px" }}>›</span><a href="/documents" style={{ color:"#FCD34D", textDecoration:"none" }}>Documents</a><span style={{ margin:"0 8px" }}>›</span><span style={{ color:"#FDE68A" }}>Electricity Bill</span></nav>
@@ -218,6 +286,12 @@ export default function ElectricityBillPage() {
               <div ref={previewRef}><ElectricityPreview data={data} utility={utility} consumer={consumer} /></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+        <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
+          <DocumentPageSEO documentName="Electricity Bill" documentSlug="electricity-bill" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
         </div>
       </div>
     </div>

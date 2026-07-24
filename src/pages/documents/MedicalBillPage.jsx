@@ -1,6 +1,63 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase";
+import { useSEO } from "../../seo/useSEO";
+import DocumentPageSEO from "../../seo/DocumentPageSEO";
+
+// ─── SEO ─────────────────────────────────────────────────────────────────────
+const SEO_TITLE = "Free Medical Bill Generator Online — Hospital & Pharmacy Receipt (2026)";
+const SEO_DESCRIPTION = "Generate a medical or pharmacy bill online for free. Patient details, itemized charges, and GSTIN. No login. Instant PDF. India-compliant.";
+const CANONICAL = "https://www.opstools.ai/documents/medical-bill";
+const softwareAppSchema = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "OpsTools Medical Bill Generator", operatingSystem: "Web", applicationCategory: "BusinessApplication", offers: { "@type": "Offer", price: "0", priceCurrency: "INR" }, description: SEO_DESCRIPTION, url: CANONICAL, provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" } };
+const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
+  { "@type": "Question", name: "Is this medical bill generator free?", acceptedAnswer: { "@type": "Answer", text: "Yes, completely free with no login required." } },
+  { "@type": "Question", name: "Can I use this for insurance claims?", acceptedAnswer: { "@type": "Answer", text: "Yes, a properly itemized medical bill with patient and hospital details is what most insurers require for a reimbursement claim." } },
+  { "@type": "Question", name: "Does it work for pharmacies too?", acceptedAnswer: { "@type": "Answer", text: "Yes, the itemized line items work equally well for medicine bills or hospital/clinic charges." } },
+  { "@type": "Question", name: "Can I include the hospital's GSTIN?", acceptedAnswer: { "@type": "Answer", text: "Yes, an optional GSTIN field is available for the hospital or clinic." } },
+] };
+const INTRO = (<><p style={{ marginBottom: 16 }}>Need a clean medical or pharmacy bill for an insurance claim, reimbursement, or record-keeping? OpsTools Medical Bill Generator gets you a properly itemized receipt in under a minute — patient details, charges, and hospital info, all in one document.</p><p style={{ marginBottom: 16 }}>List each charge or medicine as a line item, add the hospital or clinic's details including GSTIN, and the total calculates itself. Works equally well for a hospital bill, a clinic consultation receipt, or a pharmacy bill.</p><p>The preview updates live as you type. Download directly as a PDF — your data never leaves your browser.</p></>);
+const WHAT_IS = `A medical bill is the receipt issued by a hospital, clinic, or pharmacy for medical services or medicines provided, itemizing charges and often including patient and doctor details. It's commonly required for insurance reimbursement claims and expense records.`;
+const WHY_USE = [
+  { title: "Insurance reimbursement", body: "Attach a properly itemized medical bill when filing a claim." },
+  { title: "Clinics & small hospitals", body: "Generate professional bills without hospital management software." },
+  { title: "Pharmacies", body: "Issue itemized medicine bills quickly." },
+  { title: "Personal expense records", body: "Keep track of medical spending for tax or budgeting purposes." },
+];
+const FEATURES = [
+  { icon: "🏥", title: "Itemized charges", body: "List consultations, tests, procedures, or medicines as separate line items." },
+  { icon: "🧾", title: "GSTIN support", body: "Include the hospital or clinic's GST registration number." },
+  { icon: "👤", title: "Patient details", body: "Name, address, and other patient info on the bill." },
+  { icon: "👁️", title: "Live preview", body: "See the bill update in real time as you fill the form." },
+  { icon: "⬇️", title: "Direct PDF download", body: "One click downloads the bill as a PDF." },
+  { icon: "🔒", title: "100% private", body: "No data is stored or transmitted. Everything happens in your browser." },
+];
+const HOW_TO_STEPS = [
+  { step: 1, title: "Enter hospital/clinic details", body: "Name, address, and GSTIN." },
+  { step: 2, title: "Add patient details", body: "Patient name and other relevant info." },
+  { step: 3, title: "Add line items", body: "List each charge, test, or medicine with quantity and rate." },
+  { step: 4, title: "Preview", body: "Check the live preview — totals update instantly." },
+  { step: 5, title: "Download PDF", body: "Click Save PDF to download the bill." },
+];
+const BENEFITS = [
+  "Itemized charges for hospital, clinic, or pharmacy bills.",
+  "GSTIN support for tax-compliant billing.",
+  "No registration or sign-up required.",
+  "Direct PDF download — no print dialog.",
+  "All data stays in your browser — zero privacy risk.",
+  "Completely free — no subscription.",
+];
+const FORMAT_FIELDS = [
+  { field: "Patient Name", description: "Name of the patient receiving treatment", example: "Rajesh Sharma" },
+  { field: "Line Items", description: "Individual charges, tests, or medicines", example: "Consultation Fee — ₹500" },
+  { field: "Hospital GSTIN", description: "GST registration number of the hospital/clinic", example: "27AABCU9603R1ZX" },
+  { field: "Total Amount", description: "Sum of all itemized charges", example: "₹2,450.00" },
+];
+const FAQS = faqSchema.mainEntity.map((i) => ({ q: i.name, a: i.acceptedAnswer.text }));
+const RELATED_DOCS = [
+  { name: "Hotel Bill Generator", href: "/documents/hotel-bill", description: "Hotel stay receipts for reimbursement." },
+  { name: "GST Invoice Generator", href: "/documents/gst-invoice", description: "Tax-compliant GST invoices." },
+  { name: "Rent Receipt Generator", href: "/documents/rent-receipt", description: "HRA-compliant rent receipts." },
+];
 
 function Field({ label, value, onChange, placeholder, type="text", small }) {
   return (
@@ -129,6 +186,16 @@ export default function MedicalBillPage() {
 
   const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#10B981", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
+  useSEO({
+    title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,
+    breadcrumbs: [
+      { name: "Home", url: "https://www.opstools.ai" },
+      { name: "Documents", url: "https://www.opstools.ai/documents" },
+      { name: "Medical Bill Generator", url: CANONICAL },
+    ],
+    schemas: [softwareAppSchema, faqSchema],
+  });
+
   return (
     <>
       <Helmet>
@@ -147,7 +214,7 @@ export default function MedicalBillPage() {
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
-      <style>{`@media(max-width:1023px){.mb-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .mb-grid{grid-template-columns:1fr!important;}}@media print{.no-print{display:none!important;}}`}</style>
+      <style>{`@media(max-width:1023px){.mb-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .mb-grid{grid-template-columns:1fr!important;}}@media(max-width:768px){.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#052e16 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
           <nav style={{ marginBottom:16, fontSize:13, color:"#6EE7B7" }}><a href="/" style={{ color:"#6EE7B7", textDecoration:"none" }}>Home</a><span style={{ margin:"0 8px" }}>›</span><a href="/documents" style={{ color:"#6EE7B7", textDecoration:"none" }}>Documents</a><span style={{ margin:"0 8px" }}>›</span><span style={{ color:"#A7F3D0" }}>Medical Bill</span></nav>
@@ -227,6 +294,12 @@ export default function MedicalBillPage() {
               <div ref={previewRef}><MedicalPreview data={data} hospital={hospital} patient={patient} items={items} /></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+        <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
+          <DocumentPageSEO documentName="Medical Bill" documentSlug="medical-bill" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
         </div>
       </div>
     </div>

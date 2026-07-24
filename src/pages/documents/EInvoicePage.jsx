@@ -1,6 +1,64 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase";
+import { useSEO } from "../../seo/useSEO";
+import DocumentPageSEO from "../../seo/DocumentPageSEO";
+
+// ─── SEO ─────────────────────────────────────────────────────────────────────
+const SEO_TITLE = "Free E-Invoice Generator Online — IRN & QR Code Format (2026)";
+const SEO_DESCRIPTION = "Generate a GST e-invoice online for free, with IRN, acknowledgement number, and QR code fields. No login. Instant PDF. India-compliant.";
+const CANONICAL = "https://www.opstools.ai/documents/e-invoice";
+const softwareAppSchema = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "OpsTools E-Invoice Generator", operatingSystem: "Web", applicationCategory: "BusinessApplication", offers: { "@type": "Offer", price: "0", priceCurrency: "INR" }, description: SEO_DESCRIPTION, url: CANONICAL, provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" } };
+const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
+  { "@type": "Question", name: "What is an e-invoice under GST?", acceptedAnswer: { "@type": "Answer", text: "An e-invoice is a standard invoice that has been registered on the government's Invoice Registration Portal (IRP), which returns a unique Invoice Reference Number (IRN) and a QR code. It's mandatory for businesses above a certain turnover threshold." } },
+  { "@type": "Question", name: "Where do I get the IRN and QR code?", acceptedAnswer: { "@type": "Answer", text: "The IRN, acknowledgement number, and QR code are issued by the government's IRP after you submit your invoice there — this tool lets you lay them out on a properly formatted invoice once you have them, it doesn't generate or register them itself." } },
+  { "@type": "Question", name: "What is reverse charge on an invoice?", acceptedAnswer: { "@type": "Answer", text: "Reverse charge means the recipient, not the supplier, is liable to pay GST on that transaction. Mark it accordingly if applicable to your invoice." } },
+  { "@type": "Question", name: "Is this generator free?", acceptedAnswer: { "@type": "Answer", text: "Yes, completely free with no login required." } },
+] };
+const INTRO = (<><p style={{ marginBottom: 16 }}>Once you've registered an invoice on the government's e-invoicing portal and received an IRN, acknowledgement number, and QR code back, you still need somewhere to lay all of that out on a proper invoice. OpsTools E-Invoice Generator does exactly that — fill in your details plus the IRN/QR data, and get a print-ready, properly formatted e-invoice in under a minute.</p><p style={{ marginBottom: 16 }}>This tool doesn't generate or register the IRN itself — that has to come from the government's Invoice Registration Portal (IRP) — but once you have it, this handles the formatting: place of supply, reverse charge flag, and the IRN/acknowledgement/QR block laid out the way e-invoices are expected to look.</p><p>Every field updates live in the preview. When ready, download directly as a PDF. Your data never leaves your browser.</p></>);
+const WHAT_IS = `An e-invoice (electronic invoice) is a GST invoice that has been registered on the government's Invoice Registration Portal, which validates it and returns an Invoice Reference Number (IRN) and a QR code. E-invoicing is mandatory for businesses above a specified annual turnover under Indian GST rules.`;
+const WHY_USE = [
+  { title: "Businesses under e-invoicing mandate", body: "Lay out your registered invoice with IRN, ack number, and QR code in the expected format." },
+  { title: "Accounts teams", body: "Generate consistent, properly formatted e-invoices for every transaction." },
+  { title: "GST compliance records", body: "Keep a clean, print-ready copy of every e-invoice issued." },
+];
+const FEATURES = [
+  { icon: "🧾", title: "IRN & QR fields", body: "Dedicated fields for IRN, acknowledgement number, ack date, and QR code data." },
+  { icon: "🔄", title: "Reverse charge flag", body: "Mark reverse-charge transactions correctly on the invoice." },
+  { icon: "📍", title: "Place of supply", body: "Include the place of supply as required for GST invoices." },
+  { icon: "👁️", title: "Live preview", body: "See the invoice update in real time as you fill the form." },
+  { icon: "⬇️", title: "Direct PDF download", body: "One click downloads the invoice as a PDF." },
+  { icon: "🔒", title: "100% private", body: "No data is stored or transmitted. Everything happens in your browser." },
+];
+const HOW_TO_STEPS = [
+  { step: 1, title: "Enter invoice details", body: "Invoice number, date, place of supply, and reverse charge flag." },
+  { step: 2, title: "Add IRN & QR data", body: "Paste in the IRN, acknowledgement number, ack date, and QR code you received from the IRP." },
+  { step: 3, title: "Add supplier & buyer details", body: "Enter both parties' details including GSTIN." },
+  { step: 4, title: "Add line items", body: "List each item or service with quantity, rate, and tax." },
+  { step: 5, title: "Preview", body: "Check the live preview updates instantly." },
+  { step: 6, title: "Download PDF", body: "Click Save PDF to download the invoice." },
+];
+const BENEFITS = [
+  "Dedicated fields for IRN, acknowledgement number, and QR code.",
+  "Reverse charge and place of supply included.",
+  "No registration or sign-up required.",
+  "Direct PDF download — no print dialog.",
+  "All data stays in your browser — zero privacy risk.",
+  "Completely free — no subscription.",
+];
+const FORMAT_FIELDS = [
+  { field: "IRN", description: "Invoice Reference Number issued by the government IRP", example: "35054cb4d...9f2a1" },
+  { field: "Acknowledgement No.", description: "Ack number returned alongside the IRN", example: "112010001234567" },
+  { field: "QR Code", description: "QR code data issued for the invoice", example: "Base64/encoded QR payload" },
+  { field: "Place of Supply", description: "State where the supply is deemed to occur", example: "Maharashtra" },
+  { field: "Reverse Charge", description: "Whether GST liability shifts to the recipient", example: "Yes / No" },
+];
+const FAQS = faqSchema.mainEntity.map((i) => ({ q: i.name, a: i.acceptedAnswer.text }));
+const RELATED_DOCS = [
+  { name: "GST Invoice Generator", href: "/documents/gst-invoice", description: "General-purpose GST-compliant invoices." },
+  { name: "E-Way Bill Generator", href: "/documents/eway-bill", description: "GST e-way bill reference document." },
+  { name: "Service Invoice Generator", href: "/documents/service-invoice", description: "Invoices for service-based businesses." },
+];
 
 function Field({ label, value, onChange, placeholder, type="text", small }) {
   return (
@@ -135,6 +193,16 @@ export default function EInvoicePage() {
 
   const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#0F172A", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
+  useSEO({
+    title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,
+    breadcrumbs: [
+      { name: "Home", url: "https://www.opstools.ai" },
+      { name: "Documents", url: "https://www.opstools.ai/documents" },
+      { name: "E-Invoice Generator", url: CANONICAL },
+    ],
+    schemas: [softwareAppSchema, faqSchema],
+  });
+
   return (
     <>
       <Helmet>
@@ -153,7 +221,7 @@ export default function EInvoicePage() {
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
-      <style>{`@media(max-width:1023px){.ei-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .ei-grid{grid-template-columns:1fr!important;}}@media print{.no-print{display:none!important;}}`}</style>
+      <style>{`@media(max-width:1023px){.ei-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .ei-grid{grid-template-columns:1fr!important;}}@media(max-width:768px){.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#0F172A 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
           <nav style={{ marginBottom:16, fontSize:13, color:"#94A3B8" }}><a href="/" style={{ color:"#94A3B8", textDecoration:"none" }}>Home</a><span style={{ margin:"0 8px" }}>›</span><a href="/documents" style={{ color:"#94A3B8", textDecoration:"none" }}>Documents</a><span style={{ margin:"0 8px" }}>›</span><span style={{ color:"#CBD5E1" }}>E-Invoice</span></nav>
@@ -232,6 +300,12 @@ export default function EInvoicePage() {
               <div ref={previewRef}><EInvoicePreview data={data} supplier={supplier} buyer={buyer} items={items} /></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+        <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
+          <DocumentPageSEO documentName="E-Invoice" documentSlug="e-invoice" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
         </div>
       </div>
     </div>

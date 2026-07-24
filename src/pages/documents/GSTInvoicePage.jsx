@@ -1,6 +1,8 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase";
+import { useSEO } from "../../seo/useSEO";
+import DocumentPageSEO from "../../seo/DocumentPageSEO";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function numberToWords(n) {
@@ -19,6 +21,63 @@ function numberToWords(n) {
   const paise = Math.round((n - rupees) * 100);
   return convert(rupees) + " Rupees" + (paise > 0 ? " and " + convert(paise) + " Paise" : "") + " Only";
 }
+
+// ─── SEO ─────────────────────────────────────────────────────────────────────
+const SEO_TITLE = "Free GST Invoice Generator Online — Tax Invoice with HSN Codes (2026)";
+const SEO_DESCRIPTION = "Generate a GST-compliant tax invoice online for free. HSN codes, CGST/SGST/IGST, place of supply, and amount in words. No login. Instant PDF.";
+const CANONICAL = "https://www.opstools.ai/documents/gst-invoice";
+const softwareAppSchema = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "OpsTools GST Invoice Generator", operatingSystem: "Web", applicationCategory: "BusinessApplication", offers: { "@type": "Offer", price: "0", priceCurrency: "INR" }, description: SEO_DESCRIPTION, url: CANONICAL, provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" } };
+const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
+  { "@type": "Question", name: "Is this GST invoice generator free?", acceptedAnswer: { "@type": "Answer", text: "Yes, completely free with no login required. Generate unlimited invoices at no cost." } },
+  { "@type": "Question", name: "What is an HSN code?", acceptedAnswer: { "@type": "Answer", text: "HSN (Harmonized System of Nomenclature) codes classify goods for GST purposes, and SAC codes classify services. Both are entered per line item on this generator." } },
+  { "@type": "Question", name: "When do I use CGST+SGST vs IGST?", acceptedAnswer: { "@type": "Answer", text: "CGST + SGST apply when supplier and buyer are in the same state. IGST applies when they're in different states. Set the GST rate per item and the split is handled automatically based on place of supply." } },
+  { "@type": "Question", name: "Does this generate amount in words?", acceptedAnswer: { "@type": "Answer", text: "Yes, the total is automatically converted to words, as required on a valid GST tax invoice." } },
+] };
+const INTRO = (<><p style={{ marginBottom: 16 }}>Issuing a GST-compliant tax invoice usually means either paying for accounting software or manually formatting one in Excel every time. OpsTools GST Invoice Generator gets you a proper tax invoice — HSN codes, GST breakdown, and amount in words — in under a minute, for free.</p><p style={{ marginBottom: 16 }}>Every field a valid GST invoice needs is here: supplier and buyer GSTIN, place of supply, HSN/SAC codes per line item, and the tax breakdown. The total converts to words automatically, as required for a valid tax invoice.</p><p>The preview updates live as you type. Download directly as a PDF — your data never leaves your browser.</p></>);
+const WHAT_IS = `A GST invoice (tax invoice) is the document a GST-registered business issues for the supply of goods or services, showing the taxable value, applicable GST (CGST/SGST or IGST), and total amount. It's a mandatory record for both the supplier and buyer for GST compliance and input tax credit claims.`;
+const WHY_USE = [
+  { title: "GST-registered businesses", body: "Issue compliant tax invoices for every sale, with HSN codes and correct tax breakdown." },
+  { title: "Small business owners", body: "Generate professional invoices without accounting software." },
+  { title: "Freelancers & consultants", body: "Bill clients with a properly formatted GST invoice when registered." },
+  { title: "Accounts teams", body: "Produce consistent, audit-ready invoices for every transaction." },
+];
+const FEATURES = [
+  { icon: "🧾", title: "GST-compliant format", body: "GSTIN, HSN codes, place of supply, and tax breakdown — everything a valid invoice needs." },
+  { icon: "🔀", title: "CGST/SGST or IGST", body: "Automatically split or apply GST based on your item-level rates." },
+  { icon: "🔢", title: "Amount in words", body: "Total automatically converted to words." },
+  { icon: "👁️", title: "Live preview", body: "See the invoice update in real time as you fill the form." },
+  { icon: "⬇️", title: "Direct PDF download", body: "One click downloads the invoice as a PDF." },
+  { icon: "🏷️", title: "Custom logo", body: "Paste any image URL to add your company logo." },
+  { icon: "🔒", title: "100% private", body: "No data is stored or transmitted. Everything happens in your browser." },
+];
+const HOW_TO_STEPS = [
+  { step: 1, title: "Enter invoice details", body: "Invoice number, date, due date, and place of supply." },
+  { step: 2, title: "Add supplier & buyer", body: "Enter both parties' details, including GSTIN." },
+  { step: 3, title: "Add line items", body: "List each item with HSN code, quantity, rate, and GST rate." },
+  { step: 4, title: "Preview", body: "Check the live preview — the tax breakdown updates instantly." },
+  { step: 5, title: "Download PDF", body: "Click Save PDF to download the invoice." },
+];
+const BENEFITS = [
+  "Generate unlimited GST invoices — no caps or credit limits.",
+  "HSN codes and GST breakdown included on every line item.",
+  "Amount in words auto-generated.",
+  "No registration or sign-up required.",
+  "All data stays in your browser — zero privacy risk.",
+  "Completely free — no subscription.",
+];
+const FORMAT_FIELDS = [
+  { field: "GSTIN", description: "15-character GST registration number", example: "27AABCU9603R1ZX" },
+  { field: "HSN/SAC Code", description: "Classification code for the goods or service", example: "998314" },
+  { field: "Place of Supply", description: "State where the supply is deemed to occur", example: "Maharashtra" },
+  { field: "Taxable Value", description: "Pre-tax value of the line item", example: "₹10,000.00" },
+  { field: "GST Rate", description: "Applicable GST percentage on the item", example: "18%" },
+];
+const FAQS = faqSchema.mainEntity.map((i) => ({ q: i.name, a: i.acceptedAnswer.text }));
+const RELATED_DOCS = [
+  { name: "E-Invoice Generator", href: "/documents/e-invoice", description: "GST e-invoice with IRN." },
+  { name: "L&D Bill Generator", href: "/documents/ld-bill", description: "Tax invoices for training & courses." },
+  { name: "Service Invoice Generator", href: "/documents/service-invoice", description: "Invoices for service-based businesses." },
+];
 
 function Field({ label, value, onChange, placeholder, type="text", small, readOnly }) {
   return (
@@ -223,6 +282,16 @@ export default function GSTInvoicePage() {
     </div>
   );
 
+  useSEO({
+    title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,
+    breadcrumbs: [
+      { name: "Home", url: "https://www.opstools.ai" },
+      { name: "Documents", url: "https://www.opstools.ai/documents" },
+      { name: "GST Invoice Generator", url: CANONICAL },
+    ],
+    schemas: [softwareAppSchema, faqSchema],
+  });
+
   return (
     <>
       <Helmet>
@@ -241,7 +310,7 @@ export default function GSTInvoicePage() {
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
-      <style>{`@media(max-width:1023px){.gst-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .gst-grid{grid-template-columns:1fr !important;}}@media print{.no-print{display:none !important;}}`}</style>
+      <style>{`@media(max-width:1023px){.gst-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .gst-grid{grid-template-columns:1fr !important;}}@media(max-width:768px){.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}@media print{.no-print{display:none !important;}}`}</style>
 
       <section style={{ background: "linear-gradient(160deg,#07011F 0%,#064e3b 100%)", padding: "40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
@@ -336,6 +405,12 @@ export default function GSTInvoicePage() {
               <div ref={previewRef}><GSTPreview data={data} supplier={supplier} buyer={buyer} items={items} /></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+        <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
+          <DocumentPageSEO documentName="GST Invoice" documentSlug="gst-invoice" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
         </div>
       </div>
     </div>

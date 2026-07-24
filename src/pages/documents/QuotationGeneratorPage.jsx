@@ -1,6 +1,63 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase";
+import { useSEO } from "../../seo/useSEO";
+import DocumentPageSEO from "../../seo/DocumentPageSEO";
+
+// ─── SEO ─────────────────────────────────────────────────────────────────────
+const SEO_TITLE = "Free Quotation Generator Online — Business Price Quote PDF (2026)";
+const SEO_DESCRIPTION = "Generate professional business quotations online for free. Line items, validity period, and terms & conditions. No login. Instant PDF.";
+const CANONICAL = "https://www.opstools.ai/documents/quotation";
+const softwareAppSchema = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "OpsTools Quotation Generator", operatingSystem: "Web", applicationCategory: "BusinessApplication", offers: { "@type": "Offer", price: "0", priceCurrency: "INR" }, description: SEO_DESCRIPTION, url: CANONICAL, provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" } };
+const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
+  { "@type": "Question", name: "Is this quotation generator free?", acceptedAnswer: { "@type": "Answer", text: "Yes, completely free with no login required." } },
+  { "@type": "Question", name: "What's the difference between a quotation and an invoice?", acceptedAnswer: { "@type": "Answer", text: "A quotation is a price estimate offered before work begins, while an invoice is a request for payment after goods or services are delivered. This tool is for the former." } },
+  { "@type": "Question", name: "Can I set a validity period?", acceptedAnswer: { "@type": "Answer", text: "Yes, you can specify how long the quoted prices remain valid, which appears clearly on the document." } },
+  { "@type": "Question", name: "Can I add terms and conditions?", acceptedAnswer: { "@type": "Answer", text: "Yes, a dedicated terms & conditions field lets you specify payment terms, delivery timelines, or other conditions." } },
+] };
+const INTRO = (<><p style={{ marginBottom: 16 }}>Sending a client a price quote shouldn't mean formatting a document from scratch every time. OpsTools Quotation Generator gets you a professional, clearly laid-out quotation in under a minute — line items, validity period, and terms, all in one document.</p><p style={{ marginBottom: 16 }}>List your priced items, set how long the quote remains valid, and add any terms and conditions — payment terms, delivery timelines, or whatever your business needs specified upfront.</p><p>The preview updates live as you type. Download directly as a PDF — your data never leaves your browser.</p></>);
+const WHAT_IS = `A quotation (or price quote) is a document a business sends a prospective client, listing prices for goods or services before any commitment is made. Unlike an invoice, it's not a request for payment — it's an offer, usually valid for a limited period.`;
+const WHY_USE = [
+  { title: "Sales & business development", body: "Send prospective clients a clear, professional price quote." },
+  { title: "Service providers", body: "Quote for a project before work begins, with clear terms." },
+  { title: "Freelancers & consultants", body: "Formalize pricing discussions with a proper written quote." },
+];
+const FEATURES = [
+  { icon: "📋", title: "Itemized pricing", body: "List each item or service with quantity and rate." },
+  { icon: "📅", title: "Validity period", body: "Specify how long the quoted prices remain valid." },
+  { icon: "📝", title: "Terms & conditions", body: "Add payment terms, delivery timelines, or other conditions." },
+  { icon: "👁️", title: "Live preview", body: "See the quotation update in real time as you fill the form." },
+  { icon: "⬇️", title: "Direct PDF download", body: "One click downloads the quotation as a PDF." },
+  { icon: "🔒", title: "100% private", body: "No data is stored or transmitted. Everything happens in your browser." },
+];
+const HOW_TO_STEPS = [
+  { step: 1, title: "Enter quote details", body: "Quote number, date, and validity period." },
+  { step: 2, title: "Add your business & client details", body: "Both parties' names and contact info." },
+  { step: 3, title: "Add line items", body: "List each priced item or service." },
+  { step: 4, title: "Add terms", body: "Optional terms & conditions and notes." },
+  { step: 5, title: "Preview", body: "Check the live preview — totals update instantly." },
+  { step: 6, title: "Download PDF", body: "Click Save PDF to download the quotation." },
+];
+const BENEFITS = [
+  "Clear, professional price quotes in seconds.",
+  "Validity period clearly displayed.",
+  "Terms & conditions field included.",
+  "No registration or sign-up required.",
+  "All data stays in your browser — zero privacy risk.",
+  "Completely free — no subscription.",
+];
+const FORMAT_FIELDS = [
+  { field: "Quote No.", description: "Unique identifier for the quotation", example: "QUOTE-2026-1042" },
+  { field: "Validity", description: "How long the quoted prices remain valid", example: "30 days from issue" },
+  { field: "Line Items", description: "Priced items or services offered", example: "Website Design — ₹25,000" },
+  { field: "Terms & Conditions", description: "Payment or delivery terms for the quote", example: "50% advance, balance on delivery" },
+];
+const FAQS = faqSchema.mainEntity.map((i) => ({ q: i.name, a: i.acceptedAnswer.text }));
+const RELATED_DOCS = [
+  { name: "Invoice Generator", href: "/documents/invoice", description: "Professional invoices with line items." },
+  { name: "Freelancer Invoice", href: "/documents/freelancer-invoice", description: "Hourly & fixed price invoices." },
+  { name: "Service Invoice Generator", href: "/documents/service-invoice", description: "Invoices for service-based businesses." },
+];
 
 function Field({ label, value, onChange, placeholder, type="text", small }) {
   return (
@@ -112,6 +169,16 @@ export default function QuotationGeneratorPage() {
     </div>
   );
 
+  useSEO({
+    title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,
+    breadcrumbs: [
+      { name: "Home", url: "https://www.opstools.ai" },
+      { name: "Documents", url: "https://www.opstools.ai/documents" },
+      { name: "Quotation Generator", url: CANONICAL },
+    ],
+    schemas: [softwareAppSchema, faqSchema],
+  });
+
   return (
     <>
       <Helmet>
@@ -130,7 +197,7 @@ export default function QuotationGeneratorPage() {
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
-      <style>{`@media(max-width:1023px){.qt-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .qt-grid{grid-template-columns:1fr!important;}}@media print{.no-print{display:none!important;}}`}</style>
+      <style>{`@media(max-width:1023px){.qt-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .qt-grid{grid-template-columns:1fr!important;}}@media(max-width:768px){.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#0c2340 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
           <nav style={{ marginBottom:16, fontSize:13, color:"#7DD3FC" }}>
@@ -198,6 +265,12 @@ export default function QuotationGeneratorPage() {
               <div ref={previewRef}><QuotePreview data={data} from={from} to={to} items={items} /></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+        <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
+          <DocumentPageSEO documentName="Quotation" documentSlug="quotation" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
         </div>
       </div>
     </div>

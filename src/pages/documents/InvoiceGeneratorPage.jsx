@@ -1,6 +1,64 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase";
+import { useSEO } from "../../seo/useSEO";
+import DocumentPageSEO from "../../seo/DocumentPageSEO";
+
+// ─── SEO ─────────────────────────────────────────────────────────────────────
+const SEO_TITLE = "Free Invoice Generator India — Professional Invoices with Tax (2026)";
+const SEO_DESCRIPTION = "Generate professional invoices online for free. Line items, tax, discounts, and bank details. No login. Instant PDF. India-compliant.";
+const CANONICAL = "https://www.opstools.ai/documents/invoice";
+const softwareAppSchema = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "OpsTools Invoice Generator", operatingSystem: "Web", applicationCategory: "BusinessApplication", offers: { "@type": "Offer", price: "0", priceCurrency: "INR" }, description: SEO_DESCRIPTION, url: CANONICAL, provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" } };
+const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
+  { "@type": "Question", name: "Is this invoice generator free?", acceptedAnswer: { "@type": "Answer", text: "Yes, completely free with no login required." } },
+  { "@type": "Question", name: "Can I add bank details for payment?", acceptedAnswer: { "@type": "Answer", text: "Yes, optional bank name, account number, IFSC, and UPI ID fields appear on the invoice for easy payment." } },
+  { "@type": "Question", name: "Does it support discounts and tax?", acceptedAnswer: { "@type": "Answer", text: "Yes, you can apply a tax percentage per item and an overall discount, both reflected in the final total." } },
+  { "@type": "Question", name: "Is this suitable for any business type?", acceptedAnswer: { "@type": "Answer", text: "Yes, this is a general-purpose invoice suitable for any business — for GST-specific invoices with HSN codes, see the GST Invoice Generator instead." } },
+] };
+const INTRO = (<><p style={{ marginBottom: 16 }}>Need a clean, professional invoice without wrestling with a spreadsheet template? OpsTools Invoice Generator gets you there in under a minute — line items, tax, discount, and bank details, all in one print-ready document.</p><p style={{ marginBottom: 16 }}>Add as many line items as needed, apply tax and an overall discount, and include your bank details or UPI ID so clients know exactly how to pay. The total, including amount in words, calculates itself.</p><p>The preview updates live as you type. Download directly as a PDF — your data never leaves your browser.</p></>);
+const WHAT_IS = `An invoice is a document a business issues to a customer requesting payment for goods or services provided, itemizing what was sold, the price, applicable tax, and total due. It serves as both a payment request and a business record.`;
+const WHY_USE = [
+  { title: "Small business owners", body: "Issue professional invoices without accounting software." },
+  { title: "Service providers", body: "Bill clients clearly with itemized line items and tax." },
+  { title: "One-off sales", body: "Generate a quick invoice for a single transaction without setting up a system." },
+];
+const FEATURES = [
+  { icon: "🧾", title: "Itemized line items", body: "Add as many items as needed, each with quantity, rate, and tax." },
+  { icon: "💳", title: "Bank details", body: "Optional bank account, IFSC, and UPI ID fields for easy payment." },
+  { icon: "🔢", title: "Amount in words", body: "Total automatically converted to words." },
+  { icon: "👁️", title: "Live preview", body: "See the invoice update in real time as you fill the form." },
+  { icon: "⬇️", title: "Direct PDF download", body: "One click downloads the invoice as a PDF." },
+  { icon: "🏷️", title: "Custom logo", body: "Paste any image URL to add your business logo." },
+  { icon: "🔒", title: "100% private", body: "No data is stored or transmitted. Everything happens in your browser." },
+];
+const HOW_TO_STEPS = [
+  { step: 1, title: "Enter invoice details", body: "Invoice number, date, due date, and discount." },
+  { step: 2, title: "Add your business details", body: "Name, address, GSTIN, and contact info." },
+  { step: 3, title: "Add client details", body: "Name, address, and contact info for the client." },
+  { step: 4, title: "Add line items", body: "List each item with quantity, rate, and tax." },
+  { step: 5, title: "Add bank details", body: "Optional — include account details or UPI ID for payment." },
+  { step: 6, title: "Download PDF", body: "Click Save PDF to download the invoice." },
+];
+const BENEFITS = [
+  "Unlimited line items per invoice.",
+  "Tax and discount calculated automatically.",
+  "Bank details and UPI ID for easy payment.",
+  "Amount in words auto-generated.",
+  "All data stays in your browser — zero privacy risk.",
+  "Completely free — no subscription.",
+];
+const FORMAT_FIELDS = [
+  { field: "Invoice No.", description: "Unique identifier for the invoice", example: "INV-2026-1042" },
+  { field: "Line Items", description: "Description, quantity, rate, and tax per item", example: "Consulting — 5 hrs @ ₹2,000/hr" },
+  { field: "Discount", description: "Overall discount applied to the invoice", example: "₹500" },
+  { field: "Bank Details", description: "Account info for the client to make payment", example: "HDFC Bank, A/C 1234567890" },
+];
+const FAQS = faqSchema.mainEntity.map((i) => ({ q: i.name, a: i.acceptedAnswer.text }));
+const RELATED_DOCS = [
+  { name: "GST Invoice Generator", href: "/documents/gst-invoice", description: "Tax-compliant GST invoices with HSN codes." },
+  { name: "Quotation Generator", href: "/documents/quotation", description: "Price quotes with validity and terms." },
+  { name: "Freelancer Invoice", href: "/documents/freelancer-invoice", description: "Hourly & fixed price invoices." },
+];
 
 function Field({ label, value, onChange, placeholder, type = "text", small }) {
   return (
@@ -157,6 +215,16 @@ export default function InvoiceGeneratorPage() {
     </div>
   );
 
+  useSEO({
+    title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,
+    breadcrumbs: [
+      { name: "Home", url: "https://www.opstools.ai" },
+      { name: "Documents", url: "https://www.opstools.ai/documents" },
+      { name: "Invoice Generator", url: CANONICAL },
+    ],
+    schemas: [softwareAppSchema, faqSchema],
+  });
+
   return (
     <>
       <Helmet>
@@ -175,7 +243,7 @@ export default function InvoiceGeneratorPage() {
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
-      <style>{`@media(max-width:1023px){.inv-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .inv-grid{grid-template-columns:1fr!important;}}@media print{.no-print{display:none!important;}}`}</style>
+      <style>{`@media(max-width:1023px){.inv-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .inv-grid{grid-template-columns:1fr!important;}}@media(max-width:768px){.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#1e1b4b 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
           <nav style={{ marginBottom:16, fontSize:13, color:"#818CF8" }}>
@@ -255,6 +323,12 @@ export default function InvoiceGeneratorPage() {
               <div ref={previewRef}><InvoicePreview data={data} from={from} to={to} items={items} /></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+        <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
+          <DocumentPageSEO documentName="Invoice Generator" documentSlug="invoice" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
         </div>
       </div>
     </div>

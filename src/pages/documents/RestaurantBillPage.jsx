@@ -5,6 +5,8 @@ import { supabase } from "../../supabase";
 import RestaurantTemplate1 from "../../components/restaurant/RestaurantTemplate1";
 import RestaurantTemplate2 from "../../components/restaurant/RestaurantTemplate2";
 import RestaurantTemplate3 from "../../components/restaurant/RestaurantTemplate3";
+import { useSEO } from "../../seo/useSEO";
+import DocumentPageSEO from "../../seo/DocumentPageSEO";
 
 const today = new Date();
 const nowTime = `${String(today.getHours()).padStart(2, "0")}:${String(today.getMinutes()).padStart(2, "0")}`;
@@ -17,6 +19,65 @@ const TEMPLATES = [
 const TEMPLATE_COMPONENTS = { "1": RestaurantTemplate1, "2": RestaurantTemplate2, "3": RestaurantTemplate3 };
 
 const defaultItem = () => ({ id: Date.now() + Math.random(), name: "", qty: 1, rate: 0 });
+
+// ─── SEO ─────────────────────────────────────────────────────────────────────
+const SEO_TITLE = "Free Restaurant Bill Generator — Food Receipt with CGST/SGST (2026)";
+const SEO_DESCRIPTION = "Generate restaurant bills online for free. Table number, menu items, CGST/SGST, and 3 receipt styles. No login. Instant PDF. India-compliant.";
+const CANONICAL = "https://www.opstools.ai/documents/restaurant-bill";
+const softwareAppSchema = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "OpsTools Restaurant Bill Generator", operatingSystem: "Web", applicationCategory: "BusinessApplication", offers: { "@type": "Offer", price: "0", priceCurrency: "INR" }, description: SEO_DESCRIPTION, url: CANONICAL, provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" } };
+const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
+  { "@type": "Question", name: "Is this restaurant bill generator free?", acceptedAnswer: { "@type": "Answer", text: "Yes, completely free with no login required for single bills." } },
+  { "@type": "Question", name: "Does it support CGST and SGST?", acceptedAnswer: { "@type": "Answer", text: "Yes. Both CGST and SGST percentages are configurable, along with an optional service charge — all computed automatically from your menu items." } },
+  { "@type": "Question", name: "Can I generate many bills at once?", acceptedAnswer: { "@type": "Answer", text: "Yes. Bulk generation lets you upload a CSV with multiple bills — including all the menu items for each — and download them as a single PDF." } },
+  { "@type": "Question", name: "Which template should I use?", acceptedAnswer: { "@type": "Answer", text: "Clean Modern suits a simple itemized receipt, Bold Total emphasizes the final amount, and POS Thermal mimics a classic monospace till receipt with a tax breakdown." } },
+] };
+const INTRO = (<><p style={{ marginBottom: 16 }}>Whether you run a small eatery without a POS system or just need a quick, professional-looking food bill, OpsTools Restaurant Bill Generator gets you a print-ready receipt in under a minute. Pick a template, add your menu items, and download — no login, no subscription.</p><p style={{ marginBottom: 16 }}>Built for how Indian restaurant bills actually work: CGST and SGST are calculated automatically from your item list, with an optional service charge on top. Three receipt styles are available, from a clean modern layout to a classic monospace POS-style thermal receipt.</p><p>Need to generate many bills at once — say, for a batch of takeaway orders? Bulk generation via CSV upload handles that too, items and all.</p></>);
+const WHAT_IS = `A restaurant bill (or food bill) is the receipt given to a customer after a meal, itemizing what was ordered along with applicable taxes — typically CGST and SGST for dine-in service in India. It serves as proof of purchase and, for GST-registered establishments, as a tax-compliant record of the transaction.`;
+const WHY_USE = [
+  { title: "Small restaurants without a POS", body: "Generate professional, tax-compliant bills without investing in point-of-sale software." },
+  { title: "Cafés and quick-service outlets", body: "Print-ready bills for dine-in or takeaway orders in seconds." },
+  { title: "Pop-ups and event catering", body: "Issue proper receipts even when working outside a fixed location." },
+  { title: "Bulk billing", body: "Upload a CSV to generate an entire batch of bills — useful for catering orders or end-of-day reconciliation." },
+];
+const FEATURES = [
+  { icon: "🍽️", title: "3 receipt styles", body: "Clean Modern, Bold Total, and POS Thermal — pick what fits your restaurant." },
+  { icon: "🧮", title: "Automatic tax calculation", body: "CGST, SGST, and an optional service charge computed from your item list." },
+  { icon: "📦", title: "Bulk generation", body: "Upload a CSV with items packed per bill to generate many receipts at once." },
+  { icon: "👁️", title: "Live preview", body: "See the bill update in real time as you add items." },
+  { icon: "⬇️", title: "Direct PDF/PNG download", body: "One click downloads the bill as a PDF or PNG." },
+  { icon: "🔒", title: "100% private", body: "No data is stored or transmitted. Everything happens in your browser." },
+  { icon: "🆓", title: "No login needed", body: "Single bills are always free, no account required." },
+];
+const HOW_TO_STEPS = [
+  { step: 1, title: "Choose a template", body: "Pick from Clean Modern, Bold Total, or POS Thermal." },
+  { step: 2, title: "Enter restaurant details", body: "Add your restaurant name, address, and optional logo." },
+  { step: 3, title: "Fill in bill details", body: "Table number, customer name, date, time, and payment mode." },
+  { step: 4, title: "Add menu items", body: "List each item with quantity and rate — totals compute automatically." },
+  { step: 5, title: "Set tax rates", body: "Adjust CGST, SGST, and service charge percentages if needed." },
+  { step: 6, title: "Download", body: "Click Save to download the bill as a PDF or PNG." },
+];
+const BENEFITS = [
+  "3 receipt templates to match your restaurant's style.",
+  "CGST/SGST and service charge calculated automatically.",
+  "Bulk generation via CSV for batch billing.",
+  "Direct PDF/PNG download — no print dialog.",
+  "All data stays in your browser — zero privacy risk.",
+  "Single bills are completely free — no subscription.",
+];
+const FORMAT_FIELDS = [
+  { field: "Bill No.", description: "Unique identifier for the bill", example: "BILL-1042" },
+  { field: "Table No.", description: "Table number for dine-in service", example: "T-05" },
+  { field: "Menu Items", description: "Item name, quantity, and rate per item", example: "Paneer Butter Masala × 2 @ ₹220" },
+  { field: "CGST / SGST", description: "Central + State GST, typically 2.5% each for restaurants", example: "2.5% + 2.5%" },
+  { field: "Service Charge", description: "Optional charge added on top of the bill", example: "10%" },
+  { field: "Payment Mode", description: "How the bill was settled", example: "Cash / Card / UPI" },
+];
+const FAQS = faqSchema.mainEntity.map((i) => ({ q: i.name, a: i.acceptedAnswer.text }));
+const RELATED_DOCS = [
+  { name: "Hotel Bill Generator", href: "/documents/hotel-bill", description: "Hotel stay receipts for reimbursement." },
+  { name: "GST Invoice Generator", href: "/documents/gst-invoice", description: "Tax-compliant GST invoices." },
+  { name: "Fuel Bill Generator", href: "/documents/fuel-bill", description: "Petrol & diesel receipts." },
+];
 
 const defaultData = {
   restaurantName: "", address: "", phone: "", gstin: "", logoUrl: "",
@@ -689,6 +750,16 @@ export default function RestaurantBillPage() {
     }
   };
 
+  useSEO({
+    title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,
+    breadcrumbs: [
+      { name: "Home", url: "https://www.opstools.ai" },
+      { name: "Documents", url: "https://www.opstools.ai/documents" },
+      { name: "Restaurant Bill Generator", url: CANONICAL },
+    ],
+    schemas: [softwareAppSchema, faqSchema],
+  });
+
   return (
     <>
       <Helmet>
@@ -698,7 +769,7 @@ export default function RestaurantBillPage() {
       <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
         <style>{`
           @media(max-width:1023px){.preview-col{position:static!important;}}
-          @media(max-width:768px){.rb-tool-padding{padding-left:16px!important;padding-right:16px!important;}.rb-hero-padding{padding:28px 16px 24px!important;}}
+          @media(max-width:768px){.rb-tool-padding{padding-left:16px!important;padding-right:16px!important;}.rb-hero-padding{padding:28px 16px 24px!important;}.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}
           .rb-tool-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
           @media(min-width:1024px){ .rb-tool-grid { grid-template-columns: 1fr 320px; gap: 28px; } }
           @media print{.no-print{display:none!important;}}
@@ -819,6 +890,12 @@ export default function RestaurantBillPage() {
                 </ScaledPreview>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+          <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
+            <DocumentPageSEO documentName="Restaurant Bill" documentSlug="restaurant-bill" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
           </div>
         </div>
       </div>

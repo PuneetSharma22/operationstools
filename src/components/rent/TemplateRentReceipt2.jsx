@@ -1,5 +1,5 @@
 const serif = { fontFamily: "'Times New Roman', Georgia, serif" };
-export const REVENUE_STAMP_URL = "https://bill-generator-assets-2.s3.ap-south-1.amazonaws.com/Revenu.jpg";
+import { REVENUE_STAMP_DATA_URI } from "./revenueStampAsset";
 
 const formatDate = (d) => {
   if (!d) return "___________";
@@ -58,10 +58,9 @@ function ReceiptBlock({ data, compact }) {
             <div>
               <div style={{ ...serif, fontSize: 12, marginBottom: 4 }}>Revenue Stamp</div>
               <img
-                src={REVENUE_STAMP_URL}
+                src={REVENUE_STAMP_DATA_URI}
                 alt="Revenue stamp"
                 style={{ width: 48, height: 58, objectFit: "contain" }}
-                onError={(e) => { e.target.style.display = "none"; }}
               />
             </div>
             <span style={{ ...serif, fontSize: 12.5 }}>Receiver's Name</span>

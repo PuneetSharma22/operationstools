@@ -1,5 +1,5 @@
 const serif = { fontFamily: "'Times New Roman', Georgia, serif" };
-export const REVENUE_STAMP_URL = "https://bill-generator-assets-2.s3.ap-south-1.amazonaws.com/Revenu.jpg";
+import { REVENUE_STAMP_DATA_URI } from "./revenueStampAsset";
 
 const formatDate = (d) => {
   if (!d) return "—";
@@ -95,10 +95,9 @@ export default function TemplateRentReceipt4({ data }) {
           <div style={{ ...serif, fontSize: 12 }}>Period: {periodLabel || "N/A"}</div>
         </div>
         <img
-          src={REVENUE_STAMP_URL}
+          src={REVENUE_STAMP_DATA_URI}
           alt="Revenue stamp"
           style={{ width: 56, height: 68, objectFit: "contain" }}
-          onError={(e) => { e.target.style.display = "none"; }}
         />
       </div>
     </div>

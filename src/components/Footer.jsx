@@ -142,7 +142,11 @@ export default function Footer() {
           {/* Link columns */}
           {footerLinks.map((col) => (
             <div key={col.heading}>
-              <h3 style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#64748B", margin: "0 0 16px" }}>
+              {/* #64748B on this #07011F navy background measures ~4.27:1 — just
+                  under the 4.5:1 WCAG AA minimum. #94A3B8 (already used for the
+                  regular links directly below, at ~7.93:1) passes comfortably and
+                  keeps this column visually consistent with its own links. */}
+              <h3 style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94A3B8", margin: "0 0 16px" }}>
                 {col.heading}
               </h3>
               <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 10 }}>
@@ -158,9 +162,14 @@ export default function Footer() {
                     ) : (
                     <Link
                       to={link.href}
-                      style={{ fontSize: 13.5, color: link.soon || link.tip ? "#475569" : "#94A3B8", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}
+                      // "tip" links previously used #475569 on navy (~2.68:1, fails
+                      // badly). #CBD5E1 (~13.69:1) keeps a visual distinction from
+                      // the regular #94A3B8 links (lighter rather than darker,
+                      // since darker was the direction that broke contrast) while
+                      // passing with a lot of headroom.
+                      style={{ fontSize: 13.5, color: link.soon ? "#475569" : link.tip ? "#CBD5E1" : "#94A3B8", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}
                       onMouseEnter={(e) => !link.soon && (e.target.style.color = "#E2E8F0")}
-                      onMouseLeave={(e) => !link.soon && (e.target.style.color = link.soon || link.tip ? "#475569" : "#94A3B8")}
+                      onMouseLeave={(e) => !link.soon && (e.target.style.color = link.soon ? "#475569" : link.tip ? "#CBD5E1" : "#94A3B8")}
                     >
                       {link.label}
                       {link.soon && (
@@ -183,14 +192,16 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "18px 20px" }}>
+        {/* Same #64748B-on-navy contrast issue as the headings above — swapped
+            to #94A3B8 throughout this bar for the same reason. */}
         <div className="footer-bottom" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <div style={{ fontSize: 12.5, color: "#64748B" }}>
+          <div style={{ fontSize: 12.5, color: "#94A3B8" }}>
             © {new Date().getFullYear()} OpsTools — free for Indian small businesses
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-            <Link to="/about" style={{ fontSize: 12.5, color: "#64748B", textDecoration: "none" }} onMouseEnter={(e) => (e.target.style.color = "#94A3B8")} onMouseLeave={(e) => (e.target.style.color = "#64748B")}>Privacy</Link>
-            <Link to="/about" style={{ fontSize: 12.5, color: "#64748B", textDecoration: "none" }} onMouseEnter={(e) => (e.target.style.color = "#94A3B8")} onMouseLeave={(e) => (e.target.style.color = "#64748B")}>Terms</Link>
-            <span style={{ fontSize: 12.5, color: "#64748B", display: "flex", alignItems: "center", gap: 5 }}>
+            <Link to="/about" style={{ fontSize: 12.5, color: "#94A3B8", textDecoration: "none" }} onMouseEnter={(e) => (e.target.style.color = "#E2E8F0")} onMouseLeave={(e) => (e.target.style.color = "#94A3B8")}>Privacy</Link>
+            <Link to="/about" style={{ fontSize: 12.5, color: "#94A3B8", textDecoration: "none" }} onMouseEnter={(e) => (e.target.style.color = "#E2E8F0")} onMouseLeave={(e) => (e.target.style.color = "#94A3B8")}>Terms</Link>
+            <span style={{ fontSize: 12.5, color: "#94A3B8", display: "flex", alignItems: "center", gap: 5 }}>
               Made with <span style={{ color: "#4F46E5", fontSize: 14 }}>♥</span> in India
             </span>
           </div>

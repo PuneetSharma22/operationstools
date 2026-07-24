@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- Preconnect to Supabase — Lighthouse identified this as a preconnect
+         candidate worth ~80ms of LCP savings, since the app makes an API
+         call to Supabase early in page load (e.g. TopHeader/Home fetching
+         the documents list) but the browser doesn't know to open that
+         connection until the request is actually made. This hint lets the
+         DNS lookup + TLS handshake happen in parallel with everything else. -->
+    <link rel="preconnect" href="https://ihodvebprqaqphdnfobn.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="https://ihodvebprqaqphdnfobn.supabase.co" />
+
     <!-- Primary Meta — overwritten per-page by useSEO hook -->
     <title>OpsTools — Free Business Document Generator for India</title>
     <meta name="description" content="Free online document generators for Indian small businesses. Fuel bills, rent receipts, GST invoices, salary slips — no login, no cost, instant PDF." />

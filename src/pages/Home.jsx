@@ -95,32 +95,41 @@ export default function Home() {
               </div>
 
               <div className="hero-cards" style={{ position: "relative", height: 320, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {/* Card text below was #94A3B8 on a white (#fff) card background — that
+                    combination only reaches ~2.56:1 contrast, well short of the 4.5:1
+                    WCAG AA minimum for normal-size text. Switched to #64748B (~4.76:1),
+                    a color already used elsewhere in this exact role throughout the
+                    site, so this brings these cards in line with everything else
+                    rather than introducing a new shade. */}
                 <div style={{ position: "absolute", left: "5%", top: "10%", background: "#fff", borderRadius: 14, padding: "16px 18px", width: 210, boxShadow: "0 20px 60px rgba(0,0,0,0.35)", zIndex: 3 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
                     <div style={{ width: 32, height: 32, borderRadius: 8, background: "#DBEAFE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>⛽</div>
-                    <div><div style={{ fontSize: 12, fontWeight: 700, color: "#0F172A" }}>Fuel Bill</div><div style={{ fontSize: 10, color: "#94A3B8" }}>PK Fuel Station</div></div>
+                    <div><div style={{ fontSize: 12, fontWeight: 700, color: "#0F172A" }}>Fuel Bill</div><div style={{ fontSize: 10, color: "#64748B" }}>PK Fuel Station</div></div>
                   </div>
                   <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: 10 }}>
                     {[["Fuel Type", "Petrol"], ["Rate/Litre", "₹104.29"], ["Volume", "9.52 L"], ["Amount", "₹992.00"]].map(([k, v]) => (
                       <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 5 }}>
-                        <span style={{ color: "#94A3B8" }}>{k}</span><span style={{ fontWeight: 600, color: "#0F172A" }}>{v}</span>
+                        <span style={{ color: "#64748B" }}>{k}</span><span style={{ fontWeight: 600, color: "#0F172A" }}>{v}</span>
                       </div>
                     ))}
                   </div>
                   <div style={{ marginTop: 10, background: "#DBEAFE", borderRadius: 6, padding: "4px 8px", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#2563EB", display: "inline-block" }} />
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "#2563EB" }}>Live</span>
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#1D4ED8", display: "inline-block" }} />
+                    {/* #2563EB on this light-blue chip measured ~4.24:1 — just under
+                        the 4.5:1 threshold. #1D4ED8 (already used elsewhere, e.g. the
+                        e-way-bill icon) passes at ~5.49:1. */}
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "#1D4ED8" }}>Live</span>
                   </div>
                 </div>
                 <div style={{ position: "absolute", right: "2%", top: "5%", background: "#fff", borderRadius: 14, padding: "16px 18px", width: 196, boxShadow: "0 20px 60px rgba(0,0,0,0.3)", zIndex: 2 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
                     <div style={{ width: 32, height: 32, borderRadius: 8, background: "#D1FAE5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🏠</div>
-                    <div><div style={{ fontSize: 12, fontWeight: 700, color: "#0F172A" }}>Rent Receipt</div><div style={{ fontSize: 10, color: "#94A3B8" }}>June 2026</div></div>
+                    <div><div style={{ fontSize: 12, fontWeight: 700, color: "#0F172A" }}>Rent Receipt</div><div style={{ fontSize: 10, color: "#64748B" }}>June 2026</div></div>
                   </div>
                   <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: 10 }}>
                     {[["Tenant", "Rajesh Sharma"], ["Rent", "₹18,000"], ["Period", "Jun 2026"], ["PAN", "ABCDE1234F"]].map(([k, v]) => (
                       <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 5 }}>
-                        <span style={{ color: "#94A3B8" }}>{k}</span><span style={{ fontWeight: 600, color: "#0F172A", fontSize: 10 }}>{v}</span>
+                        <span style={{ color: "#64748B" }}>{k}</span><span style={{ fontWeight: 600, color: "#0F172A", fontSize: 10 }}>{v}</span>
                       </div>
                     ))}
                   </div>
@@ -199,29 +208,43 @@ export default function Home() {
   );
 }
 
+// Detects whether the row can scroll further left/right using
+// IntersectionObserver on sentinel elements at each end of the scrollable
+// content, instead of reading el.scrollLeft/scrollWidth/clientWidth in
+// response to scroll/resize events. Reading geometry like that right after
+// a DOM change is exactly what Lighthouse flags as a "forced reflow" — it
+// forces the browser to synchronously recompute layout instead of waiting
+// for its normal render cycle. IntersectionObserver reports visibility
+// changes without the caller ever having to query geometry at all, so
+// there's nothing to force a reflow with.
 function Carousel({ docs }) {
   const scrollRef = useRef(null);
+  const startSentinelRef = useRef(null);
+  const endSentinelRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
- const checkScroll = () => {
-   requestAnimationFrame(() => {
-     const el = scrollRef.current;
-     if (!el) return;
-     setCanScrollLeft(el.scrollLeft > 8);
-     setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 8);
-   });
- };
-
   useEffect(() => {
-    checkScroll();
-    window.addEventListener("resize", checkScroll);
-    return () => window.removeEventListener("resize", checkScroll);
+    const root = scrollRef.current;
+    const startEl = startSentinelRef.current;
+    const endEl = endSentinelRef.current;
+    if (!root || !startEl || !endEl) return;
+
+    const startObserver = new IntersectionObserver(
+      ([entry]) => setCanScrollLeft(!entry.isIntersecting),
+      { root, threshold: 0.99 }
+    );
+    const endObserver = new IntersectionObserver(
+      ([entry]) => setCanScrollRight(!entry.isIntersecting),
+      { root, threshold: 0.99 }
+    );
+    startObserver.observe(startEl);
+    endObserver.observe(endEl);
+    return () => { startObserver.disconnect(); endObserver.disconnect(); };
   }, [docs]);
 
   const scroll = (dir) => {
     scrollRef.current?.scrollBy({ left: dir * 280, behavior: "smooth" });
-    setTimeout(checkScroll, 350);
   };
 
   return (
@@ -231,8 +254,10 @@ function Carousel({ docs }) {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
       )}
-      <div ref={scrollRef} onScroll={checkScroll} style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 8, scrollbarWidth: "none", msOverflowStyle: "none", minHeight: 200 }}>
+      <div ref={scrollRef} style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 8, scrollbarWidth: "none", msOverflowStyle: "none", minHeight: 200 }}>
+        <div ref={startSentinelRef} style={{ width: 1, flexShrink: 0 }} aria-hidden="true" />
         {docs.map(doc => <ToolCard key={doc.slug} doc={doc} />)}
+        <div ref={endSentinelRef} style={{ width: 1, flexShrink: 0 }} aria-hidden="true" />
       </div>
       {canScrollRight && (
         <button onClick={() => scroll(1)} aria-label="Scroll right" style={{ position: "absolute", right: -16, top: "50%", transform: "translateY(-50%)", width: 32, height: 32, borderRadius: "50%", background: "#fff", border: "1px solid #E2E8F0", boxShadow: "0 2px 8px rgba(0,0,0,0.1)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>

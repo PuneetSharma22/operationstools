@@ -1,6 +1,73 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
-import { supabase } from "../../supabase-public.js";
+import { supabase } from "../../supabase";
+import { useSEO } from "../../seo/useSEO";
+import DocumentPageSEO from "../../seo/DocumentPageSEO";
+
+// ─── SEO ─────────────────────────────────────────────────────────────────────
+const SEO_TITLE = "Free L&D Bill Generator Online — Training Invoice PDF (2026)";
+const SEO_DESCRIPTION = "Generate a GST-compliant tax invoice for training, courses, and L&D expenses online for free. HSN 998433, CGST/SGST/IGST support. No login. Instant PDF. India-compliant.";
+const CANONICAL = "https://www.opstools.ai/documents/ld-bill";
+const softwareAppSchema = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "OpsTools L&D Bill Generator", operatingSystem: "Web", applicationCategory: "BusinessApplication", offers: { "@type": "Offer", price: "0", priceCurrency: "INR" }, description: SEO_DESCRIPTION, url: CANONICAL, provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" } };
+const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
+  { "@type": "Question", name: "Is this L&D bill generator free to use?", acceptedAnswer: { "@type": "Answer", text: "Yes, completely free with no login required. Generate unlimited invoices at no cost." } },
+  { "@type": "Question", name: "What HSN code applies to training and courses?", acceptedAnswer: { "@type": "Answer", text: "998433 is the standard HSN/SAC code used for commercial training and coaching services under Indian GST — it's pre-filled by default but can be changed if your specific service falls under a different code." } },
+  { "@type": "Question", name: "When do I use CGST+SGST instead of IGST?", acceptedAnswer: { "@type": "Answer", text: "Use CGST + SGST when the supplier and recipient are in the same state (intra-state supply). Use IGST when they're in different states (inter-state supply). The generator lets you switch between the two." } },
+  { "@type": "Question", name: "Can I claim this as a business expense?", acceptedAnswer: { "@type": "Answer", text: "Yes. A properly formatted GST invoice with HSN code, GSTIN, and tax breakdown is what most finance teams need to process a training or L&D reimbursement claim." } },
+  { "@type": "Question", name: "Does this generate a PDF?", acceptedAnswer: { "@type": "Answer", text: "Yes. Click Save PDF to directly download the invoice as a PDF file — no print dialog needed." } },
+] };
+const INTRO = (<><p style={{ marginBottom: 16 }}>Billing a client for a training session, workshop, or course usually means either wrestling with GST-compliant invoice templates in Word or Excel, or waiting on an accounts team to issue one. OpsTools L&D Bill Generator skips both — fill in supplier and recipient details, add your line items, and download a proper tax invoice in under a minute. No login, no subscription.</p><p style={{ marginBottom: 16 }}>Built specifically for Learning & Development billing: HSN code 998433 (the standard code for commercial training and coaching services) is pre-filled, and you can toggle between CGST+SGST for intra-state billing or IGST for inter-state billing depending on where your client is registered.</p><p>Every field a real GST tax invoice needs is here — invoice number, GSTIN, HSN code, taxable value, tax breakdown, and amount in words. The preview updates live as you type, and your data never leaves your browser.</p></>);
+const WHAT_IS = `An L&D (Learning & Development) bill is a GST tax invoice issued for training, courses, workshops, or coaching services. It's used by freelance trainers, training institutes, and corporate L&D vendors to bill clients — and by employees or companies to support reimbursement or expense claims for professional development spending.`;
+const WHY_USE = [
+  { title: "Freelance trainers & coaches", body: "Issue GST-compliant invoices to corporate clients without needing accounting software." },
+  { title: "Training institutes", body: "Generate consistent, properly formatted invoices for every course or batch sold." },
+  { title: "L&D reimbursement claims", body: "Employees can attach a proper tax invoice when claiming back course or certification fees." },
+  { title: "Corporate L&D teams", body: "Bill business units or subsidiaries for internal training programs with correct HSN and GST breakup." },
+  { title: "Online course creators", body: "Issue formal invoices for cohort-based courses, workshops, or one-on-one mentoring sold to businesses." },
+];
+const FEATURES = [
+  { icon: "🧾", title: "GST-compliant format", body: "Includes everything a proper tax invoice needs — GSTIN, HSN code, taxable value, and tax breakdown." },
+  { icon: "🔀", title: "CGST/SGST or IGST", body: "Switch between intra-state and inter-state tax treatment with one click." },
+  { icon: "🎓", title: "HSN 998433 pre-filled", body: "The standard code for training & coaching services, ready by default — editable if yours differs." },
+  { icon: "🔢", title: "Amount in words", body: "Automatically converts the total to words, as required on a valid tax invoice." },
+  { icon: "👁️", title: "Live preview", body: "See the invoice update in real time as you fill the form." },
+  { icon: "⬇️", title: "Direct PDF download", body: "One click downloads the invoice as a PDF — no print dialog needed." },
+  { icon: "🏷️", title: "Custom logo", body: "Paste any image URL to add your company or institute logo." },
+  { icon: "🔒", title: "100% private", body: "No data is stored or transmitted. Everything happens in your browser." },
+];
+const HOW_TO_STEPS = [
+  { step: 1, title: "Enter invoice details", body: "Set the invoice number, date, and choose CGST+SGST or IGST." },
+  { step: 2, title: "Add supplier details", body: "Enter your company/institute name, address, GSTIN, and contact details." },
+  { step: 3, title: "Add recipient details", body: "Enter the client's name, address, and GSTIN if applicable." },
+  { step: 4, title: "Add line items", body: "List each course or session with HSN code, quantity, rate, and tax rate." },
+  { step: 5, title: "Preview your invoice", body: "Check the live preview — every field updates instantly." },
+  { step: 6, title: "Download PDF", body: "Click Save PDF to download the invoice directly to your device." },
+];
+const BENEFITS = [
+  "Generate unlimited L&D invoices — no caps or credit limits.",
+  "No registration or sign-up required.",
+  "HSN 998433 pre-filled for training & coaching services.",
+  "Toggle between CGST+SGST and IGST depending on the transaction.",
+  "Amount in words auto-generated — required for a valid tax invoice.",
+  "All data stays in your browser — zero privacy risk.",
+  "Completely free — no subscription.",
+];
+const FORMAT_FIELDS = [
+  { field: "Invoice Number", description: "Unique identifier for the invoice", example: "IN2026-123456" },
+  { field: "HSN Code", description: "Harmonized code for the service — 998433 for training/coaching", example: "998433" },
+  { field: "Taxable Value", description: "The pre-tax value of the service", example: "₹7,999.00" },
+  { field: "CGST / SGST", description: "Central + State GST for intra-state supply, typically 9% each", example: "9% + 9%" },
+  { field: "IGST", description: "Integrated GST for inter-state supply, typically 18%", example: "18%" },
+  { field: "Supplier GSTIN", description: "GST registration number of the trainer/institute", example: "06AABCS1234F1Z5" },
+  { field: "Recipient GSTIN", description: "Client's GSTIN, if registered (optional for individuals)", example: "29ABCDE1234F1Z5" },
+  { field: "Total Amount", description: "Taxable value plus applicable tax, in figures and words", example: "₹15,337.64" },
+];
+const FAQS = faqSchema.mainEntity.map((i) => ({ q: i.name, a: i.acceptedAnswer.text }));
+const RELATED_DOCS = [
+  { name: "GST Invoice Generator", href: "/documents/gst-invoice", description: "General-purpose GST-compliant invoices." },
+  { name: "Freelancer Invoice", href: "/documents/freelancer-invoice", description: "Hourly & fixed price invoices for freelancers." },
+  { name: "Service Invoice", href: "/documents/service-invoice", description: "Invoices for service-based businesses." },
+];
 
 // ─── Number to words ──────────────────────────────────────────────────────────
 function numberToWords(n) {
@@ -23,20 +90,31 @@ function numberToWords(n) {
   return words + " Only";
 }
 
+// ─── Sample logo ──────────────────────────────────────────────────────────────
+// A generic, entirely invented mark for a fictional company — not a real
+// brand's logo. Embedded as an SVG data URI (like the Rent Receipt revenue
+// stamp) so it works immediately with no external request, no CORS
+// dependency, and nothing to break on export.
+const SAMPLE_LOGO_DATA_URI = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjUyIiB2aWV3Qm94PSIwIDAgMTgwIDUyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHg9IjAiIHk9IjYiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcng9IjEwIiBmaWxsPSIjN0MzQUVEIi8+CiAgPHBhdGggZD0iTTEyIDMyIEwyMCAxNiBMMjggMzIgTTE1IDI2IEwyNSAyNiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyLjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgZmlsbD0ibm9uZSIvPgogIDxjaXJjbGUgY3g9IjMwIiBjeT0iMTgiIHI9IjMiIGZpbGw9IiNDNEI1RkQiLz4KICA8dGV4dCB4PSI1MCIgeT0iMzQiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSIyNiIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzFhMWExYSI+U2tpbGxGb3JnZTwvdGV4dD4KPC9zdmc+Cg==";
+
 // ─── Default data ─────────────────────────────────────────────────────────────
+// Filled with realistic (but entirely fictional) sample data rather than
+// blank fields, so the page reads as a polished, real-looking invoice from
+// the moment it loads instead of an empty form. None of this is a real
+// company or person — just plausible placeholder content in the right shape.
 const defaultSupplier = {
-  name: "",
-  address: "",
-  gstin: "",
-  email: "",
-  phone: "",
+  name: "SkillForge Learning Pvt Ltd",
+  address: "4th Floor, Cyber Hub, Sector 24\nGurugram, Haryana - 122002",
+  gstin: "06AABCS1234F1Z5",
+  email: "billing@skillforge.in",
+  phone: "+91 124 456 7890",
 };
 
 const defaultRecipient = {
-  name: "",
-  email: "",
-  address: "",
-  phone: "",
+  name: "Amit Verma",
+  email: "amit.verma@example.com",
+  address: "B-204, Green Valley Apartments, Sector 15\nNoida, Uttar Pradesh - 201301",
+  phone: "+91 98765 43210",
   gstin: "",
 };
 
@@ -51,12 +129,21 @@ const defaultItem = () => ({
   igst: 0,
 });
 
+// Two pre-filled sample line items, matching the "2 courses" shape common
+// on real training-invoice examples — used only for the page's initial
+// state, not the defaultItem() factory (which stays blank for genuinely
+// new rows the user adds).
+const sampleItems = () => [
+  { id: Date.now(), description: "Advanced Prompt Engineering & AI Certification", hsn: "998433", qty: 1, rate: 7999, cgst: 9, sgst: 9, igst: 0 },
+  { id: Date.now() + 1, description: "AI Builder Toolkit — Pro License", hsn: "998433", qty: 1, rate: 4999, cgst: 9, sgst: 9, igst: 0 },
+];
+
 const defaultBill = {
   invoiceNumber: `IN${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`,
   invoiceDate: new Date().toISOString().split("T")[0],
-  logoUrl: "",
+  logoUrl: SAMPLE_LOGO_DATA_URI,
   gstType: "cgst_sgst", // or "igst"
-  notes: "This is a system generated receipt and does not require signature.",
+  notes: "This is a system generated receipt and does not require signature. Any unauthorised use, disclosure, dissemination or copying of this receipt is strictly prohibited and may be unlawful.",
 };
 
 // ─── Input component ──────────────────────────────────────────────────────────
@@ -211,7 +298,7 @@ export default function LDBillPage() {
   const [bill, setBill] = useState(defaultBill);
   const [supplier, setSupplier] = useState(defaultSupplier);
   const [recipient, setRecipient] = useState(defaultRecipient);
-  const [items, setItems] = useState([defaultItem()]);
+  const [items, setItems] = useState(sampleItems());
   const [downloading, setDownloading] = useState(false);
   const previewRef = useRef(null);
 
@@ -231,7 +318,10 @@ export default function LDBillPage() {
       const { default: jsPDF } = await import("jspdf");
       const { default: html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(previewRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false });
-      const imgData = canvas.toDataURL("image/png");
+      // JPEG at high quality instead of PNG — PNG is lossless and produces
+      // multi-MB files for this kind of image (mostly text over a solid
+      // background); JPEG compresses far better with no visible quality loss.
+      const imgData = canvas.toDataURL("image/jpeg", 0.92);
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
@@ -242,14 +332,30 @@ export default function LDBillPage() {
       const finalW = naturalW * scale;
       const finalH = naturalH * scale;
       const x = (pageW - finalW) / 2;
-      pdf.addImage(imgData, "PNG", x, 0, finalW, finalH);
+      pdf.addImage(imgData, "JPEG", x, 0, finalW, finalH);
       pdf.save(`ld-invoice-${bill.invoiceNumber}.pdf`);
     } catch (err) {
-      alert("PDF failed: " + err?.message);
+      // A logo URL hosted somewhere without CORS support taints the canvas —
+      // the raw browser error for that is cryptic, so detect it and explain
+      // what's actually wrong instead.
+      const isTainted = /tainted|cross-origin|SecurityError/i.test(err?.message || err?.name || "");
+      alert(isTainted
+        ? "PDF failed: the logo image doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again."
+        : "PDF failed: " + (err?.message || "Unknown error"));
     } finally {
       setDownloading(false);
     }
   };
+
+  useSEO({
+    title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,
+    breadcrumbs: [
+      { name: "Home", url: "https://www.opstools.ai" },
+      { name: "Documents", url: "https://www.opstools.ai/documents" },
+      { name: "L&D Bill Generator", url: CANONICAL },
+    ],
+    schemas: [softwareAppSchema, faqSchema],
+  });
 
   return (
     <>
@@ -270,8 +376,8 @@ export default function LDBillPage() {
       </Helmet>
       <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
       <style>{`
-        @media(max-width:768px){.ld-grid{grid-template-columns:1fr !important;} .ld-preview{display:none !important;} .ld-mobile-pdf{display:flex !important;}}
-        @media(min-width:769px){.ld-mobile-pdf{display:none !important;}}
+        @media(max-width:1023px){.ld-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .ld-grid{grid-template-columns:1fr !important;}}
+        @media(max-width:768px){.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}
         @media print{.no-print{display:none !important;} body{background:#fff !important;}}
       `}</style>
 
@@ -327,7 +433,7 @@ export default function LDBillPage() {
             {/* Supplier */}
             <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #E2E8F0", padding: "20px 24px", marginBottom: 16 }}>
               <h2 style={{ fontSize: 14, fontWeight: 700, color: "#7C3AED", margin: "0 0 16px", textTransform: "uppercase", letterSpacing: "0.06em" }}>Supplier Details</h2>
-              <Field label="Company / Institute Name" value={supplier.name} onChange={v => updateSupplier("name", v)} placeholder="e.g. Udemy India LLP" />
+              <Field label="Company / Institute Name" value={supplier.name} onChange={v => updateSupplier("name", v)} placeholder="e.g. SkillForge Learning Pvt Ltd" />
               <Field label="Address" value={supplier.address} onChange={v => updateSupplier("address", v)} placeholder="Floor, Building, City, State - PIN" />
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <Field label="GSTIN" value={supplier.gstin} onChange={v => updateSupplier("gstin", v)} placeholder="06AAFFU9763M1ZE" />
@@ -393,16 +499,10 @@ export default function LDBillPage() {
               <textarea value={bill.notes} onChange={e => updateBill("notes", e.target.value)}
                 rows={2} style={{ width: "100%", border: "1.5px solid #E2E8F0", borderRadius: 8, padding: "8px 12px", fontSize: 13, color: "#0F172A", resize: "vertical", boxSizing: "border-box", outline: "none" }} />
             </div>
-
-            {/* Mobile PDF button */}
-            <button onClick={handleDownloadPDF} disabled={downloading} className="ld-mobile-pdf"
-              style={{ width: "100%", height: 48, borderRadius: 12, border: "none", background: "linear-gradient(135deg,#7C3AED,#4F46E5)", color: "#fff", fontSize: 15, fontWeight: 700, cursor: downloading ? "wait" : "pointer", opacity: downloading ? 0.7 : 1, alignItems: "center", justifyContent: "center", gap: 8 }}>
-              {downloading ? "Saving…" : "Save PDF"}
-            </button>
           </div>
 
           {/* RIGHT — Preview */}
-          <div className="ld-preview" style={{ position: "sticky", top: 88 }}>
+          <div className="ld-prev" style={{ position: "sticky", top: 88 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#64748B", margin: 0 }}>Live Preview</p>
               <button onClick={handleDownloadPDF} disabled={downloading} style={{
@@ -418,12 +518,18 @@ export default function LDBillPage() {
                 {downloading ? "Saving…" : "Save PDF"}
               </button>
             </div>
-            <div style={{ transform: "scale(0.72)", transformOrigin: "top left", width: "139%", marginBottom: "-28%" }}>
+            <div className="preview-scale-wrap" style={{ transform: "scale(0.72)", transformOrigin: "top left", width: "139%", marginBottom: "-28%" }}>
               <div ref={previewRef}>
                 <BillPreview bill={bill} supplier={supplier} recipient={recipient} items={items} />
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+        <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
+          <DocumentPageSEO documentName="L&D Bill" documentSlug="ld-bill" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
         </div>
       </div>
     </div>

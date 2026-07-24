@@ -58,10 +58,6 @@ const CSV_COLUMN_ORDER = [
 ];
 const CSV_OPTIONAL_COLUMNS = CSV_COLUMN_ORDER.filter((c) => !CSV_REQUIRED_COLUMNS.includes(c));
 const CSV_TEMPLATE_HEADERS = CSV_COLUMN_ORDER.join(",");
-// Row 2 of the downloadable template — derived from CSV_REQUIRED_COLUMNS
-// itself, so this label row can never drift out of sync with what the
-// parser actually enforces.
-const CSV_MANDATORY_ROW = CSV_COLUMN_ORDER.map((c) => (CSV_REQUIRED_COLUMNS.includes(c) ? "Mandatory" : "Optional")).join(",");
 const CSV_SAMPLE_ROW = "PK FUEL STATION,\"PAREKH NAGAR S V RD, KANDIVALI W, MUMBAI - 400067\",38055913,27AABCU9603R1ZX,https://example.com/logo.png,https://example.com/bank-logo.png,2026-07-10,14:30,G64695,927267,MH12AB1234,4W,Rajesh Sharma,9876543210,Petrol,104.29,992.00,745.0,Amount,Cash,N-02,AT-102";
 
 // ─── SEO ─────────────────────────────────────────────────────────────────────
@@ -347,7 +343,7 @@ function BulkGenerateModal({ user, stationData, activeTemplate, onClose }) {
   const handleDrop = (e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); };
 
   const downloadTemplate = () => {
-    const content = [CSV_TEMPLATE_HEADERS, CSV_MANDATORY_ROW, CSV_SAMPLE_ROW].join("\n");
+    const content = [CSV_TEMPLATE_HEADERS, CSV_SAMPLE_ROW].join("\n");
     const blob = new Blob([content], { type: "text/csv" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
     a.download = "fuel-bill-bulk-template.csv"; a.click();
@@ -734,31 +730,6 @@ function SaveMenu({ onSave, downloading, small }) {
   );
 }
 
-// ─── Mobile Preview Sheet ─────────────────────────────────────────────────────
-function MobilePreviewSheet({ previewRef, PreviewComponent, data, onDownload, downloading, onClose }) {
-  useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 800, display: "flex", flexDirection: "column" }}>
-      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(7,1,31,0.6)" }} />
-      <div style={{ position: "relative", marginTop: "auto", background: "#fff", borderRadius: "20px 20px 0 0", maxHeight: "90vh", display: "flex", flexDirection: "column", animation: "sheetUp 0.25s cubic-bezier(0.16,1,0.3,1)" }}>
-        <style>{`@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}`}</style>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid #F1F5F9", flexShrink: 0 }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: "#0F172A" }}>Preview</span>
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <SaveMenu onSave={onDownload} downloading={downloading} small />
-            <button onClick={onClose} style={{ background: "#F1F5F9", border: "none", borderRadius: 8, width: 32, height: 32, cursor: "pointer", color: "#64748B", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
-          </div>
-        </div>
-        <div style={{ overflowY: "auto", padding: "20px 16px 32px", flex: 1 }}>
-          <div style={{ overflowX: "auto" }}>
-            <div ref={previewRef} style={{ minWidth: 300, display: "inline-block" }}><PreviewComponent data={data} /></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function FuelBillPage() {
   const [data, setData] = useState(defaultData);
@@ -766,9 +737,7 @@ export default function FuelBillPage() {
   const [modal, setModal] = useState(null);
   const [modalUser, setModalUser] = useState(null);
   const [downloading, setDownloading] = useState(false);
-  const [showMobilePreview, setShowMobilePreview] = useState(false);
   const previewRef = useRef(null);
-  const mobilePreviewRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -874,8 +843,8 @@ export default function FuelBillPage() {
   return (
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
       <style>{`
-        @media(max-width:768px){.desktop-preview{display:none!important;}.mobile-preview-btn{display:flex!important;}.fuel-tool-padding{padding-left:16px!important;padding-right:16px!important;}.fuel-hero-padding{padding:28px 16px 24px!important;}.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}
-        @media(min-width:769px){.mobile-preview-btn{display:none!important;}}
+        @media(max-width:1023px){.preview-col{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;}}
+        @media(max-width:768px){.fuel-tool-padding{padding-left:16px!important;padding-right:16px!important;}.fuel-hero-padding{padding:28px 16px 24px!important;}.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}
 
         /* Simple two-column layout — no grid-template-areas / row-spanning.
            Spanning the tall "form" column across two rows was what broke
@@ -899,8 +868,6 @@ export default function FuelBillPage() {
 
       {modal === "login" && <LoginPromptModal onClose={() => setModal(null)} />}
       {modal === "bulk" && modalUser && <BulkGenerateModal user={modalUser} stationData={data} activeTemplate={activeTemplate} onClose={() => setModal(null)} />}
-
-      {showMobilePreview && <MobilePreviewSheet previewRef={mobilePreviewRef} PreviewComponent={PreviewComponent} data={data} onDownload={doDownload} downloading={downloading} onClose={() => setShowMobilePreview(false)} />}
 
       <section style={{ background: "linear-gradient(160deg,#07011F 0%,#0D0630 60%,#1e1b4b 100%)" }} className="fuel-hero-padding">
         <div style={{ padding: "40px 24px 36px", maxWidth: 1280, margin: "0 auto" }} className="fuel-hero-padding">
@@ -930,21 +897,13 @@ export default function FuelBillPage() {
         <div className="tool-grid">
           <div className="no-print">
             <BillForm data={data} onChange={handleChange} />
-            <div className="mobile-preview-btn" style={{ marginTop: 20, gap: 10 }}>
-              <button onClick={() => setShowMobilePreview(true)} style={{ flex: 1, height: 48, borderRadius: 12, border: "2px solid #2563EB", background: "#EFF6FF", color: "#2563EB", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Preview Bill
-              </button>
-              <button onClick={() => setShowMobilePreview(true)} style={{ flex: 1, height: 48, borderRadius: 12, border: "none", background: "linear-gradient(135deg,#2563EB,#4F46E5)", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Save Bill
-              </button>
-            </div>
           </div>
 
           {/* Right column: template picker stacked directly above the live
               preview, both as ordinary content in a single grid cell — this
               is what keeps the picker "right above the preview" without
               needing any row-spanning on the form column. */}
-          <div style={{ position: "sticky", top: 96 }}>
+          <div className="preview-col" style={{ position: "sticky", top: 96 }}>
             <div className="no-print" style={{ marginBottom: 20 }}>
               <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#64748B", marginBottom: 10 }}>Choose Template</p>
               <div style={{ display: "flex", gap: 8 }}>
@@ -972,7 +931,7 @@ export default function FuelBillPage() {
               </p>
             </div>
 
-            <div className="desktop-preview">
+            <div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }} className="no-print">
                 <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#64748B", margin: 0 }}>Live Preview</p>
                 <SaveMenu onSave={doDownload} downloading={downloading} small />
@@ -987,7 +946,7 @@ export default function FuelBillPage() {
                   than the other three templates) leaves blank space on both
                   sides that gets exported filled with the background color,
                   reading as an off-white bleed past the card's real edge. */}
-              <div style={{ transform: "scale(0.82)", transformOrigin: "top left", width: "122%", marginBottom: "-18%" }}>
+              <div className="preview-scale-wrap" style={{ transform: "scale(0.82)", transformOrigin: "top left", width: "122%", marginBottom: "-18%" }}>
                 <div ref={previewRef} style={{ display: "inline-block" }}>
                   <PreviewComponent data={data} />
                 </div>

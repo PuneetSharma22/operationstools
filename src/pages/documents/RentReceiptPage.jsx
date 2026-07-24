@@ -1,4 +1,4 @@
-import { supabase } from "../../supabase-public";
+import { supabase } from "../../supabase";
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import RentReceiptForm from "../../components/rent/RentReceiptForm";
@@ -54,7 +54,6 @@ const CSV_COLUMN_ORDER = [
 ];
 const CSV_OPTIONAL_COLUMNS = CSV_COLUMN_ORDER.filter((c) => !CSV_REQUIRED_COLUMNS.includes(c));
 const CSV_TEMPLATE_HEADERS = CSV_COLUMN_ORDER.join(",");
-const CSV_MANDATORY_ROW = CSV_COLUMN_ORDER.map((c) => (CSV_REQUIRED_COLUMNS.includes(c) ? "Mandatory" : "Optional")).join(",");
 const CSV_SAMPLE_ROW = "2026-07-01,001,2026-07,2026-07,Rajesh Sharma,15000,Cash,,\"Flat 4B, Sunrise Apartments, Andheri West, Mumbai\",Ramesh Kumar,ABCDE1234F";
 
 // Parses raw CSV text into rows of fields, respecting RFC4180-style quoting
@@ -304,7 +303,7 @@ function BulkGenerateModal({ user, stationData, activeTemplate, onClose }) {
   const handleDrop = (e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); };
 
   const downloadTemplate = () => {
-    const content = [CSV_TEMPLATE_HEADERS, CSV_MANDATORY_ROW, CSV_SAMPLE_ROW].join("\n");
+    const content = [CSV_TEMPLATE_HEADERS, CSV_SAMPLE_ROW].join("\n");
     const blob = new Blob([content], { type: "text/csv" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
     a.download = "rent-receipt-bulk-template.csv"; a.click();
@@ -708,6 +707,7 @@ export default function RentReceiptPage() {
   return (
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
       <style>{`
+        @media(max-width:1159px){.preview-col{position:static!important;}}
         @media(max-width:768px){.fuel-tool-padding{padding-left:16px!important;padding-right:16px!important;}.fuel-hero-padding{padding:28px 16px 24px!important;}.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}
         .tool-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media(min-width:1160px){ .tool-grid { grid-template-columns: 1fr 580px; gap: 28px; } }
@@ -744,7 +744,7 @@ export default function RentReceiptPage() {
             <RentReceiptForm data={data} onChange={handleChange} />
           </div>
 
-          <div style={{ position: "sticky", top: 96 }}>
+          <div className="preview-col" style={{ position: "sticky", top: 96 }}>
             <div className="no-print" style={{ marginBottom: 20 }}>
               <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#64748B", marginBottom: 10 }}>Choose Template</p>
               <div style={{ display: "flex", gap: 8 }}>

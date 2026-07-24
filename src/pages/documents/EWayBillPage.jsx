@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
-import { supabase } from "../../supabase-public.js";
+import { supabase } from "../../supabase";
 
 function Field({ label, value, onChange, placeholder, type="text", small }) {
   return (
@@ -96,9 +96,14 @@ export default function EWayBillPage() {
       const pdf = new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
       const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
       const s=Math.min(pw/(canvas.width*25.4/(96*2)),ph/(canvas.height*25.4/(96*2)));
-      pdf.addImage(canvas.toDataURL("image/png"),"PNG",(pw-canvas.width*25.4/(96*2)*s)/2,0,canvas.width*25.4/(96*2)*s,canvas.height*25.4/(96*2)*s);
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92),"JPEG",(pw-canvas.width*25.4/(96*2)*s)/2,0,canvas.width*25.4/(96*2)*s,canvas.height*25.4/(96*2)*s);
       pdf.save(`eway-bill-${data.ewayNo||Date.now()}.pdf`);
-    } catch(e){alert("PDF failed: "+e?.message);}
+    } catch(e){
+      const isTainted = /tainted|cross-origin|SecurityError/i.test(e?.message || e?.name || "");
+      alert(isTainted
+        ? "PDF failed: the logo image doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again."
+        : "PDF failed: " + (e?.message || "Unknown error"));
+    }
     finally{setDownloading(false);}
   };
 
@@ -122,7 +127,7 @@ export default function EWayBillPage() {
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
-      <style>{`@media(max-width:768px){.ew-grid{grid-template-columns:1fr!important;}.ew-prev{display:none!important;}}@media print{.no-print{display:none!important;}}`}</style>
+      <style>{`@media(max-width:1023px){.ew-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .ew-grid{grid-template-columns:1fr!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#450a0a 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
           <nav style={{ marginBottom:16, fontSize:13, color:"#FCA5A5" }}><a href="/" style={{ color:"#FCA5A5", textDecoration:"none" }}>Home</a><span style={{ margin:"0 8px" }}>›</span><a href="/documents" style={{ color:"#FCA5A5", textDecoration:"none" }}>Documents</a><span style={{ margin:"0 8px" }}>›</span><span style={{ color:"#FECACA" }}>E-Way Bill</span></nav>
@@ -196,7 +201,7 @@ export default function EWayBillPage() {
               <p style={{ fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#64748B", margin:0 }}>Live Preview</p>
               <button onClick={handlePDF} disabled={downloading} style={{ background:"linear-gradient(135deg,#DC2626,#B91C1C)", border:"none", borderRadius:8, padding:"6px 16px", color:"#fff", fontSize:13, fontWeight:600, cursor:downloading?"wait":"pointer" }}>{downloading?"Saving…":"Save PDF"}</button>
             </div>
-            <div style={{ transform:"scale(0.78)", transformOrigin:"top left", width:"128%", marginBottom:"-22%" }}>
+            <div className="preview-scale-wrap" style={{ transform:"scale(0.78)", transformOrigin:"top left", width:"128%", marginBottom:"-22%" }}>
               <div ref={previewRef}><EWayPreview data={data} consignor={consignor} consignee={consignee} /></div>
             </div>
           </div>

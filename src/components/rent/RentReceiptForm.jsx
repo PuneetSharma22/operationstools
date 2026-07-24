@@ -56,6 +56,7 @@ export default function RentReceiptForm({ data, onChange }) {
         </div>
       </Section>
 
+
       <Section title="💰 Rent Details" defaultOpen={true}>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">

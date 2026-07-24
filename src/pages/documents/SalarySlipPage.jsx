@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
-import { supabase } from "../../supabase-public.js";
+import { supabase } from "../../supabase";
 
 function Field({ label, value, onChange, placeholder, type = "text", small, readOnly }) {
   return (
@@ -178,9 +178,14 @@ export default function SalarySlipPage() {
       const pxmm = 25.4/(96*2);
       const scale = Math.min(pw/(canvas.width*pxmm), ph/(canvas.height*pxmm));
       const fw = canvas.width*pxmm*scale, fh = canvas.height*pxmm*scale;
-      pdf.addImage(canvas.toDataURL("image/png"), "PNG", (pw-fw)/2, 0, fw, fh);
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", (pw-fw)/2, 0, fw, fh);
       pdf.save(`salary-slip-${employee.name || "employee"}-${MONTHS[month]}-${year}.pdf`);
-    } catch (e) { alert("PDF failed: " + e?.message); }
+    } catch (e) {
+      const isTainted = /tainted|cross-origin|SecurityError/i.test(e?.message || e?.name || "");
+      alert(isTainted
+        ? "PDF failed: the logo image doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again."
+        : "PDF failed: " + (e?.message || "Unknown error"));
+    }
     finally { setDownloading(false); }
   };
 
@@ -209,7 +214,7 @@ export default function SalarySlipPage() {
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
-      <style>{`@media(max-width:768px){.sal-grid{grid-template-columns:1fr !important;}.sal-prev{display:none !important;}}@media print{.no-print{display:none !important;}}`}</style>
+      <style>{`@media(max-width:1023px){.sal-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .sal-grid{grid-template-columns:1fr !important;}}@media print{.no-print{display:none !important;}}`}</style>
 
       <section style={{ background: "linear-gradient(160deg,#07011F 0%,#4a0025 100%)", padding: "40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
@@ -295,7 +300,7 @@ export default function SalarySlipPage() {
                 {downloading ? "Saving…" : "Save PDF"}
               </button>
             </div>
-            <div style={{ transform: "scale(0.68)", transformOrigin: "top left", width: "147%", marginBottom: "-32%" }}>
+            <div className="preview-scale-wrap" style={{ transform: "scale(0.68)", transformOrigin: "top left", width: "147%", marginBottom: "-32%" }}>
               <div ref={previewRef}><SlipPreview company={company} employee={employee} salary={salary} month={month} year={year} /></div>
             </div>
           </div>

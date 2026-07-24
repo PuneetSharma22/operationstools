@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
-import { supabase } from "../../supabase-public.js";
+import { supabase } from "../../supabase";
 
 function Field({ label, value, onChange, placeholder, type="text", small }) {
   return (
@@ -114,9 +114,22 @@ export default function EInvoicePage() {
       const pdf = new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
       const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
       const s=Math.min(pw/(canvas.width*25.4/(96*2)),ph/(canvas.height*25.4/(96*2)));
-      pdf.addImage(canvas.toDataURL("image/png"),"PNG",(pw-canvas.width*25.4/(96*2)*s)/2,0,canvas.width*25.4/(96*2)*s,canvas.height*25.4/(96*2)*s);
+      // JPEG at high quality instead of PNG — PNG is lossless and produces
+      // multi-MB files for this kind of image (mostly text over a solid
+      // background); JPEG compresses far better with no visible quality
+      // loss at this quality setting.
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92),"JPEG",(pw-canvas.width*25.4/(96*2)*s)/2,0,canvas.width*25.4/(96*2)*s,canvas.height*25.4/(96*2)*s);
       pdf.save(`e-invoice-${data.invoiceNo}.pdf`);
-    } catch(e){alert("PDF failed: "+e?.message);}
+    } catch(e){
+      // A logo URL hosted somewhere without CORS support taints the canvas —
+      // the raw browser error for that ("Tainted canvases may not be
+      // exported") is cryptic, so detect it and explain what's actually
+      // wrong instead.
+      const isTainted = /tainted|cross-origin|SecurityError/i.test(e?.message || e?.name || "");
+      alert(isTainted
+        ? "PDF failed: the logo image doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again."
+        : "PDF failed: " + (e?.message || "Unknown error"));
+    }
     finally{setDownloading(false);}
   };
 
@@ -140,7 +153,7 @@ export default function EInvoicePage() {
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
-      <style>{`@media(max-width:768px){.ei-grid{grid-template-columns:1fr!important;}.ei-prev{display:none!important;}}@media print{.no-print{display:none!important;}}`}</style>
+      <style>{`@media(max-width:1023px){.ei-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .ei-grid{grid-template-columns:1fr!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#0F172A 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
           <nav style={{ marginBottom:16, fontSize:13, color:"#94A3B8" }}><a href="/" style={{ color:"#94A3B8", textDecoration:"none" }}>Home</a><span style={{ margin:"0 8px" }}>›</span><a href="/documents" style={{ color:"#94A3B8", textDecoration:"none" }}>Documents</a><span style={{ margin:"0 8px" }}>›</span><span style={{ color:"#CBD5E1" }}>E-Invoice</span></nav>
@@ -215,7 +228,7 @@ export default function EInvoicePage() {
               <p style={{ fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#64748B", margin:0 }}>Live Preview</p>
               <button onClick={handlePDF} disabled={downloading} style={{ background:"#0F172A", border:"none", borderRadius:8, padding:"6px 16px", color:"#fff", fontSize:13, fontWeight:600, cursor:downloading?"wait":"pointer" }}>{downloading?"Saving…":"Save PDF"}</button>
             </div>
-            <div style={{ transform:"scale(0.68)", transformOrigin:"top left", width:"147%", marginBottom:"-32%" }}>
+            <div className="preview-scale-wrap" style={{ transform:"scale(0.68)", transformOrigin:"top left", width:"147%", marginBottom:"-32%" }}>
               <div ref={previewRef}><EInvoicePreview data={data} supplier={supplier} buyer={buyer} items={items} /></div>
             </div>
           </div>

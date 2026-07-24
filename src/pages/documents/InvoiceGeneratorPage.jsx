@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
-import { supabase } from "../../supabase-public.js";
+import { supabase } from "../../supabase";
 
 function Field({ label, value, onChange, placeholder, type = "text", small }) {
   return (
@@ -139,9 +139,14 @@ export default function InvoiceGeneratorPage() {
       const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
       const s=Math.min(pw/(canvas.width*25.4/(96*2)), ph/(canvas.height*25.4/(96*2)));
       const fw=canvas.width*25.4/(96*2)*s, fh=canvas.height*25.4/(96*2)*s;
-      pdf.addImage(canvas.toDataURL("image/png"),"PNG",(pw-fw)/2,0,fw,fh);
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92),"JPEG",(pw-fw)/2,0,fw,fh);
       pdf.save(`invoice-${data.invoiceNo}.pdf`);
-    } catch(e) { alert("PDF failed: "+e?.message); }
+    } catch(e) {
+      const isTainted = /tainted|cross-origin|SecurityError/i.test(e?.message || e?.name || "");
+      alert(isTainted
+        ? "PDF failed: the logo image doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again."
+        : "PDF failed: " + (e?.message || "Unknown error"));
+    }
     finally { setDownloading(false); }
   };
 
@@ -170,7 +175,7 @@ export default function InvoiceGeneratorPage() {
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
-      <style>{`@media(max-width:768px){.inv-grid{grid-template-columns:1fr!important;}.inv-prev{display:none!important;}}@media print{.no-print{display:none!important;}}`}</style>
+      <style>{`@media(max-width:1023px){.inv-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .inv-grid{grid-template-columns:1fr!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#1e1b4b 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
           <nav style={{ marginBottom:16, fontSize:13, color:"#818CF8" }}>
@@ -246,7 +251,7 @@ export default function InvoiceGeneratorPage() {
                 {downloading?"Saving…":"Save PDF"}
               </button>
             </div>
-            <div style={{ transform:"scale(0.68)", transformOrigin:"top left", width:"147%", marginBottom:"-32%" }}>
+            <div className="preview-scale-wrap" style={{ transform:"scale(0.68)", transformOrigin:"top left", width:"147%", marginBottom:"-32%" }}>
               <div ref={previewRef}><InvoicePreview data={data} from={from} to={to} items={items} /></div>
             </div>
           </div>

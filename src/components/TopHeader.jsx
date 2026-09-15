@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../supabase";
-import { supabase as supabaseAnon } from "../supabase-public";
+import { supabase as supabaseAnon } from "../supabase";
 
 function OpsToolsLogo() {
   return (

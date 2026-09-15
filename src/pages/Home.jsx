@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../supabase-public";
+import { supabase } from "../supabase";
 import { Helmet } from 'react-helmet-async';
 
 const DOC_ICON_MAP = {

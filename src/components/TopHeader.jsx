@@ -3,7 +3,6 @@ import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../supabase";
-import { supabase as supabaseAnon } from "../supabase";
 
 function OpsToolsLogo() {
   return (
@@ -220,7 +219,7 @@ export default function TopHeader() {
   const [showGuestModal, setShowGuestModal] = useState(false);
 
   useEffect(() => {
-    supabaseAnon.from("documents").select("*").order("sort_order", { ascending: true })
+    supabase.from("documents").select("*").order("sort_order", { ascending: true })
       .then(({ data, error }) => {
         if (error || !data?.length) return;
         setRetailDocs(data.filter(d => d.category === "retail"));

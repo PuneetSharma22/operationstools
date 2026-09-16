@@ -2,7 +2,7 @@
 
 > Generate fuel bills, rent receipts, GST invoices, salary slips and more — free, no login, instant PDF.
 
-**Live:** [opstools.ai](https://www.opstools.ai) · **Built by:** Puneet Sharma · **Stack:** React 18 + Vite 8 + Supabase + Vercel
+**Live:** [opstools.ai](https://www.opstools.ai) · **Built by:** Puneet Sharma · **Stack:** React 19 + Vite 8 + Supabase + Vercel
 
 ---
 
@@ -16,10 +16,10 @@ OpsTools is a free browser-based toolkit for Indian small business operators to 
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18 |
+| Frontend | React 19 |
 | Build Tool | Vite 8 |
 | Styling | Tailwind CSS v4 (via `@tailwindcss/vite` plugin) |
-| Routing | React Router v7 |
+| Routing | React Router v7 (`react-router-dom`) |
 | Auth | Supabase Auth (email + password) |
 | Database | Supabase (PostgreSQL) |
 | Analytics | Vercel Analytics + Speed Insights |
@@ -68,20 +68,22 @@ OpsTools is a free browser-based toolkit for Indian small business operators to 
 src/
 ├── App.jsx                          # Routes (all lazy loaded)
 ├── main.jsx                         # Entry + HelmetProvider + Analytics
-├── supabase.js                      # Full Supabase client (auth)
-├── supabase-public.js               # Anon client (document pages)
+├── supabase.js                      # Single shared Supabase client (auth + data)
 ├── context/
 │   └── AuthContext.jsx
 ├── components/
 │   ├── TopHeader.jsx
 │   ├── Footer.jsx
-│   └── fuel/                        # Fuel bill templates
+│   ├── fuel/                        # Fuel bill templates
+│   ├── rent/                        # Rent receipt templates
+│   └── restaurant/                  # Restaurant bill templates + billMath.js
 ├── pages/
 │   ├── Home.jsx
 │   ├── DocumentsPage.jsx
 │   ├── AboutPage.jsx
 │   ├── AccountPage.jsx
 │   ├── AdminPage.jsx
+│   ├── EmailVerifiedPage.jsx
 │   ├── BlogsPage.jsx
 │   ├── LoginPage.jsx
 │   ├── SignupPage.jsx
@@ -90,7 +92,8 @@ src/
 │   └── documents/                   # 17 document generators
 └── seo/
     ├── useSEO.js                    # SEO hook (FuelBillPage)
-    └── DocumentPageSEO.jsx
+    ├── DocumentPageSEO.jsx
+    └── programmaticPages.js         # Registry for programmatic SEO pages
 public/
 ├── sitemap.xml                      # 28 URLs
 ├── robots.txt
@@ -167,12 +170,12 @@ vercel --prod
 
 ## Key Technical Decisions
 
-1. **Two Supabase clients** — `supabase.js` (full auth) for user-specific queries, `supabase-public.js` (anon) for public data. Prevents multiple GoTrueClient warnings.
+1. **Single shared Supabase client** — `src/supabase.js` exports one `createClient()` instance (default + named export `supabase`), imported everywhere (auth, document pages, admin). Avoids duplicate GoTrueClient instances.
 2. **Lazy routes** — all pages lazy loaded via `React.lazy()` for fast initial load
 3. **Browser PDF** — jsPDF + html2canvas, lazy imported inside the save handler
 4. **vercel.json rewrite** — excludes `sitemap.xml`, `robots.txt` and static files from SPA rewrite
 5. **useSEO hook** — FuelBillPage uses a custom hook that sets OG tags via `document.head`. All other pages use `react-helmet-async`
-6. **supabaseFull in document pages** — `save_requests` inserts use the full client to capture `auth.uid()` correctly
+6. **Shared client in document pages** — `save_requests` inserts use the shared client so `auth.uid()` is captured correctly for logged-in users, and null for guests
 
 ---
 

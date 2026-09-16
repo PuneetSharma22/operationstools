@@ -164,7 +164,7 @@ export default function HotelBillPage() {
     if (!previewRef.current||downloading) return;
     setDownloading(true);
     try {
-      try { await supabase.from("save_requests").insert({ template:"hotel-bill", print_id:`HTL-${Date.now()}`, user_id:null, bill_data: { ...data, hotel, guest, charges } }); } catch(_){}
+      try { await supabase.from("save_requests").insert({ template:"hotel-bill", print_id:`HTL-${Date.now()}`, user_id:null, bill_data: { ...data, hotel, guest, charges } }); } catch (err) { console.warn("Save logging for the hotel bill failed (non-blocking); the document itself was unaffected.", err); }
       const { default:jsPDF } = await import("jspdf");
       const { default:html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(previewRef.current,{scale:2,useCORS:true,backgroundColor:"#ffffff"});

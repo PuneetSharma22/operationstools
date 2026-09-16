@@ -91,8 +91,8 @@ describe("TemplateThermalFull", () => {
 });
 
 describe("TemplateThermalCompact", () => {
-  it("renders WELCOME header", () => {
-    render(<TemplateThermalCompact data={mockData} />);
+  it("renders WELCOME header fallback when no station name is set", () => {
+    render(<TemplateThermalCompact data={{ ...mockData, stationName: "" }} />);
     expect(screen.getByText("WELCOME!!!")).toBeInTheDocument();
   });
 

@@ -1,4 +1,5 @@
 import BankStrip from "./BankStrip";
+import { computeTotals, formatDateLong } from "./billMath";
 
 const mono = { fontFamily: "monospace", letterSpacing: "0.3px" };
 const wrap = { background: "#FBFAF6", border: "1px solid #e9e6dd", borderRadius: 0, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", position: "relative", zIndex: 0 };
@@ -13,18 +14,8 @@ const Divider = () => (
 );
 
 export default function TemplatePOS({ data }) {
-  const qty = parseFloat(data.quantity) || 0;
-  const rate = parseFloat(data.pricePerLitre) || 0;
-  // Amount is the authoritative user-entered value when present (single-bill
-  // form flow); bulk CSV generation doesn''t set data.amount, so fall back
-  // to qty*rate there.
-  const total = data.amount !== undefined && data.amount !== "" ? (parseFloat(data.amount) || 0) : qty * rate;
-
-  const formatDate = (d) => {
-    if (!d) return "";
-    const dt = new Date(d);
-    return `${String(dt.getDate()).padStart(2,"0")}/${String(dt.getMonth()+1).padStart(2,"0")}/${dt.getFullYear()}`;
-  };
+  const { qty, rate, total } = computeTotals(data);
+  const formatDate = formatDateLong;
 
   const Line = ({ label, value }) => (
     <div style={{ ...mono, fontSize: 13, padding: "2px 0" }}>

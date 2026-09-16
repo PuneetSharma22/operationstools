@@ -1,4 +1,5 @@
 import BankStrip from "./BankStrip";
+import { computeTotals } from "./billMath";
 
 const dot = { fontFamily: "monospace", fontSize: "13px", letterSpacing: "0.3px" };
 const wrap = { background: "#FBFAF6", border: "1px solid #e9e6dd", borderRadius: 0, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", position: "relative", zIndex: 0 };
@@ -11,12 +12,7 @@ const Divider = () => (
 );
 
 export default function TemplateThermalCompact({ data }) {
-  const qty = parseFloat(data.quantity) || 0;
-  const rate = parseFloat(data.pricePerLitre) || 0;
-  // Amount is the authoritative user-entered value when present (single-bill
-  // form flow); bulk CSV generation doesn''t set data.amount, so fall back
-  // to qty*rate there.
-  const total = data.amount !== undefined && data.amount !== "" ? (parseFloat(data.amount) || 0) : qty * rate;
+  const { qty, rate, total } = computeTotals(data);
 
   const formatDate = (d) => {
     if (!d) return "";

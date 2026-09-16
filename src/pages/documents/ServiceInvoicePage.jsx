@@ -94,7 +94,7 @@ export default function ServiceInvoicePage() {
     if (!previewRef.current||downloading) return;
     setDownloading(true);
     try {
-      try { await supabase.from("save_requests").insert({ template:"service-invoice", print_id:`SRV-${Date.now()}`, user_id:null, bill_data: { ...data, provider, client, items } }); } catch(_){}
+      try { await supabase.from("save_requests").insert({ template:"service-invoice", print_id:`SRV-${Date.now()}`, user_id:null, bill_data: { ...data, provider, client, items } }); } catch (err) { console.warn("Save logging for the service invoice failed (non-blocking); the document itself was unaffected.", err); }
       const { default:jsPDF } = await import("jspdf");
       const { default:html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(previewRef.current,{scale:2,useCORS:true,backgroundColor:"#ffffff"});

@@ -1,15 +1,10 @@
 const serif = { fontFamily: "'Times New Roman', Georgia, serif" };
 const sans = { fontFamily: "Georgia, 'Times New Roman', serif" };
 import { REVENUE_STAMP_DATA_URI } from "./revenueStampAsset";
+import { formatReceiptDate, formatPeriodRange, formatRentFigure } from "./receiptMath";
 
-const formatDate = (d) => {
-  if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-};
-const formatMonthYear = (d) => {
-  if (!d) return "—";
-  return new Date(d + "-02").toLocaleDateString("en-IN", { month: "long", year: "numeric" });
-};
+// Minimal style: short dates and an em dash where a value is missing.
+const formatDate = (d) => formatReceiptDate(d, { style: "short", placeholder: "—" });
 
 function Row({ label, value }) {
   return (
@@ -21,9 +16,7 @@ function Row({ label, value }) {
 }
 
 export default function TemplateRentReceipt3({ data }) {
-  const periodLabel = data.periodFrom === data.periodTo || !data.periodTo
-    ? formatMonthYear(data.periodFrom)
-    : `${formatMonthYear(data.periodFrom)} – ${formatMonthYear(data.periodTo)}`;
+  const periodLabel = formatPeriodRange(data.periodFrom, data.periodTo, { withYear: true, placeholder: "—" });
 
   return (
     <div style={{
@@ -56,7 +49,7 @@ export default function TemplateRentReceipt3({ data }) {
         <Row label="Landlord" value={data.landlordName} />
         <Row label="Property" value={data.propertyAddress} />
         <Row label="Rent Period" value={periodLabel} />
-        <Row label="Amount Paid" value={data.rentAmount ? `₹ ${parseInt(data.rentAmount).toLocaleString("en-IN")}` : ""} />
+        <Row label="Amount Paid" value={data.rentAmount ? `₹ ${formatRentFigure(data.rentAmount)}` : ""} />
         <Row label="Payment Mode" value={data.paymentMethod} />
         {data.paymentRef && <Row label="Reference" value={data.paymentRef} />}
       </div>

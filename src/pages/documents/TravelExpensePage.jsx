@@ -164,7 +164,7 @@ export default function TravelExpensePage() {
     if (!previewRef.current||downloading) return;
     setDownloading(true);
     try {
-      try { await supabase.from("save_requests").insert({ template:"travel-expense", print_id:`TRVL-${Date.now()}`, user_id:null, bill_data: { mode, ...trip, traveller, singleExpenses, days } }); } catch(_){}
+      try { await supabase.from("save_requests").insert({ template:"travel-expense", print_id:`TRVL-${Date.now()}`, user_id:null, bill_data: { mode, ...trip, traveller, singleExpenses, days } }); } catch (err) { console.warn("Save logging for the travel expense report failed (non-blocking); the document itself was unaffected.", err); }
       const { default:jsPDF } = await import("jspdf");
       const { default:html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(previewRef.current,{scale:2,useCORS:true,backgroundColor:"#ffffff"});

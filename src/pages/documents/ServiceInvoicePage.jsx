@@ -80,8 +80,10 @@ function ServicePreview({ data, provider, client, items }) {
   );
 }
 
+const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#0891B2", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
+
 export default function ServiceInvoicePage() {
-  const [data, setData] = useState({ invoiceNo:`SRV-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`, date:new Date().toISOString().split("T")[0], dueDate:"", serviceDesc:"", logoUrl:"", discount:"", terms:"Payment due within 15 days of invoice date." });
+  const [data, setData] = useState(() => ({ invoiceNo:`SRV-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`, date:new Date().toISOString().split("T")[0], dueDate:"", serviceDesc:"", logoUrl:"", discount:"", terms:"Payment due within 15 days of invoice date." }));
   const [provider, setProvider] = useState({ name:"", address:"", gstin:"", email:"", phone:"" });
   const [client, setClient] = useState({ name:"", address:"", gstin:"", email:"" });
   const [items, setItems] = useState([defaultItem()]);
@@ -111,8 +113,6 @@ export default function ServiceInvoicePage() {
     }
     finally{setDownloading(false);}
   };
-
-  const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#0891B2", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
   return (
     <>

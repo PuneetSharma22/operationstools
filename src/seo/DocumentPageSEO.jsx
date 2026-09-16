@@ -66,7 +66,7 @@ function TrustBadges() {
 }
 
 export default function DocumentPageSEO({
-  documentName, documentSlug, intro, whatIs,
+  documentName, intro, whatIs,
   whyUse = [], features = [], howToSteps = [],
   benefits = [], formatFields = [], faqs = [], relatedDocs = [],
 }) {

@@ -38,14 +38,6 @@ export default function DocumentsPage() {
   const retailDocs = allDocs.filter(d => d.category === "retail");
   const businessDocs = allDocs.filter(d => d.category === "business");
 
-  // Group by bundle
-  const groupBy = (docs) => docs.reduce((acc, doc) => {
-    const key = doc.bundle || "Other";
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(doc);
-    return acc;
-  }, {});
-
   return (
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
 
@@ -160,68 +152,6 @@ function CompactDocList({ docs }) {
       })}
     </div>
   );
-}
-
-function DocGrid({ groups }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-      {Object.entries(groups).map(([bundle, docs]) => (
-        <div key={bundle}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 12px" }}>
-            {bundle.replace(" Suite", "")}
-          </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
-            {docs.map(doc => <DocCard key={doc.slug} doc={doc} />)}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function DocCard({ doc }) {
-  const isLive = doc.status === "live";
-  const iconData = DOC_ICON_MAP[doc.slug];
-
-  const inner = (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 14,
-      background: "#fff", border: "1px solid #E2E8F0",
-      borderRadius: 14, padding: "14px 16px",
-      cursor: isLive ? "pointer" : "default",
-      opacity: isLive ? 1 : 0.65,
-      transition: "box-shadow 0.15s, transform 0.15s",
-    }}
-      onMouseEnter={e => { if (isLive) { e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.08)"; e.currentTarget.style.transform = "translateY(-1px)"; }}}
-      onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}
-    >
-      <div style={{ width: 44, height: 44, borderRadius: 11, background: iconData?.bg || "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-        {iconData?.svg || <span style={{ fontSize: 20 }}>{doc.icon}</span>}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 2 }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: "#0F172A" }}>{doc.name}</span>
-          {isLive ? (
-            <span style={{ fontSize: 10, fontWeight: 700, color: "#059669", background: "#D1FAE5", padding: "1px 7px", borderRadius: 999 }}>LIVE</span>
-          ) : (
-            <span style={{ fontSize: 10, fontWeight: 600, color: "#94A3B8", background: "#F1F5F9", padding: "1px 7px", borderRadius: 999 }}>SOON</span>
-          )}
-        </div>
-        <p style={{ fontSize: 12, color: "#94A3B8", margin: 0, lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {doc.description}
-        </p>
-      </div>
-      {isLive && (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0 }}>
-          <path d="M5 12h14M12 5l7 7-7 7"/>
-        </svg>
-      )}
-    </div>
-  );
-
-  return isLive ? (
-    <Link to={doc.href} style={{ textDecoration: "none", display: "block" }}>{inner}</Link>
-  ) : <div>{inner}</div>;
 }
 
 const FALLBACK_ALL = [

@@ -30,17 +30,16 @@ const LOGO_LENGTH = 84;   // matches the roughly 5:1 aspect of typical bank word
 const LOGO_THICKNESS = 16;
 
 function useImageStatus(url) {
-  const [status, setStatus] = useState(url ? "loading" : "empty");
+  // Holds the settled probe result together with the URL it belongs to, so the
+  // "empty"/"loading" states stay derived from `url` instead of being written
+  // back synchronously from the effect.
+  const [probed, setProbed] = useState(null);
 
   useEffect(() => {
-    if (!url) {
-      setStatus("empty");
-      return;
-    }
-    setStatus("loading");
+    if (!url) return;
     const probe = new Image();
-    probe.onload = () => setStatus("loaded");
-    probe.onerror = () => setStatus("error");
+    probe.onload = () => setProbed({ url, status: "loaded" });
+    probe.onerror = () => setProbed({ url, status: "error" });
     probe.src = url;
     return () => {
       probe.onload = null;
@@ -48,7 +47,8 @@ function useImageStatus(url) {
     };
   }, [url]);
 
-  return status;
+  if (!url) return "empty";
+  return probed?.url === url ? probed.status : "loading";
 }
 
 function MiniIcon({ primary, accent }) {

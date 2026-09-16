@@ -11,6 +11,13 @@ const Divider = () => (
   </div>
 );
 
+const Row = ({ label, value }) => (
+  <div style={{ ...dot, padding: "2px 0" }}>
+    <span style={{ fontWeight: "bold" }}>{label} </span>
+    <span>{value}</span>
+  </div>
+);
+
 export default function TemplateThermalCompact({ data }) {
   const { qty, rate, total } = computeTotals(data);
 
@@ -18,13 +25,6 @@ export default function TemplateThermalCompact({ data }) {
     if (!d) return "";
     return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
   };
-
-  const Row = ({ label, value }) => (
-    <div style={{ ...dot, padding: "2px 0" }}>
-      <span style={{ fontWeight: "bold" }}>{label} </span>
-      <span>{value}</span>
-    </div>
-  );
 
   return (
     <div style={wrap}>

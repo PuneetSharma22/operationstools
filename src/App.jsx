@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthProvider";
 import TopHeader from "./components/TopHeader";
 import Footer from "./components/Footer";
 import { useEffect, lazy, Suspense } from "react";

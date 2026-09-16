@@ -155,8 +155,10 @@ function FreelancerPreview({ data, freelancer, client, items }) {
   );
 }
 
+const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#7C3AED", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
+
 export default function FreelancerInvoicePage() {
-  const [data, setData] = useState({ invoiceNo:`FREEL-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`, date:new Date().toISOString().split("T")[0], dueDate:"", projectName:"", projectDesc:"", billingType:"hourly", tax:"18", discount:"", logoUrl:"", notes:"Payment due within 7 days." });
+  const [data, setData] = useState(() => ({ invoiceNo:`FREEL-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`, date:new Date().toISOString().split("T")[0], dueDate:"", projectName:"", projectDesc:"", billingType:"hourly", tax:"18", discount:"", logoUrl:"", notes:"Payment due within 7 days." }));
   const [freelancer, setFreelancer] = useState({ name:"", title:"", email:"", phone:"", website:"", bankName:"", accountNo:"", ifsc:"", upi:"" });
   const [client, setClient] = useState({ name:"", company:"", email:"", address:"" });
   const [items, setItems] = useState([defaultItem()]);
@@ -186,8 +188,6 @@ export default function FreelancerInvoicePage() {
     }
     finally{setDownloading(false);}
   };
-
-  const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#7C3AED", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
   useSEO({
     title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,

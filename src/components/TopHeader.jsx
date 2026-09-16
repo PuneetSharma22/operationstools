@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -55,7 +55,7 @@ function StatusBadge({ status }) {
   return null;
 }
 
-function MobileDrawer({ open, onClose, retailDocs, businessDocs, user, credits, signOut }) {
+function MobileDrawer({ open, onClose, retailDocs, businessDocs, user, signOut }) {
   const [expanded, setExpanded] = useState(null);
   if (!open) return null;
   const sections = [
@@ -209,7 +209,7 @@ export default function TopHeader() {
   const [openMenu, setOpenMenu] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [credits, setCredits] = useState(null);
+  const [creditsState, setCreditsState] = useState({ userId: null, value: null });
   const [retailDocs, setRetailDocs] = useState(FALLBACK_RETAIL);
   const [businessDocs, setBusinessDocs] = useState(FALLBACK_BUSINESS);
   const location = useLocation();
@@ -228,15 +228,25 @@ export default function TopHeader() {
   }, []);
 
   useEffect(() => {
-    if (!user) { setCredits(null); creditsFetchedRef.current = false; return; }
+    if (!user) { creditsFetchedRef.current = false; return; }
     creditsFetchedRef.current = true;
     supabase.from("user_credits").select("balance").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => setCredits(data?.balance ?? 0));
+      .then(({ data }) => setCreditsState({ userId: user.id, value: data?.balance ?? 0 }));
     supabase.from("credit_requests").select("id").eq("user_id", user.id).eq("status", "pending").maybeSingle()
       .then(({ data }) => setPendingCreditRequest(!!data));
   }, [user]);
 
-  useEffect(() => { setMobileOpen(false); }, [location.pathname]);
+  // Credits are only ever shown for the user they were fetched for — signing
+  // out (or switching accounts) falls back to null instead of the stale value.
+  const credits = user && creditsState.userId === user.id ? creditsState.value : null;
+
+  // Close the mobile drawer on navigation. Adjusting state during render (the
+  // documented React pattern) rather than in an effect avoids a second pass.
+  const [prevPath, setPrevPath] = useState(location.pathname);
+  if (prevPath !== location.pathname) {
+    setPrevPath(location.pathname);
+    setMobileOpen(false);
+  }
 
   const closeAll = () => { setOpenMenu(null); setShowUserMenu(false); };
 
@@ -325,7 +335,7 @@ export default function TopHeader() {
         {(openMenu || showUserMenu) && <div style={{ position: "fixed", inset: 0, zIndex: 199 }} onClick={closeAll} />}
         <style>{`@media(max-width:768px){.desktop-nav{display:none!important;}.mobile-nav{display:flex!important;}}`}</style>
       </header>
-      <MobileDrawer open={mobileOpen} onClose={() => setMobileOpen(false)} retailDocs={retailDocs} businessDocs={businessDocs} user={user} credits={credits} signOut={signOut} />
+      <MobileDrawer open={mobileOpen} onClose={() => setMobileOpen(false)} retailDocs={retailDocs} businessDocs={businessDocs} user={user} signOut={signOut} />
       {showGuestModal && <GuestCreditsModal onClose={() => setShowGuestModal(false)} />}
     </>
   );

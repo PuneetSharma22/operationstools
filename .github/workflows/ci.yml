@@ -33,10 +33,6 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    # E2E tests are not yet part of the required CI path: there is a known
-    # failing test ("form sections are collapsible") that hasn't been
-    # triaged. Keep this job non-blocking until that's fixed.
-    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -135,6 +135,8 @@ function EWayPreview({ data, consignor, consignee }) {
   );
 }
 
+const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#DC2626", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
+
 export default function EWayBillPage() {
   const [data, setData] = useState({ ewayNo:"", date:new Date().toISOString().split("T")[0], validUntil:"", docType:"Tax Invoice", docNo:"", docDate:"", productName:"", hsn:"", qty:"", unit:"Nos", value:"", taxableValue:"", transportMode:"Road", vehicleNo:"", transporterName:"", distance:"" });
   const [consignor, setConsignor] = useState({ name:"", gstin:"", address:"", state:"" });
@@ -164,8 +166,6 @@ export default function EWayBillPage() {
     }
     finally{setDownloading(false);}
   };
-
-  const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#DC2626", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
   useSEO({
     title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,

@@ -235,13 +235,20 @@ function GSTPreview({ data, supplier, buyer, items }) {
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
+const Section = ({ title, children, accent = "#10B981" }) => (
+  <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #E2E8F0", padding: "20px 24px", marginBottom: 16 }}>
+    <h2 style={{ fontSize: 13, fontWeight: 700, color: accent, margin: "0 0 16px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</h2>
+    {children}
+  </div>
+);
+
 export default function GSTInvoicePage() {
-  const [data, setData] = useState({
+  const [data, setData] = useState(() => ({
     invoiceNo: `INV-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`,
     invoiceDate: new Date().toISOString().split("T")[0],
     dueDate: "", placeOfSupply: "", logoUrl: "",
     bankName: "", accountNo: "", ifsc: "", upi: "", notes: "Thank you for your business.",
-  });
+  }));
   const [supplier, setSupplier] = useState({ name: "", address: "", gstin: "", pan: "", email: "", phone: "" });
   const [buyer, setBuyer] = useState({ name: "", address: "", gstin: "", email: "", phone: "" });
   const [items, setItems] = useState([defaultItem()]);
@@ -274,13 +281,6 @@ export default function GSTInvoicePage() {
     }
     finally { setDownloading(false); }
   };
-
-  const Section = ({ title, children, accent = "#10B981" }) => (
-    <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #E2E8F0", padding: "20px 24px", marginBottom: 16 }}>
-      <h2 style={{ fontSize: 13, fontWeight: 700, color: accent, margin: "0 0 16px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</h2>
-      {children}
-    </div>
-  );
 
   useSEO({
     title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,

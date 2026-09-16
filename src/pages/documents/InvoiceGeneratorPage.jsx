@@ -175,8 +175,15 @@ function InvoicePreview({ data, from, to, items }) {
   );
 }
 
+const S = ({ title, accent="#6366F1", children }) => (
+  <div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}>
+    <h2 style={{ fontSize:13, fontWeight:700, color:accent, margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>
+    {children}
+  </div>
+);
+
 export default function InvoiceGeneratorPage() {
-  const [data, setData] = useState({ invoiceNo:`INV-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`, date:new Date().toISOString().split("T")[0], dueDate:"", logoUrl:"", discount:"", bankName:"", accountNo:"", ifsc:"", upi:"", notes:"Thank you for your business." });
+  const [data, setData] = useState(() => ({ invoiceNo:`INV-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`, date:new Date().toISOString().split("T")[0], dueDate:"", logoUrl:"", discount:"", bankName:"", accountNo:"", ifsc:"", upi:"", notes:"Thank you for your business." }));
   const [from, setFrom] = useState({ name:"", address:"", gstin:"", email:"", phone:"" });
   const [to, setTo] = useState({ name:"", address:"", email:"", phone:"" });
   const [items, setItems] = useState([defaultItem()]);
@@ -207,13 +214,6 @@ export default function InvoiceGeneratorPage() {
     }
     finally { setDownloading(false); }
   };
-
-  const S = ({ title, accent="#6366F1", children }) => (
-    <div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}>
-      <h2 style={{ fontSize:13, fontWeight:700, color:accent, margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>
-      {children}
-    </div>
-  );
 
   useSEO({
     title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,

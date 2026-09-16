@@ -150,8 +150,10 @@ function HotelPreview({ data, hotel, guest, charges }) {
   );
 }
 
+const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#D97706", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
+
 export default function HotelBillPage() {
-  const [data, setData] = useState({ billNo:`HTL-${String(Math.floor(Math.random()*9000)+1000)}`, checkIn:"", checkOut:new Date().toISOString().split("T")[0], roomNo:"", roomType:"Deluxe", guests:"1", logoUrl:"", cgst:"6", sgst:"6", discount:"", paymentMode:"Card" });
+  const [data, setData] = useState(() => ({ billNo:`HTL-${String(Math.floor(Math.random()*9000)+1000)}`, checkIn:"", checkOut:new Date().toISOString().split("T")[0], roomNo:"", roomType:"Deluxe", guests:"1", logoUrl:"", cgst:"6", sgst:"6", discount:"", paymentMode:"Card" }));
   const [hotel, setHotel] = useState({ name:"", address:"", phone:"", email:"", gstin:"" });
   const [guest, setGuest] = useState({ name:"", address:"", phone:"", idType:"Aadhaar", idNo:"" });
   const [charges, setCharges] = useState([defaultCharge()]);
@@ -181,8 +183,6 @@ export default function HotelBillPage() {
     }
     finally{setDownloading(false);}
   };
-
-  const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#D97706", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
   useSEO({
     title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,

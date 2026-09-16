@@ -16,28 +16,33 @@ test.describe("Fuel Bill Generator", () => {
     await expect(page.getByRole("heading", { name: /Free Fuel Bill Generator/i })).toBeVisible();
   });
 
+  // The picker (components/common/TemplatePicker) renders numbered chips whose
+  // only label is the template name in `title`, so locate them by title
+  // rather than by accessible name.
   test("all 4 templates are shown", async ({ page }) => {
-    // Scope to the template picker section — buttons, not SEO content
-    const picker = page.locator(".no-print").first();
-    await expect(page.getByRole("button", { name: /Thermal Full/i }).first()).toBeVisible();
-    await expect(page.getByRole("button", { name: /Classic POS/i }).first()).toBeVisible();
-    await expect(page.getByRole("button", { name: /IOCL Formal/i }).first()).toBeVisible();
-    await expect(page.getByRole("button", { name: /Thermal Compact/i }).first()).toBeVisible();
+    await expect(page.getByTitle("Thermal Full")).toBeVisible();
+    await expect(page.getByTitle("Classic POS")).toBeVisible();
+    await expect(page.getByTitle("IOCL Formal")).toBeVisible();
+    await expect(page.getByTitle("Thermal Compact")).toBeVisible();
   });
 
   test("Thermal Full is selected by default", async ({ page }) => {
-    const thermalBtn = page.getByRole("button", { name: /Thermal Full Dot-matrix/i });
+    const thermalBtn = page.getByTitle("Thermal Full");
     await expect(thermalBtn).toBeVisible();
-    await expect(thermalBtn).toHaveClass(/border-\[#2563EB\]/);
+    // Active chip is the filled blue one (#2563EB border + background).
+    await expect(thermalBtn).toHaveCSS("border-top-color", "rgb(37, 99, 235)");
+    await expect(thermalBtn).toHaveCSS("background-color", "rgb(37, 99, 235)");
+    // …and the caption under the picker names it.
+    await expect(page.getByText("Dot-matrix with all fields")).toBeVisible();
   });
 
   test("clicking Classic POS switches template", async ({ page }) => {
-    await page.getByRole("button", { name: /Classic POS Monospace/i }).click();
+    await page.getByTitle("Classic POS").click();
     await expect(page.getByText("ORIGINAL")).toBeVisible();
   });
 
   test("clicking IOCL Formal switches template", async ({ page }) => {
-    await page.getByRole("button", { name: /IOCL Formal Logo/i }).click();
+    await page.getByTitle("IOCL Formal").click();
     await expect(page.getByText("TOTAL AMOUNT:")).toBeVisible();
   });
 
@@ -48,29 +53,40 @@ test.describe("Fuel Bill Generator", () => {
     await expect(page.getByText("MY TEST PUMP").first()).toBeVisible();
   });
 
-  test("live preview updates when quantity is entered", async ({ page }) => {
-    const qtyInput = page.locator('input[name="quantity"]');
-    await qtyInput.fill("10");
-    await expect(page.getByText(/1042/).first()).toBeVisible();
+  // Volume/Qty is derived (amount ÷ rate) and read-only — see
+  // components/fuel/billMath.js — so the amount field is what drives it.
+  test("live preview updates when the amount is entered", async ({ page }) => {
+    await page.locator('input[name="amount"]').fill("1042.90");
+    // Default rate is ₹104.29/L, so 1042.90 ÷ 104.29 = 10.00 L.
+    await expect(page.locator('input[name="quantity"]')).toHaveValue("10.00");
+    await expect(page.getByText(/1042\.90/).first()).toBeVisible();
   });
 
   test("form sections are collapsible", async ({ page }) => {
-    // Click the Bill Details section button to collapse it
     const billDetailsBtn = page.getByRole("button", { name: /🧾 Bill Details/i });
     await expect(billDetailsBtn).toBeVisible();
-    await billDetailsBtn.click();
-    // After collapse, the date input should be hidden (grid-template-rows: 0fr)
-    // Check the parent container has collapsed
-    await page.waitForTimeout(400); // wait for CSS transition
+
+    // The panel animates via grid-template-rows 1fr→0fr and clips its contents
+    // with overflow:hidden. The input keeps its own layout box either way, so
+    // measure the clipping wrapper rather than the input itself.
     const dateInput = page.locator('input[name="billDate"]');
-    const box = await dateInput.boundingBox();
-    expect(box?.height ?? 0).toBeLessThanOrEqual(1);
+    const panel = dateInput.locator('xpath=ancestor::div[contains(@style,"overflow")][1]');
+    const panelHeight = async () => (await panel.boundingBox())?.height ?? -1;
+
+    expect(await panelHeight()).toBeGreaterThan(1);
+    await billDetailsBtn.click();
+    // Polls instead of sleeping through the 0.28s transition.
+    await expect.poll(panelHeight).toBeLessThanOrEqual(1);
   });
 
-  test("Save PDF button is visible next to Live Preview", async ({ page }) => {
+  test("Save menu offers PDF and PNG next to Live Preview", async ({ page }) => {
     // Use exact label text scoped to the preview header
     await expect(page.getByText("Live Preview", { exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Save PDF/i })).toBeVisible();
+    const saveBtn = page.getByRole("button", { name: "Save", exact: true });
+    await expect(saveBtn).toBeVisible();
+    await saveBtn.click();
+    await expect(page.getByRole("button", { name: "Save as PDF" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Save as PNG" })).toBeVisible();
   });
 
   test("Generate in Bulk button is visible in hero", async ({ page }) => {

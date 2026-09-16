@@ -20,13 +20,14 @@ test.describe("Navigation", () => {
 
   test("about page has roadmap section", async ({ page }) => {
     await page.goto("/about");
-    await expect(page.getByRole("heading", { name: /What's coming next/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /What's live & what's coming/i })).toBeVisible();
   });
 
   test("roadmap shows live fuel bill", async ({ page }) => {
     await page.goto("/about");
-    // Use exact: true to match the LIVE badge span, not surrounding text
-    await expect(page.getByText("LIVE", { exact: true })).toBeVisible();
+    // Several tools are live now, so scope the LIVE badge to the fuel bill row.
+    const fuelRow = page.locator("#roadmap div.rounded-xl").filter({ hasText: "Fuel Bill Generator" }).first();
+    await expect(fuelRow.getByText("LIVE", { exact: true })).toBeVisible();
   });
 
   test("header shows 0 credits for guest", async ({ page }) => {

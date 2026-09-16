@@ -207,6 +207,13 @@ function SlipPreview({ company, employee, salary, month, year }) {
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
+const Section = ({ title, children }) => (
+  <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #E2E8F0", padding: "20px 24px", marginBottom: 16 }}>
+    <h2 style={{ fontSize: 13, fontWeight: 700, color: "#DB2777", margin: "0 0 16px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</h2>
+    {children}
+  </div>
+);
+
 export default function SalarySlipPage() {
   const [company, setCompany] = useState({ name: "", address: "", gstin: "", logoUrl: "" });
   const [employee, setEmployee] = useState({ name: "", empId: "", designation: "", department: "", doj: "", pan: "", bankAccount: "", pfAccount: "", workingDays: "26", daysPaid: "26" });
@@ -247,13 +254,6 @@ export default function SalarySlipPage() {
     }
     finally { setDownloading(false); }
   };
-
-  const Section = ({ title, children }) => (
-    <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #E2E8F0", padding: "20px 24px", marginBottom: 16 }}>
-      <h2 style={{ fontSize: 13, fontWeight: 700, color: "#DB2777", margin: "0 0 16px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</h2>
-      {children}
-    </div>
-  );
 
   useSEO({
     title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,

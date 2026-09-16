@@ -66,6 +66,9 @@ const facts = [
   "Works on mobile — generate a PDF and WhatsApp it in under 60 seconds.",
 ];
 
+// Rotates once per day. Resolved at module load so render stays pure.
+const factOfTheDay = facts[Math.floor(Date.now() / 86400000) % facts.length];
+
 export default function Footer() {
   return (
     <footer style={{ background: "#07011F", borderTop: "1px solid rgba(255,255,255,0.07)", color: "#94A3B8", fontFamily: "inherit", position: "relative", overflow: "hidden" }}>
@@ -135,7 +138,7 @@ export default function Footer() {
               <span style={{ color: "#818CF8", fontWeight: 600, fontSize: 11, display: "block", marginBottom: 4, letterSpacing: "0.06em", textTransform: "uppercase" }}>
                 Did you know
               </span>
-              {facts[Math.floor(Date.now() / 86400000) % facts.length]}
+              {factOfTheDay}
             </div>
           </div>
 

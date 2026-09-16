@@ -23,16 +23,16 @@ const Divider = () => (
   </div>
 );
 
+const InfoRow = ({ label, value, indent = 14 }) => (
+  <div style={{ ...dot, display: "flex", padding: "2px 0", lineHeight: 1.4 }}>
+    <span style={{ minWidth: `${indent}ch` }}>{label}</span>
+    <span>: {value}</span>
+  </div>
+);
+
 export default function TemplateThermalFull({ data }) {
   const { qty, rate, total } = computeTotals(data);
   const formatDate = formatDateShort;
-
-  const InfoRow = ({ label, value, indent = 14 }) => (
-    <div style={{ ...dot, display: "flex", padding: "2px 0", lineHeight: 1.4 }}>
-      <span style={{ minWidth: `${indent}ch` }}>{label}</span>
-      <span>: {value}</span>
-    </div>
-  );
 
   const now = new Date();
   const printedOn = `${formatDate(data.billDate || now.toISOString())} ${data.billTime || ""}`.trim();

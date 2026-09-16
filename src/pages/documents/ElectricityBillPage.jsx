@@ -162,8 +162,10 @@ function ElectricityPreview({ data, utility, consumer }) {
   );
 }
 
+const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#CA8A04", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
+
 export default function ElectricityBillPage() {
-  const [data, setData] = useState({ billNo:`ELEC-${String(Math.floor(Math.random()*90000)+10000)}`, billDate:new Date().toISOString().split("T")[0], dueDate:"", billingPeriod:"", previousReading:"", currentReading:"", ratePerUnit:"", fixedCharge:"", fuelAdj:"", tax:"5", arrears:"", paymentModes:"Cash, UPI, Online Banking" });
+  const [data, setData] = useState(() => ({ billNo:`ELEC-${String(Math.floor(Math.random()*90000)+10000)}`, billDate:new Date().toISOString().split("T")[0], dueDate:"", billingPeriod:"", previousReading:"", currentReading:"", ratePerUnit:"", fixedCharge:"", fuelAdj:"", tax:"5", arrears:"", paymentModes:"Cash, UPI, Online Banking" }));
   const [utility, setUtility] = useState({ name:"", address:"", phone:"", email:"", gstin:"" });
   const [consumer, setConsumer] = useState({ name:"", address:"", consumerId:"", meterNo:"", category:"Domestic" });
   const [downloading, setDownloading] = useState(false);
@@ -191,8 +193,6 @@ export default function ElectricityBillPage() {
     }
     finally{setDownloading(false);}
   };
-
-  const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#CA8A04", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
   useSEO({
     title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,

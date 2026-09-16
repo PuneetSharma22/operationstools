@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { supabase } from "../supabase";
 
 export default function EmailVerifiedPage() {
   const navigate = useNavigate();

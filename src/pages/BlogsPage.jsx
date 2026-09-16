@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export const ALL_BLOGS = [
+const ALL_BLOGS = [
   {
     slug: "how-to-generate-fuel-bill-online-india",
     title: "How to Generate a Fuel Bill Online for Free in India (2026)",

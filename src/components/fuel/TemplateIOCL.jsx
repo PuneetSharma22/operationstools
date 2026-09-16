@@ -6,6 +6,13 @@ const wrap = { background: "#FBFAF6", border: "1px solid #e9e6dd", borderRadius:
 const thickDivider = { borderTop: "2px solid #000", borderBottom: "2px solid #000", margin: "8px 0" };
 const thickLine = { borderTop: "2px solid #000", margin: "8px 0" };
 
+const Row = ({ label, value }) => (
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "10px 0", borderBottom: "1px dashed #d1d5db" }}>
+    <span style={{ ...mono, fontWeight: 700, fontSize: 13 }}>{label}</span>
+    <span style={{ ...mono, fontSize: 13 }}>{value}</span>
+  </div>
+);
+
 export default function TemplateIOCL({ data }) {
   const { qty, rate, total } = computeTotals(data);
 
@@ -13,13 +20,6 @@ export default function TemplateIOCL({ data }) {
     if (!d) return "";
     return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" });
   };
-
-  const Row = ({ label, value }) => (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "10px 0", borderBottom: "1px dashed #d1d5db" }}>
-      <span style={{ ...mono, fontWeight: 700, fontSize: 13 }}>{label}</span>
-      <span style={{ ...mono, fontSize: 13 }}>{value}</span>
-    </div>
-  );
 
   return (
     <div style={wrap}>

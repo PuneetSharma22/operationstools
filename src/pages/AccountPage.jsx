@@ -58,9 +58,6 @@ function getMonthRange() {
 }
 
 
-// ─── Document Type Filter options ────────────────────────────────────────────
-const ALL_DOC_TYPES = [...new Set(Object.values(TEMPLATE_META).map(m => m.name))].sort();
-
 function groupByDate(items) {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -224,7 +221,7 @@ export default function AccountPage() {
       setSelectedAmount(null);
       loadedRef.current = false;
       await loadAll();
-    } catch (e) { setSubmitMsg({ type: "error", text: "Failed to submit. Please try again." }); }
+    } catch { setSubmitMsg({ type: "error", text: "Failed to submit. Please try again." }); }
     setSubmitting(false);
   }
 

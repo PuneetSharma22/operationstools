@@ -152,8 +152,10 @@ function MedicalPreview({ data, hospital, patient, items }) {
   );
 }
 
+const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#10B981", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
+
 export default function MedicalBillPage() {
-  const [data, setData] = useState({ billNo:`MED-${String(Math.floor(Math.random()*9000)+1000)}`, date:new Date().toISOString().split("T")[0], logoUrl:"", doctorName:"", department:"", admitDate:"", dischargeDate:"", discount:"", paymentMode:"Cash" });
+  const [data, setData] = useState(() => ({ billNo:`MED-${String(Math.floor(Math.random()*9000)+1000)}`, date:new Date().toISOString().split("T")[0], logoUrl:"", doctorName:"", department:"", admitDate:"", dischargeDate:"", discount:"", paymentMode:"Cash" }));
   const [hospital, setHospital] = useState({ name:"", address:"", phone:"", gstin:"", regNo:"" });
   const [patient, setPatient] = useState({ name:"", age:"", gender:"", phone:"", uhid:"" });
   const [items, setItems] = useState([defaultItem()]);
@@ -183,8 +185,6 @@ export default function MedicalBillPage() {
     }
     finally{setDownloading(false);}
   };
-
-  const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#10B981", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
 
   useSEO({
     title: SEO_TITLE, description: SEO_DESCRIPTION, canonical: CANONICAL,

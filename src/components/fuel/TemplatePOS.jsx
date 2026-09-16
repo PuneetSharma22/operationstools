@@ -13,16 +13,16 @@ const Divider = () => (
   </div>
 );
 
+const Line = ({ label, value }) => (
+  <div style={{ ...mono, fontSize: 13, padding: "2px 0" }}>
+    <span style={{ fontWeight: "bold" }}>{label}</span>
+    <span style={{ marginLeft: 4 }}>{value}</span>
+  </div>
+);
+
 export default function TemplatePOS({ data }) {
   const { qty, rate, total } = computeTotals(data);
   const formatDate = formatDateLong;
-
-  const Line = ({ label, value }) => (
-    <div style={{ ...mono, fontSize: 13, padding: "2px 0" }}>
-      <span style={{ fontWeight: "bold" }}>{label}</span>
-      <span style={{ marginLeft: 4 }}>{value}</span>
-    </div>
-  );
 
   return (
     <div style={wrap}>

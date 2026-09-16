@@ -1,8 +1,12 @@
-import { useState, useRef } from "react";
-import { supabase } from "../../supabase";
+import { useState } from "react";
 import { useSEO } from "../../seo/useSEO";
 import DocumentPageSEO from "../../seo/DocumentPageSEO";
+import SaveMenu from "../../components/common/SaveMenu";
+import { exportSingleDocument } from "../../utils/documentExport";
+import { logSaveRequest } from "../../utils/saveLog";
 import * as content from "./vehicleExpenseContent";
+
+const TAINTED_HINT = "one of the report's fields couldn't be captured due to a cross-origin image restriction. Try again, or contact support if this persists.";
 
 // Neutral document palette — a printed report should read like a normal
 // business document, not a brand-colour showcase. Brand blue is reserved for
@@ -15,7 +19,6 @@ const BORDER = "#E2E8F0";
 const SURFACE = "#F8FAFC";
 const SURFACE_ALT = "#F1F5F9";
 const BRAND = "#2563EB";
-const BRAND_GRADIENT = "linear-gradient(135deg,#2563EB,#4F46E5)";
 
 function Field({ label, value, onChange, placeholder, type="text", small }) {
   return (
@@ -50,7 +53,8 @@ const monthBoundsISO = () => {
   return [first.toISOString().split("T")[0], last.toISOString().split("T")[0]];
 };
 
-function VehiclePreview({ mode, report, employee, entries, vehicles }) {
+function VehiclePreview({ data }) {
+  const { mode, report, employee, entries, vehicles } = data;
   const total = entries.reduce((s,e)=>s+Number(e.amount||0),0);
   const byType = entries.reduce((acc,e)=>{ acc[e.type]=(acc[e.type]||0)+Number(e.amount||0); return acc; },{});
   const byVehicle = entries.reduce((acc,e)=>{ const v=e.vehicle||"—"; acc[v]=(acc[v]||0)+Number(e.amount||0); return acc; },{});
@@ -202,7 +206,7 @@ export default function VehicleExpensePage() {
     { id:1003, date:todayISO(), type:"Fuel", description:"Site visit — Thane depot", odometerStart:"", odometerEnd:"", amount:620, receipt:"", vehicle:"MH14CD5678" },
   ]);
   const [downloading, setDownloading] = useState(false);
-  const previewRef = useRef(null);
+  const [notice, setNotice] = useState("");
 
   useSEO({
     title: content.SEO_TITLE,
@@ -216,26 +220,24 @@ export default function VehicleExpensePage() {
   const updEntry=(id,k,v)=>setEntries(p=>p.map(e=>e.id===id?{...e,[k]:v}:e));
   const updVehicle=(id,k,v)=>setVehicles(p=>p.map(v2=>v2.id===id?{...v2,[k]:v}:v2));
 
-  const handlePDF = async () => {
-    if (!previewRef.current||downloading) return;
+  const doDownload = async (format = "pdf") => {
+    if (downloading) return;
     setDownloading(true);
-    try {
-      try { await supabase.from("save_requests").insert({ template:"vehicle-expense", print_id:`VEH-${Date.now()}`, user_id:null, bill_data: { mode, ...report, employee, vehicles, entries } }); } catch (err) { console.warn("Save logging for the vehicle expense report failed (non-blocking); the document itself was unaffected.", err); }
-      const { default:jsPDF } = await import("jspdf");
-      const { default:html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(previewRef.current,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
-      const pdf = new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
-      const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
-      const s=Math.min(pw/(canvas.width*25.4/(96*2)),ph/(canvas.height*25.4/(96*2)));
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92),"JPEG",(pw-canvas.width*25.4/(96*2)*s)/2,0,canvas.width*25.4/(96*2)*s,canvas.height*25.4/(96*2)*s);
-      pdf.save(`vehicle-expense-${report.reportNo}.pdf`);
-    } catch(e){
-      const isTainted = /tainted|cross-origin|SecurityError/i.test(e?.message || e?.name || "");
-      alert(isTainted
-        ? "PDF failed: the logo image doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again."
-        : "PDF failed: " + (e?.message || "Unknown error"));
-    }
-    finally{setDownloading(false);}
+    setNotice("");
+
+    const data = { mode, report, employee, vehicles, entries };
+    const printId = `VEH-${Date.now()}`;
+    const logged = await logSaveRequest({ template: "vehicle-expense", printId, billData: data });
+    if (!logged.ok) setNotice("Your report downloaded fine, but we couldn't record it on our side.");
+
+    await exportSingleDocument({
+      Template: VehiclePreview,
+      data,
+      format,
+      fileBase: `vehicle-expense-${report.reportNo}`,
+      taintedHint: TAINTED_HINT,
+    });
+    setDownloading(false);
   };
 
   return (
@@ -360,10 +362,18 @@ export default function VehicleExpensePage() {
           <div className="ve-prev" style={{ position:"sticky", top:88 }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
               <p style={{ fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:INK_MUTED, margin:0 }}>Live Preview</p>
-              <button onClick={handlePDF} disabled={downloading} style={{ background:BRAND_GRADIENT, border:"none", borderRadius:8, padding:"6px 16px", color:"#fff", fontSize:13, fontWeight:600, cursor:downloading?"wait":"pointer" }}>{downloading?"Saving…":"Save PDF"}</button>
+              <SaveMenu onSave={doDownload} downloading={downloading} small />
             </div>
+
+            {notice && (
+              <div style={{ background:"#FFFBEB", border:"1px solid #FDE68A", borderRadius:8, padding:"8px 12px", marginBottom:10, fontSize:12, color:"#92400E", display:"flex", justifyContent:"space-between", gap:8 }}>
+                <span>⚠ {notice}</span>
+                <button onClick={()=>setNotice("")} style={{ background:"none", border:"none", color:"#92400E", cursor:"pointer", fontSize:14, lineHeight:1 }} aria-label="Dismiss">×</button>
+              </div>
+            )}
+
             <div className="preview-scale-wrap" style={{ transform:"scale(0.68)", transformOrigin:"top left", width:"147%", marginBottom:"-32%" }}>
-              <div ref={previewRef}><VehiclePreview mode={mode} report={report} employee={employee} entries={entries} vehicles={vehicles} /></div>
+              <VehiclePreview data={{ mode, report, employee, entries, vehicles }} />
             </div>
           </div>
         </div>

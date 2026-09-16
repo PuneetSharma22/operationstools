@@ -1,14 +1,10 @@
 const serif = { fontFamily: "'Times New Roman', Georgia, serif" };
 import { REVENUE_STAMP_DATA_URI } from "./revenueStampAsset";
+import { formatReceiptDate, formatPeriod, formatRentFigure } from "./receiptMath";
 
-const formatDate = (d) => {
-  if (!d) return "___________";
-  return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" });
-};
-const formatMonthName = (d) => {
-  if (!d) return "___________";
-  return new Date(d + "-02").toLocaleDateString("en-IN", { month: "long" });
-};
+// Duplicate-book style: long dates, month name only, blank rules for gaps.
+const formatDate = (d) => formatReceiptDate(d, { style: "long", placeholder: "___________" });
+const formatMonthName = (d) => formatPeriod(d, { withYear: false, placeholder: "___________" });
 
 function ReceiptBlock({ data, compact }) {
   return (
@@ -24,7 +20,7 @@ function ReceiptBlock({ data, compact }) {
         )}
         {compact && (
           <span style={{ ...serif, fontSize: 13, fontWeight: 700 }}>
-            Amount: <span style={{ fontWeight: 400 }}>₹ {data.rentAmount ? parseInt(data.rentAmount).toLocaleString("en-IN") : "0"}</span>
+            Amount: <span style={{ fontWeight: 400 }}>₹ {data.rentAmount ? formatRentFigure(data.rentAmount) : "0"}</span>
           </span>
         )}
         <span style={{ ...serif, fontSize: 13, fontWeight: 700 }}>
@@ -35,7 +31,7 @@ function ReceiptBlock({ data, compact }) {
       {!compact && (
         <div style={{ ...serif, fontSize: 13.5, lineHeight: 1.8, marginBottom: 10 }}>
           Received From Mr./Ms. <strong>{data.tenantName || ""}</strong> ₹{" "}
-          <strong>{data.rentAmount ? parseInt(data.rentAmount).toLocaleString("en-IN") : "0"}</strong> towards rent of month of{" "}
+          <strong>{data.rentAmount ? formatRentFigure(data.rentAmount) : "0"}</strong> towards rent of month of{" "}
           <strong>{formatMonthName(data.periodFrom)}</strong> Received By landlord Mr./Ms. <strong>{data.landlordName || ""}</strong>.
         </div>
       )}

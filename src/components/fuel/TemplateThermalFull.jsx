@@ -1,4 +1,5 @@
 import BankStrip from "./BankStrip";
+import { computeTotals, formatDateShort, fmtAmt, fmtVol } from "./billMath";
 
 const dot = { fontFamily: "monospace", fontSize: "13px", letterSpacing: "0.3px" };
 const CONTENT_WIDTH = 320;
@@ -23,24 +24,8 @@ const Divider = () => (
 );
 
 export default function TemplateThermalFull({ data }) {
-  const qty = parseFloat(data.quantity) || 0;
-  const rate = parseFloat(data.pricePerLitre) || 0;
-  // Amount is the authoritative user-entered value when present (single-bill
-  // form flow); bulk CSV generation doesn''t set data.amount, so fall back
-  // to qty*rate there.
-  const total = data.amount !== undefined && data.amount !== "" ? (parseFloat(data.amount) || 0) : qty * rate;
-
-  const formatDate = (d) => {
-    if (!d) return "";
-    const dt = new Date(d);
-    const dd = String(dt.getDate()).padStart(2, "0");
-    const mm = String(dt.getMonth() + 1).padStart(2, "0");
-    const yy = String(dt.getFullYear()).slice(-2);
-    return `${dd}/${mm}/${yy}`;
-  };
-
-  const fmtAmt = (n) => n.toFixed(2).padStart(9, "0");
-  const fmtVol = (n) => n.toFixed(2).padStart(9, "0");
+  const { qty, rate, total } = computeTotals(data);
+  const formatDate = formatDateShort;
 
   const InfoRow = ({ label, value, indent = 14 }) => (
     <div style={{ ...dot, display: "flex", padding: "2px 0", lineHeight: 1.4 }}>

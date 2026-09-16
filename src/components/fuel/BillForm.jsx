@@ -1,9 +1,8 @@
-import { useState } from "react";
-
-const inputClass = "w-full h-11 px-4 bg-white border border-[#E2E8F0] rounded-xl text-[#0F172A] text-[14px] focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-all duration-150 placeholder:text-[#94a3b8]";
-const computedInputClass = "w-full h-11 px-4 bg-[#F1F5F9] border border-[#E2E8F0] rounded-xl text-[#475569] text-[14px] cursor-not-allowed";
-const labelClass = "block text-[#0F172A] text-[13px] font-medium mb-1.5";
-const helperClass = "text-[11.5px] text-[#94A3B8] mt-1";
+import PropTypes from "prop-types";
+import Field from "../form/Field";
+import Section from "../form/Section";
+import { inputClass, computedInputClass, inputClassFor, warningBannerClass } from "../form/formStyles";
+import { validateNumber } from "../form/validation";
 
 // Typical real-world densities (kg/m3) by fuel type — used as placeholder
 // guidance rather than a hard rule, since actual density varies by batch/season.
@@ -13,60 +12,6 @@ const DENSITY_HINTS = {
   "Xtra Premium": "742.0",
 };
 const DENSITY_APPLICABLE = ["Petrol", "Diesel", "Xtra Premium"];
-
-function Field({ label, htmlFor, children }) {
-  return (
-    <div>
-      <label className={labelClass} htmlFor={htmlFor}>{label}</label>
-      {children}
-    </div>
-  );
-}
-
-function Section({ title, defaultOpen = true, children }) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  return (
-    <div className="border border-[#E2E8F0] rounded-xl overflow-hidden mb-4">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-5 py-3.5 bg-[#F8FAFC] hover:bg-[#F1F5F9] transition-colors duration-150"
-        style={{ cursor: "pointer" }}
-      >
-        <span className="text-[11px] font-semibold uppercase tracking-widest text-[#64748B]">
-          {title}
-        </span>
-        <svg
-          width="16" height="16" viewBox="0 0 24 24" fill="none"
-          stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-          style={{
-            flexShrink: 0,
-            transform: open ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform 0.25s ease",
-          }}
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </button>
-
-      {/* Smooth animate using max-height trick */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateRows: open ? "1fr" : "0fr",
-          transition: "grid-template-rows 0.28s ease",
-        }}
-      >
-        <div style={{ overflow: "hidden" }}>
-          <div className="px-5 py-4 bg-white">
-            {children}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // NOTE: this form is identical for every template (per redesign request).
 // Every field here is read by at least one template; where a specific
@@ -80,6 +25,16 @@ function Section({ title, defaultOpen = true, children }) {
 // page computes this derived value in its onChange handler; this component
 // just renders `quantity` as a disabled, clearly-labelled computed field.
 export default function BillForm({ data, onChange }) {
+  // Validation is recomputed on every render from the current values rather
+  // than held in state — there is no submit step here, the receipt updates
+  // live, so "is this value usable right now?" is the only question.
+  const errors = {
+    pricePerLitre: validateNumber(data.pricePerLitre, { label: "Rate / litre", min: 0 }),
+    amount: validateNumber(data.amount, { label: "Amount", min: 0 }),
+    density: validateNumber(data.density, { label: "Density", min: 0 }),
+  };
+  const hasAmountError = Boolean(errors.pricePerLitre || errors.amount);
+
   return (
     <div>
       {/* Station Details */}
@@ -112,10 +67,10 @@ export default function BillForm({ data, onChange }) {
                 <img
                   src={data.logoUrl}
                   alt="logo preview"
-                  className="h-8 object-contain rounded border border-[#E2E8F0] p-1 bg-white"
+                  className="h-8 object-contain rounded border border-border p-1 bg-white"
                   onError={(e) => e.target.style.display = "none"}
                 />
-                <span className="text-[11.5px] text-[#64748B]">Logo preview</span>
+                <span className="text-[11.5px] text-ink-muted">Logo preview</span>
               </div>
             )}
           </div>
@@ -128,10 +83,10 @@ export default function BillForm({ data, onChange }) {
                 <img
                   src={data.bankLogoUrl}
                   alt="bank logo preview"
-                  className="h-8 object-contain rounded border border-[#E2E8F0] p-1 bg-white"
+                  className="h-8 object-contain rounded border border-border p-1 bg-white"
                   onError={(e) => e.target.style.display = "none"}
                 />
-                <span className="text-[11.5px] text-[#64748B]">Rotated strip on receipt</span>
+                <span className="text-[11.5px] text-ink-muted">Rotated strip on receipt</span>
               </div>
             )}
           </div>
@@ -173,23 +128,46 @@ export default function BillForm({ data, onChange }) {
               <option>EV Charge</option>
             </select>
           </Field>
-          <Field label="Rate / Litre (₹)" htmlFor="pricePerLitre">
-            <input id="pricePerLitre" className={inputClass} type="number" min="0" step="0.01" name="pricePerLitre" value={data.pricePerLitre} onChange={onChange} placeholder="104.29" />
+          <Field label="Rate / Litre (₹)" htmlFor="pricePerLitre" error={errors.pricePerLitre}>
+            <input
+              id="pricePerLitre"
+              className={inputClassFor(errors.pricePerLitre)}
+              type="number" min="0" step="0.01"
+              name="pricePerLitre"
+              value={data.pricePerLitre}
+              onChange={onChange}
+              placeholder="104.29"
+              aria-invalid={Boolean(errors.pricePerLitre)}
+            />
           </Field>
 
-          <Field label="Amount (₹)" htmlFor="amount">
-            <input id="amount" className={inputClass} type="number" min="0" step="0.01" name="amount" value={data.amount} onChange={onChange} placeholder="e.g. 2815.83" />
+          <Field label="Amount (₹)" htmlFor="amount" error={errors.amount}>
+            <input
+              id="amount"
+              className={inputClassFor(errors.amount)}
+              type="number" min="0" step="0.01"
+              name="amount"
+              value={data.amount}
+              onChange={onChange}
+              placeholder="e.g. 2815.83"
+              aria-invalid={Boolean(errors.amount)}
+            />
           </Field>
-          <div>
-            <Field label="Volume / Qty (Litres)" htmlFor="quantity">
-              <input id="quantity" className={computedInputClass} type="text" name="quantity" value={data.quantity} disabled readOnly />
-            </Field>
-            <p className={helperClass}>Auto-calculated: Amount ÷ Rate</p>
-          </div>
+          <Field label="Volume / Qty (Litres)" htmlFor="quantity" helper="Auto-calculated: Amount ÷ Rate">
+            <input id="quantity" className={computedInputClass} type="text" name="quantity" value={data.quantity} disabled readOnly />
+          </Field>
 
           {DENSITY_APPLICABLE.includes(data.fuelType) && (
-            <Field label="Density (Kg/Cu.mtr)" htmlFor="density">
-              <input id="density" className={inputClass} name="density" value={data.density} onChange={onChange} placeholder={`e.g. ${DENSITY_HINTS[data.fuelType]} (typical for ${data.fuelType})`} />
+            <Field label="Density (Kg/Cu.mtr)" htmlFor="density" error={errors.density}>
+              <input
+                id="density"
+                className={inputClassFor(errors.density)}
+                name="density"
+                value={data.density}
+                onChange={onChange}
+                placeholder={`e.g. ${DENSITY_HINTS[data.fuelType]} (typical for ${data.fuelType})`}
+                aria-invalid={Boolean(errors.density)}
+              />
             </Field>
           )}
           <Field label="Preset Type" htmlFor="presetType">
@@ -209,6 +187,15 @@ export default function BillForm({ data, onChange }) {
             </select>
           </Field>
         </div>
+
+        {/* Non-blocking warning: the receipt still renders, but the totals on
+            it fall back to 0 rather than NaN while an input is unusable. */}
+        {hasAmountError && (
+          <p className={warningBannerClass} role="status">
+            ⚠ Rate and Amount must be valid, non-negative numbers — the
+            receipt is showing ₹0.00 for the invalid value until you fix it.
+          </p>
+        )}
       </Section>
 
       {/* Customer Details */}
@@ -240,3 +227,34 @@ export default function BillForm({ data, onChange }) {
     </div>
   );
 }
+
+BillForm.propTypes = {
+  /** The full fuel-bill record owned by FuelBillPage. */
+  data: PropTypes.shape({
+    stationName: PropTypes.string,
+    stationAddress: PropTypes.string,
+    stationPhone: PropTypes.string,
+    vatTin: PropTypes.string,
+    logoUrl: PropTypes.string,
+    bankLogoUrl: PropTypes.string,
+    billNumber: PropTypes.string,
+    invoiceNo: PropTypes.string,
+    billDate: PropTypes.string,
+    billTime: PropTypes.string,
+    nozzleNo: PropTypes.string,
+    fuelType: PropTypes.string,
+    density: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    pricePerLitre: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    quantity: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    presetType: PropTypes.string,
+    paymentMode: PropTypes.string,
+    customerName: PropTypes.string,
+    vehicleNumber: PropTypes.string,
+    vehicleType: PropTypes.string,
+    mobileNo: PropTypes.string,
+    attendantId: PropTypes.string,
+  }).isRequired,
+  /** Native change handler — reads event.target.name / .value. */
+  onChange: PropTypes.func.isRequired,
+};

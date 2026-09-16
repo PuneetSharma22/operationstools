@@ -1,31 +1,9 @@
 const serif = { fontFamily: "'Times New Roman', Georgia, serif" };
 import { REVENUE_STAMP_DATA_URI } from "./revenueStampAsset";
+import { amountToWords, formatReceiptDate, formatPeriodRange, formatRentFigure } from "./receiptMath";
 
-const formatDate = (d) => {
-  if (!d) return "—";
-  const dt = new Date(d);
-  return `${String(dt.getDate()).padStart(2, "0")}/${String(dt.getMonth() + 1).padStart(2, "0")}/${dt.getFullYear()}`;
-};
-const formatMonthName = (d) => {
-  if (!d) return "—";
-  return new Date(d + "-02").toLocaleDateString("en-IN", { month: "long" });
-};
-
-const amountToWords = (amount) => {
-  if (!amount || isNaN(amount)) return "";
-  const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
-    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
-  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
-  const numToWords = (n) => {
-    if (n === 0) return "Zero";
-    if (n < 20) return ones[n];
-    if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : "");
-    if (n < 1000) return ones[Math.floor(n / 100)] + " Hundred" + (n % 100 ? " " + numToWords(n % 100) : "");
-    if (n < 100000) return numToWords(Math.floor(n / 1000)) + " Thousand" + (n % 1000 ? " " + numToWords(n % 1000) : "");
-    return numToWords(Math.floor(n / 100000)) + " Lakh" + (n % 100000 ? " " + numToWords(n % 100000) : "");
-  };
-  return numToWords(parseInt(amount)) + " Rupees Only";
-};
+// Formal-table style: numeric dates, month name only, em dash for gaps.
+const formatDate = (d) => formatReceiptDate(d, { style: "numeric", placeholder: "—" });
 
 function TableRow({ label, value, last }) {
   return (
@@ -37,9 +15,7 @@ function TableRow({ label, value, last }) {
 }
 
 export default function TemplateRentReceipt4({ data }) {
-  const periodLabel = !data.periodFrom ? "" : (!data.periodTo || data.periodFrom === data.periodTo)
-    ? formatMonthName(data.periodFrom)
-    : `${formatMonthName(data.periodFrom)} – ${formatMonthName(data.periodTo)}`;
+  const periodLabel = formatPeriodRange(data.periodFrom, data.periodTo, { withYear: false, placeholder: "" });
   const words = amountToWords(data.rentAmount);
 
   return (
@@ -66,13 +42,13 @@ export default function TemplateRentReceipt4({ data }) {
         <TableRow label="TENANT" value={data.tenantName} />
         <TableRow label="PROPERTY ADDRESS" value={data.propertyAddress} />
         <TableRow label="RENTAL PERIOD" value={periodLabel} />
-        <TableRow label="AMOUNT RECEIVED" value={data.rentAmount ? `₹ ${parseInt(data.rentAmount).toLocaleString("en-IN")}` : ""} />
+        <TableRow label="AMOUNT RECEIVED" value={data.rentAmount ? `₹ ${formatRentFigure(data.rentAmount)}` : ""} />
         <TableRow label="MODE OF PAYMENT" value={data.paymentMethod} last />
       </div>
 
       <p style={{ ...serif, fontSize: 13, lineHeight: 1.7, margin: "0 0 12px" }}>
         I, <strong>{data.landlordName || "N/A"}</strong>, hereby acknowledge receipt of rent amounting to{" "}
-        <strong>₹ {data.rentAmount ? parseInt(data.rentAmount).toLocaleString("en-IN") : "0"}</strong>
+        <strong>₹ {data.rentAmount ? formatRentFigure(data.rentAmount) : "0"}</strong>
         {words && <> (<strong>{words}</strong>)</>} from <strong>{data.tenantName || "N/A"}</strong> for the tenancy period of <strong>{periodLabel || "N/A"}</strong>.
       </p>
       <p style={{ ...serif, fontSize: 13, lineHeight: 1.7, margin: "0 0 20px" }}>

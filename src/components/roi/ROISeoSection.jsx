@@ -1,0 +1,116 @@
+// Static explainer content below the ROI calculator tool. Pure copy — no
+// state, no props — kept out of the page file so the page stays about
+// behaviour.
+
+const FAQS = [
+  { q: "What is ROI?", a: "ROI (Return on Investment) measures the gain or loss from an investment relative to its cost. Formula: ROI% = ((Amount Returned − Amount Invested) ÷ Amount Invested) × 100." },
+  { q: "What is a good ROI in India?", a: "A good ROI depends on the investment type. Bank FDs offer ~7% p.a., gold averages ~12% over 10 years, and Nifty 50 has historically returned ~14% p.a. Any annualized return above 15% is considered strong." },
+  { q: "What is annualized ROI?", a: "Annualized ROI (also called CAGR) normalizes the return over a multi-year period to show the equivalent annual rate. It accounts for compounding frequency — monthly, quarterly, or annually." },
+  { q: "How is break-even calculated?", a: "Break-even point is the number of years it takes to recover your investment at the current annual gain rate. Break-even = Amount Invested ÷ Annual Gain." },
+  { q: "What does inflation-adjusted ROI mean?", a: "Real ROI subtracts the inflation rate from your nominal ROI. If your investment returns 12% but inflation is 6%, your real purchasing power only grew by ~6%." },
+  { q: "Is this ROI calculator free?", a: "Yes — completely free, no login required, and your data never leaves your device." },
+];
+
+const FORMULAS = [
+  { label: "Basic ROI", formula: "(Return − Cost) ÷ Cost × 100", color: "#2563EB" },
+  { label: "Annualized ROI", formula: "(Return ÷ Cost)^(1÷Years) − 1", color: "#7C3AED" },
+  { label: "Real ROI", formula: "Nominal ROI − Inflation Rate × Years", color: "#059669" },
+];
+
+const WHY_USE = [
+  { icon: "📊", title: "Compare investments", body: "Objectively compare FDs, stocks, real estate, or business ventures on the same scale." },
+  { icon: "🎯", title: "Set return targets", body: "Work backwards from a goal — know exactly what return rate you need to reach your target." },
+  { icon: "📈", title: "Track performance", body: "Measure how an existing investment is performing against benchmarks like Nifty 50 or gold." },
+  { icon: "💡", title: "Justify business spend", body: "Evaluate whether a marketing campaign, equipment purchase, or expansion is worth the cost." },
+];
+
+const BENCHMARK_TABLE = [
+  { type: "Savings Account", ret: "3–4%", risk: "Very Low", liq: "Instant" },
+  { type: "Fixed Deposit (1yr)", ret: "6.5–7.5%", risk: "Very Low", liq: "On maturity" },
+  { type: "Gold", ret: "10–14%", risk: "Low–Medium", liq: "High" },
+  { type: "Real Estate", ret: "8–12%", risk: "Medium", liq: "Low" },
+  { type: "Nifty 50 Index", ret: "12–16%", risk: "Medium–High", liq: "High" },
+  { type: "Direct Equity", ret: "Varies", risk: "High", liq: "High" },
+];
+
+export default function ROISeoSection() {
+  return (
+    <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "64px 24px" }}>
+
+        <section style={{ marginBottom: 56 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, color: "#0F172A", margin: "0 0 16px", letterSpacing: "-0.01em" }}>What is ROI?</h2>
+          <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.8, margin: "0 0 16px" }}>
+            Return on Investment (ROI) is a performance metric used to evaluate the efficiency of an investment. It tells you how much profit or loss you made relative to the amount you originally invested — expressed as a percentage.
+          </p>
+          <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.8, margin: "0 0 20px" }}>
+            The basic ROI formula is: <strong style={{ color: "#0F172A" }}>ROI% = ((Amount Returned − Amount Invested) ÷ Amount Invested) × 100</strong>. For example, if you invested ₹1,00,000 and got back ₹1,50,000, your ROI is 50%.
+          </p>
+          <div style={{ background: "#F8FAFC", borderRadius: 12, padding: "20px 24px", border: "1px solid #E2E8F0" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 20 }}>
+              {FORMULAS.map((f) => (
+                <div key={f.label} style={{ padding: "14px 16px", background: "#fff", borderRadius: 10, border: "1px solid #E2E8F0" }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: f.color, marginBottom: 6 }}>{f.label}</div>
+                  <code style={{ fontSize: 12, color: "#374151", lineHeight: 1.6 }}>{f.formula}</code>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 56 }}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", margin: "0 0 20px", letterSpacing: "-0.01em" }}>Why use an ROI Calculator?</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+            {WHY_USE.map((f) => (
+              <div key={f.title} style={{ background: "#F8FAFC", borderRadius: 12, padding: "18px 16px", border: "1px solid #E2E8F0" }}>
+                <div style={{ fontSize: 22, marginBottom: 8 }}>{f.icon}</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: "#0F172A", marginBottom: 6 }}>{f.title}</div>
+                <div style={{ fontSize: 13, color: "#64748B", lineHeight: 1.6 }}>{f.body}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 56 }}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", margin: "0 0 16px", letterSpacing: "-0.01em" }}>ROI Benchmarks in India (2024–25)</h2>
+          <p style={{ fontSize: 14, color: "#64748B", margin: "0 0 20px", lineHeight: 1.7 }}>
+            Use these benchmarks to contextualise your investment returns. Historical averages are approximate and vary with market conditions.
+          </p>
+          <div style={{ borderRadius: 12, border: "1px solid #E2E8F0", overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+              <thead>
+                <tr style={{ background: "#F8FAFC" }}>
+                  {["Investment Type", "Typical Annual Return", "Risk Level", "Liquidity"].map((h) => (
+                    <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 12, fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1px solid #E2E8F0" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {BENCHMARK_TABLE.map((row, i) => (
+                  <tr key={row.type} style={{ borderBottom: "1px solid #F1F5F9", background: i % 2 === 0 ? "#fff" : "#FAFAFA" }}>
+                    <td style={{ padding: "12px 16px", fontWeight: 600, color: "#0F172A" }}>{row.type}</td>
+                    <td style={{ padding: "12px 16px", color: "#059669", fontWeight: 600 }}>{row.ret}</td>
+                    <td style={{ padding: "12px 16px", color: "#64748B" }}>{row.risk}</td>
+                    <td style={{ padding: "12px 16px", color: "#64748B" }}>{row.liq}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", margin: "0 0 20px", letterSpacing: "-0.01em" }}>Frequently Asked Questions</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {FAQS.map((faq) => (
+              <div key={faq.q} style={{ background: "#F8FAFC", borderRadius: 12, padding: "18px 20px", border: "1px solid #E2E8F0" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>{faq.q}</div>
+                <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.7 }}>{faq.a}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}

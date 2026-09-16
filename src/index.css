@@ -1,4 +1,47 @@
 @import "tailwindcss";
+
+/* ─── Design tokens ──────────────────────────────────────────────────────────
+   Tailwind v4 is config-less here (@tailwindcss/vite), so the design system
+   lives as `@theme` custom properties instead of a tailwind.config.js.
+   Each `--color-x` below generates the usual utilities: `text-x`, `bg-x`,
+   `border-x`, `ring-x`, `placeholder:text-x`, …
+
+   These are the exact hex values the README's "Design System" section already
+   documents — the point of naming them is that new code writes `text-ink`
+   instead of re-typing `text-[#0F172A]`.
+
+     ink / ink-soft / ink-muted / ink-faint   text, descending in emphasis
+     border / border-soft                      hairlines and input outlines
+     surface / surface-alt                     page and panel backgrounds
+     brand / brand-alt                         primary blue → indigo pair
+     danger / danger-border / danger-surface   validation + error states
+     success                                   positive amounts / confirmations
+
+   Existing screens still use arbitrary values (`text-[#0F172A]`); they are
+   migrated file-by-file rather than in one sweeping find-replace.
+   ──────────────────────────────────────────────────────────────────────────*/
+@theme {
+  --color-ink: #0F172A;
+  --color-ink-soft: #475569;
+  --color-ink-muted: #64748B;
+  --color-ink-faint: #94A3B8;
+
+  --color-border: #E2E8F0;
+  --color-border-soft: #CBD5E1;
+
+  --color-surface: #F8FAFC;
+  --color-surface-alt: #F1F5F9;
+
+  --color-brand: #2563EB;
+  --color-brand-alt: #4F46E5;
+
+  --color-danger: #DC2626;
+  --color-danger-border: #FCA5A5;
+  --color-danger-surface: #FEF2F2;
+
+  --color-success: #059669;
+}
+
 /* CLS fix — prevent layout shift from lazy routes */
 main {
   min-height: calc(100vh - 64px);

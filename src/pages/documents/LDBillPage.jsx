@@ -314,7 +314,7 @@ export default function LDBillPage() {
     setDownloading(true);
     try {
       const printId = `LD-${Date.now()}-${Math.random().toString(36).substr(2,6).toUpperCase()}`;
-      try { await supabase.from("print_requests").insert({ template: "ld-bill", print_id: printId, user_id: null, bill_data: { ...bill, supplier, recipient, items } }); } catch (_) {}
+      try { await supabase.from("print_requests").insert({ template: "ld-bill", print_id: printId, user_id: null, bill_data: { ...bill, supplier, recipient, items } }); } catch (err) { console.warn("Save logging for the LD bill failed (non-blocking); the document itself was unaffected.", err); }
       const { default: jsPDF } = await import("jspdf");
       const { default: html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(previewRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false });

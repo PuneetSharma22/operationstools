@@ -1,52 +1,8 @@
-import { useState } from "react";
-
-const inputClass = "w-full h-11 px-4 bg-white border border-[#E2E8F0] rounded-xl text-[#0F172A] text-[14px] focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-all duration-150 placeholder:text-[#94a3b8]";
-const labelClass = "block text-[#0F172A] text-[13px] font-medium mb-1.5";
-const helperClass = "text-[11.5px] text-[#94A3B8] mt-1";
-
-function Field({ label, htmlFor, children }) {
-  return (
-    <div>
-      <label className={labelClass} htmlFor={htmlFor}>{label}</label>
-      {children}
-    </div>
-  );
-}
-
-function Section({ title, defaultOpen = true, children }) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  return (
-    <div className="border border-[#E2E8F0] rounded-xl overflow-hidden mb-4">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-5 py-3.5 bg-[#F8FAFC] hover:bg-[#F1F5F9] transition-colors duration-150"
-        style={{ cursor: "pointer" }}
-      >
-        <span className="text-[11px] font-semibold uppercase tracking-widest text-[#64748B]">
-          {title}
-        </span>
-        <svg
-          width="16" height="16" viewBox="0 0 24 24" fill="none"
-          stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-          style={{
-            flexShrink: 0,
-            transform: open ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform 0.25s ease",
-          }}
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </button>
-      <div style={{ display: "grid", gridTemplateRows: open ? "1fr" : "0fr", transition: "grid-template-rows 0.28s ease" }}>
-        <div style={{ overflow: "hidden" }}>
-          <div className="px-5 py-4 bg-white">{children}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
+import PropTypes from "prop-types";
+import Field from "../form/Field";
+import Section from "../form/Section";
+import { inputClass, inputClassFor, helperClass, warningBannerClass } from "../form/formStyles";
+import { validateNumber, clampNumber } from "../form/validation";
 
 // NOTE: same philosophy as the fuel bill's BillForm — every field here is
 // read by at least one template (TXN/Invoice No -> POS, Order No/Waiter ID/
@@ -55,12 +11,19 @@ function Section({ title, defaultOpen = true, children }) {
 // choice, not something to hide here.
 export default function BillForm({ data, onChange, onLogoChange }) {
   const set = (name) => (e) => onChange({ [name]: e.target.value });
-  const setNum = (name) => (e) => onChange({ [name]: e.target.value === "" ? "" : Number(e.target.value) });
+
+  // Percentages are clamped on the way in (0–100) so a negative service
+  // charge or a pasted "abc" can never reach computeTotals().
+  const setPct = (name) => (e) => onChange({ [name]: clampNumber(e.target.value, { min: 0, max: 100 }) });
 
   const updateItem = (index, field, value) => {
-    const items = data.items.map((it, i) =>
-      i === index ? { ...it, [field]: field === "name" ? value : Number(value) } : it
-    );
+    const items = data.items.map((it, i) => {
+      if (i !== index) return it;
+      if (field === "name") return { ...it, name: value };
+      // Qty and price are money/count fields: clamp negatives to 0 and keep
+      // "" for a cleared box rather than letting NaN into the item.
+      return { ...it, [field]: clampNumber(value, { min: 0 }) };
+    });
     onChange({ items });
   };
 
@@ -71,6 +34,18 @@ export default function BillForm({ data, onChange, onLogoChange }) {
   const removeItem = (index) => {
     onChange({ items: data.items.filter((_, i) => i !== index) });
   };
+
+  const chargeErrors = {
+    serviceChargePct: validateNumber(data.serviceChargePct, { label: "Service charge", min: 0, max: 100 }),
+    cgstPct: validateNumber(data.cgstPct, { label: "CGST", min: 0, max: 100 }),
+    sgstPct: validateNumber(data.sgstPct, { label: "SGST", min: 0, max: 100 }),
+  };
+
+  const itemErrors = (data.items || []).map((it) => ({
+    qty: validateNumber(it.qty, { label: "Qty", min: 0 }),
+    price: validateNumber(it.price, { label: "Price", min: 0 }),
+  }));
+  const hasItemError = itemErrors.some((e) => e.qty || e.price);
 
   return (
     <div>
@@ -108,8 +83,8 @@ export default function BillForm({ data, onChange, onLogoChange }) {
             </Field>
             {data.logoUrl && (
               <div className="mt-2 flex items-center gap-2">
-                <img src={data.logoUrl} alt="logo preview" className="h-8 object-contain rounded border border-[#E2E8F0] p-1 bg-white" onError={(e) => (e.target.style.display = "none")} />
-                <span className="text-[11.5px] text-[#64748B]">Logo preview</span>
+                <img src={data.logoUrl} alt="logo preview" className="h-8 object-contain rounded border border-border p-1 bg-white" onError={(e) => (e.target.style.display = "none")} />
+                <span className="text-[11.5px] text-ink-muted">Logo preview</span>
               </div>
             )}
           </div>
@@ -154,14 +129,14 @@ export default function BillForm({ data, onChange, onLogoChange }) {
       {/* Charges */}
       <Section title="💰 Charges" defaultOpen={true}>
         <div className="grid grid-cols-3 gap-4">
-          <Field label="Service Charge %" htmlFor="serviceChargePct">
-            <input id="serviceChargePct" type="number" min="0" step="0.5" className={inputClass} value={data.serviceChargePct} onChange={setNum("serviceChargePct")} />
+          <Field label="Service Charge %" htmlFor="serviceChargePct" error={chargeErrors.serviceChargePct}>
+            <input id="serviceChargePct" type="number" min="0" max="100" step="0.5" className={inputClassFor(chargeErrors.serviceChargePct)} value={data.serviceChargePct} onChange={setPct("serviceChargePct")} aria-invalid={Boolean(chargeErrors.serviceChargePct)} />
           </Field>
-          <Field label="CGST %" htmlFor="cgstPct">
-            <input id="cgstPct" type="number" min="0" step="0.5" className={inputClass} value={data.cgstPct} onChange={setNum("cgstPct")} />
+          <Field label="CGST %" htmlFor="cgstPct" error={chargeErrors.cgstPct}>
+            <input id="cgstPct" type="number" min="0" max="100" step="0.5" className={inputClassFor(chargeErrors.cgstPct)} value={data.cgstPct} onChange={setPct("cgstPct")} aria-invalid={Boolean(chargeErrors.cgstPct)} />
           </Field>
-          <Field label="SGST %" htmlFor="sgstPct">
-            <input id="sgstPct" type="number" min="0" step="0.5" className={inputClass} value={data.sgstPct} onChange={setNum("sgstPct")} />
+          <Field label="SGST %" htmlFor="sgstPct" error={chargeErrors.sgstPct}>
+            <input id="sgstPct" type="number" min="0" max="100" step="0.5" className={inputClassFor(chargeErrors.sgstPct)} value={data.sgstPct} onChange={setPct("sgstPct")} aria-invalid={Boolean(chargeErrors.sgstPct)} />
           </Field>
         </div>
         <p className={helperClass}>Service charge is discretionary in India and applied before GST, matching standard restaurant billing practice.</p>
@@ -176,16 +151,16 @@ export default function BillForm({ data, onChange, onLogoChange }) {
                 <input id={`item-name-${i}`} className={inputClass} value={item.name} onChange={(e) => updateItem(i, "name", e.target.value)} />
               </Field>
               <Field label={i === 0 ? "Qty" : ""} htmlFor={`item-qty-${i}`}>
-                <input id={`item-qty-${i}`} type="number" min="0" className={inputClass} value={item.qty} onChange={(e) => updateItem(i, "qty", e.target.value)} />
+                <input id={`item-qty-${i}`} type="number" min="0" className={inputClassFor(itemErrors[i]?.qty)} value={item.qty} onChange={(e) => updateItem(i, "qty", e.target.value)} aria-invalid={Boolean(itemErrors[i]?.qty)} />
               </Field>
               <Field label={i === 0 ? "Price (₹)" : ""} htmlFor={`item-price-${i}`}>
-                <input id={`item-price-${i}`} type="number" min="0" step="0.01" className={inputClass} value={item.price} onChange={(e) => updateItem(i, "price", e.target.value)} />
+                <input id={`item-price-${i}`} type="number" min="0" step="0.01" className={inputClassFor(itemErrors[i]?.price)} value={item.price} onChange={(e) => updateItem(i, "price", e.target.value)} aria-invalid={Boolean(itemErrors[i]?.price)} />
               </Field>
               <button
                 type="button"
                 onClick={() => removeItem(i)}
                 disabled={data.items.length <= 1}
-                className="h-11 rounded-xl border border-[#FCA5A5] text-[#DC2626] disabled:opacity-30 disabled:cursor-not-allowed"
+                className="h-11 rounded-xl border border-danger-border text-danger disabled:opacity-30 disabled:cursor-not-allowed"
                 title="Remove item"
               >
                 ✕
@@ -195,12 +170,57 @@ export default function BillForm({ data, onChange, onLogoChange }) {
           <button
             type="button"
             onClick={addItem}
-            className="h-10 w-full rounded-xl border border-dashed border-[#CBD5E1] text-[#64748B] text-[13px] font-medium hover:bg-[#F8FAFC]"
+            className="h-10 w-full rounded-xl border border-dashed border-border-soft text-ink-muted text-[13px] font-medium hover:bg-surface"
           >
             + Add item
           </button>
         </div>
+
+        {/* The per-row error text is suppressed (the 70px/90px columns are far
+            too narrow for a message); one banner under the list carries it
+            instead, so the invalid row is still flagged by its red border. */}
+        {hasItemError && (
+          <p className={warningBannerClass} role="status">
+            ⚠ Quantity and price must be non-negative numbers. Rows that are
+            not are counted as 0 in the bill total.
+          </p>
+        )}
       </Section>
     </div>
   );
 }
+
+const itemShape = PropTypes.shape({
+  name: PropTypes.string,
+  qty: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+});
+
+BillForm.propTypes = {
+  /** The full restaurant-bill record owned by RestaurantBillPage. */
+  data: PropTypes.shape({
+    restaurantName: PropTypes.string,
+    address: PropTypes.string,
+    establishedYear: PropTypes.string,
+    gstin: PropTypes.string,
+    fssaiNo: PropTypes.string,
+    logoUrl: PropTypes.string,
+    billNo: PropTypes.string,
+    dateTime: PropTypes.string,
+    dineIn: PropTypes.string,
+    cashier: PropTypes.string,
+    customerName: PropTypes.string,
+    txnNo: PropTypes.string,
+    invoiceNo: PropTypes.string,
+    orderNo: PropTypes.string,
+    waiterId: PropTypes.string,
+    serviceChargePct: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    cgstPct: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    sgstPct: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    items: PropTypes.arrayOf(itemShape).isRequired,
+  }).isRequired,
+  /** Receives a partial patch object, e.g. { billNo: "51" }. */
+  onChange: PropTypes.func.isRequired,
+  /** Optional dedicated handler for the logo URL; falls back to onChange. */
+  onLogoChange: PropTypes.func,
+};

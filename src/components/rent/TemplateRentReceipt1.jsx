@@ -1,32 +1,11 @@
 const serif = { fontFamily: "'Times New Roman', Georgia, serif" };
 import { REVENUE_STAMP_DATA_URI } from "./revenueStampAsset";
+import { amountToWords, formatReceiptDate, formatPeriod, formatRentFigure } from "./receiptMath";
 
-const amountToWords = (amount) => {
-  if (!amount || isNaN(amount)) return "";
-  const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
-    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
-  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
-  const numToWords = (n) => {
-    if (n === 0) return "";
-    if (n < 20) return ones[n];
-    if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : "");
-    if (n < 1000) return ones[Math.floor(n / 100)] + " Hundred" + (n % 100 ? " " + numToWords(n % 100) : "");
-    if (n < 100000) return numToWords(Math.floor(n / 1000)) + " Thousand" + (n % 1000 ? " " + numToWords(n % 1000) : "");
-    if (n < 10000000) return numToWords(Math.floor(n / 100000)) + " Lakh" + (n % 100000 ? " " + numToWords(n % 100000) : "");
-    return numToWords(Math.floor(n / 10000000)) + " Crore" + (n % 10000000 ? " " + numToWords(n % 10000000) : "");
-  };
-  return numToWords(parseInt(amount)) + " Rupees Only";
-};
+// Certificate style: long dates and a blank rule where a value is missing.
+const formatDate = (d) => formatReceiptDate(d, { style: "long", placeholder: "___________" });
+const formatMonthYear = (d) => formatPeriod(d, { withYear: true, placeholder: "___________" });
 
-const formatDate = (d) => {
-  if (!d) return "___________";
-  return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" });
-};
-const formatMonthYear = (d) => {
-  if (!d) return "___________";
-  // Month inputs come as "YYYY-MM" — appending "-02" avoids timezone rollover to the previous month.
-  return new Date(d + "-02").toLocaleDateString("en-IN", { month: "long", year: "numeric" });
-};
 
 export default function TemplateRentReceipt1({ data }) {
   const words = amountToWords(data.rentAmount);
@@ -63,7 +42,7 @@ export default function TemplateRentReceipt1({ data }) {
         </span>
         {" "}the sum of{" "}
         <span style={{ borderBottom: "1px solid #555", paddingBottom: 1, minWidth: 120, display: "inline-block", textAlign: "center" }}>
-          {data.rentAmount ? `₹ ${parseInt(data.rentAmount).toLocaleString("en-IN")}` : ""}
+          {data.rentAmount ? `₹ ${formatRentFigure(data.rentAmount)}` : ""}
         </span>
       </div>
 

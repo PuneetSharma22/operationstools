@@ -1,0 +1,35 @@
+// Static SEO / marketing copy for the Travel Expense Report page.
+// Pulled out of TravelExpensePage.jsx so the page file is about behaviour and
+// this file is about words — the two change for completely different reasons.
+
+export const SEO_TITLE = "Free Travel Expense Report Generator — Single Trip & Multi-Day Itinerary (2026)";
+export const SEO_DESCRIPTION = "Generate a travel expense report online for free. Track flights, hotels, meals and per-day itinerary costs for business travel reimbursement. No login. Instant PDF.";
+export const CANONICAL = "https://www.opstools.ai/documents/travel-expense";
+
+export const softwareAppSchema = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "OpsTools Travel Expense Report Generator", operatingSystem: "Web", applicationCategory: "BusinessApplication", offers: { "@type": "Offer", price: "0", priceCurrency: "INR" }, description: SEO_DESCRIPTION, url: CANONICAL, provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" } };
+
+export const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [{ "@type": "Question", name: "Is this travel expense report generator free to use?", acceptedAnswer: { "@type": "Answer", text: "Yes, completely free with no login required." } }, { "@type": "Question", name: "Can I report a multi-day trip with different cities?", acceptedAnswer: { "@type": "Answer", text: "Yes. Switch to Multi-Day Itinerary mode to add a card per day, each with its own location and expense entries." } }, { "@type": "Question", name: "Does it handle a travel advance?", acceptedAnswer: { "@type": "Answer", text: "Yes — enter the advance amount paid and the report calculates the balance due or refund automatically." } }, { "@type": "Question", name: "Does this generate a PDF?", acceptedAnswer: { "@type": "Answer", text: "Yes. Click Save to download the report as a PDF or PNG." } }] };
+
+export const INTRO = (<><p style={{ marginBottom: 16 }}>Business travel racks up expenses fast — flights, cabs, hotels, meals — and reconciling them afterwards is nobody's favourite task. OpsTools Travel Expense Report Generator turns it into a two-minute job. Fill in the trip, log each expense, and get a print-ready reimbursement report — no login, no subscription.</p><p>Two modes cover how trips actually happen: Single Trip for a short visit with one expense list, and Multi-Day Itinerary for a longer trip broken down day by day, city by city. Enter an advance amount and the report works out the balance due or refund automatically. The preview updates live, and your data never leaves your device.</p></>);
+
+export const WHAT_IS = `A travel expense report is a structured record of costs incurred on a business trip — flights, trains, cabs, hotels, meals and incidentals. It supports employee reimbursement claims and gives finance teams a clean, itemised record to approve against.`;
+
+export const WHY_USE = [{ title: "Employee reimbursement claims", body: "Itemise every flight, cab and hotel bill against a report number your finance team can approve." }, { title: "Multi-city itineraries", body: "Break a longer trip down day by day so costs are traceable to a specific date and city." }, { title: "Travel advance reconciliation", body: "Enter what was advanced before the trip and see the exact balance due or refund." }, { title: "Client billing", body: "Consultants and agencies can attach an itemised travel report when billing a client for travel costs." }, { title: "Audit-ready records", body: "Keep a dated, categorised record of travel spend for tax and audit purposes." }];
+
+export const FEATURES = [{ icon: "✈️", title: "Two report modes", body: "Single Trip for a short visit, Multi-Day Itinerary for a longer one broken down by day." }, { icon: "🧾", title: "11 expense categories", body: "Flights, hotels, meals, client entertainment, visas and more, each with its own bill number." }, { icon: "💳", title: "Advance & balance tracking", body: "Enter the advance paid and the balance due or refund is calculated automatically." }, { icon: "👁️", title: "Live preview", body: "See the report update in real time as you fill the form." }, { icon: "⬇️", title: "PDF or PNG download", body: "One click downloads the report — no print dialog needed." }, { icon: "🔒", title: "100% private", body: "No data is stored or transmitted. Everything happens in your browser." }, { icon: "🆓", title: "No login needed", body: "No account, no email, no credit card." }];
+
+export const HOW_TO_STEPS = [{ step: 1, title: "Choose a mode", body: "Single Trip for one continuous visit, or Multi-Day Itinerary for a trip spanning several days or cities." }, { step: 2, title: "Fill in trip details", body: "Report number, purpose, travel dates, destination and any advance paid." }, { step: 3, title: "Add traveller details", body: "Name, employee ID and department." }, { step: 4, title: "Log each expense", body: "Flights, hotels, meals and more — each with a category, bill number and payment mode." }, { step: 5, title: "Preview your report", body: "Check the live preview — category totals and balance due update instantly." }, { step: 6, title: "Download PDF or PNG", body: "Click Save to download the finished report to your device." }];
+
+export const BENEFITS = ["Generate unlimited expense reports — no caps or credit limits.", "No registration or sign-up required.", "Automatic advance and balance-due calculations.", "Separate modes for a single trip or a multi-day itinerary.", "All data stays in your browser — zero privacy risk.", "Completely free — no subscription."];
+
+export const FORMAT_FIELDS = [{ field: "Report No.", description: "Unique identifier for the expense report", example: "TRVL-2026-8184" }, { field: "Travel / Return Date", description: "Dates the trip covers", example: "16/09/2026 – 18/09/2026" }, { field: "Destination", description: "Where the trip was to", example: "Mumbai → Delhi" }, { field: "Traveller Details", description: "Name, employee ID and department", example: "Rajesh Sharma, EMP-1042" }, { field: "Expense Category", description: "Type of expense entry", example: "Flight / Hotel / Meals / Taxi" }, { field: "Advance Amount", description: "Amount paid to the traveller before the trip", example: "₹5,000.00" }, { field: "Amount", description: "Cost of the individual expense entry", example: "₹4,500.00" }];
+
+export const FAQS = faqSchema.mainEntity.map((i) => ({ q: i.name, a: i.acceptedAnswer.text }));
+
+export const RELATED_DOCS = [{ name: "Vehicle Expense Report", href: "/documents/vehicle-expense", description: "Fuel, tolls and fleet expense tracking." }, { name: "Fuel Bill Generator", href: "/documents/fuel-bill", description: "Petrol & diesel receipts, 4 Indian formats." }, { name: "Salary Slip Generator", href: "/documents/salary-slip", description: "Professional payslips." }];
+
+export const BREADCRUMBS = [
+  { name: "Home", url: "https://www.opstools.ai" },
+  { name: "Documents", url: "https://www.opstools.ai/documents" },
+  { name: "Travel Expense Report", url: CANONICAL },
+];

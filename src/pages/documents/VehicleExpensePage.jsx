@@ -1,41 +1,77 @@
-import { Helmet } from 'react-helmet-async';
 import { useState, useRef } from "react";
 import { supabase } from "../../supabase";
+import { useSEO } from "../../seo/useSEO";
+import DocumentPageSEO from "../../seo/DocumentPageSEO";
+import * as content from "./vehicleExpenseContent";
+
+// Neutral document palette — a printed report should read like a normal
+// business document, not a brand-colour showcase. Brand blue is reserved for
+// interactive form chrome (buttons, active tab) below, never for the report
+// preview itself.
+const INK = "#0F172A";
+const INK_SOFT = "#475569";
+const INK_MUTED = "#64748B";
+const BORDER = "#E2E8F0";
+const SURFACE = "#F8FAFC";
+const SURFACE_ALT = "#F1F5F9";
+const BRAND = "#2563EB";
+const BRAND_GRADIENT = "linear-gradient(135deg,#2563EB,#4F46E5)";
 
 function Field({ label, value, onChange, placeholder, type="text", small }) {
   return (
     <div style={{ marginBottom:small?8:12 }}>
-      {label&&<label style={{ fontSize:11, fontWeight:600, color:"#64748B", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>{label}</label>}
+      {label&&<label style={{ fontSize:11, fontWeight:600, color:INK_MUTED, display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>{label}</label>}
       <input type={type} value={value} placeholder={placeholder} onChange={e=>onChange&&onChange(e.target.value)}
-        style={{ width:"100%", height:small?32:38, border:"1.5px solid #E2E8F0", borderRadius:8, padding:"0 10px", fontSize:13, color:"#0F172A", outline:"none", boxSizing:"border-box", background:"#fff" }}
-        onFocus={e=>e.target.style.borderColor="#0284C7"} onBlur={e=>e.target.style.borderColor="#E2E8F0"} />
+        style={{ width:"100%", height:small?32:38, border:`1.5px solid ${BORDER}`, borderRadius:8, padding:"0 10px", fontSize:13, color:INK, outline:"none", boxSizing:"border-box", background:"#fff" }}
+        onFocus={e=>e.target.style.borderColor=BRAND} onBlur={e=>e.target.style.borderColor=BORDER} />
+    </div>
+  );
+}
+
+function Section({title,children}) {
+  return (
+    <div style={{ background:"#fff", borderRadius:16, border:`1px solid ${BORDER}`, padding:"20px 24px", marginBottom:16 }}>
+      <h2 style={{ fontSize:13, fontWeight:700, color:INK, margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>
+      {children}
     </div>
   );
 }
 
 const EXPENSE_TYPES = ["Fuel","Toll","Parking","Maintenance","Repair","Tyre","Oil Change","Insurance","Other"];
+const FUEL_TYPES = ["Petrol","Diesel","CNG","Electric","Hybrid"];
 const defaultEntry = () => ({ id:Date.now()+Math.random(), date:new Date().toISOString().split("T")[0], type:"Fuel", description:"", odometerStart:"", odometerEnd:"", amount:0, receipt:"", vehicle:"" });
+
+const todayISO = () => new Date().toISOString().split("T")[0];
+const daysAgoISO = (n) => { const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().split("T")[0]; };
+const monthBoundsISO = () => {
+  const now = new Date();
+  const first = new Date(now.getFullYear(), now.getMonth(), 1);
+  const last = new Date(now.getFullYear(), now.getMonth()+1, 0);
+  return [first.toISOString().split("T")[0], last.toISOString().split("T")[0]];
+};
 
 function VehiclePreview({ mode, report, employee, entries, vehicles }) {
   const total = entries.reduce((s,e)=>s+Number(e.amount||0),0);
   const byType = entries.reduce((acc,e)=>{ acc[e.type]=(acc[e.type]||0)+Number(e.amount||0); return acc; },{});
   const byVehicle = entries.reduce((acc,e)=>{ const v=e.vehicle||"—"; acc[v]=(acc[v]||0)+Number(e.amount||0); return acc; },{});
+  const byVehicleCount = entries.reduce((acc,e)=>{ const v=e.vehicle||"—"; acc[v]=(acc[v]||0)+1; return acc; },{});
   const totalKm = entries.reduce((s,e)=>{
     if(e.odometerStart&&e.odometerEnd) return s+(Number(e.odometerEnd)-Number(e.odometerStart));
     return s;
   },0);
+  const namedVehicles = vehicles.filter(v=>v.regNo);
 
   return (
     <div style={{ background:"#fff", fontFamily:"Arial,sans-serif", fontSize:11, color:"#1a1a1a", padding:"28px 32px" }}>
       {/* Header */}
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:20, paddingBottom:16, borderBottom:"2px solid #0284C7" }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:20, paddingBottom:16, borderBottom:`2px solid ${INK}` }}>
         <div>
-          <div style={{ fontSize:18, fontWeight:900, color:"#0284C7" }}>VEHICLE EXPENSE REPORT</div>
-          <div style={{ fontSize:11, color:"#475569", marginTop:3 }}>{mode==="fleet"?"Fleet Management Report":"Employee Reimbursement Report"}</div>
+          <div style={{ fontSize:18, fontWeight:900, color:INK }}>VEHICLE EXPENSE REPORT</div>
+          <div style={{ fontSize:11, color:INK_SOFT, marginTop:3 }}>{mode==="fleet"?"Fleet Management Report":"Employee Reimbursement Report"}</div>
         </div>
         <div style={{ textAlign:"right", fontSize:11 }}>
-          <div><span style={{ color:"#64748B" }}>Report No: </span><strong>{report.reportNo||"—"}</strong></div>
-          <div style={{ marginTop:3 }}><span style={{ color:"#64748B" }}>Period: </span><strong>{report.periodFrom&&report.periodTo?`${new Date(report.periodFrom+"T00:00:00").toLocaleDateString("en-IN")} – ${new Date(report.periodTo+"T00:00:00").toLocaleDateString("en-IN")}`:report.periodFrom?new Date(report.periodFrom+"T00:00:00").toLocaleDateString("en-IN"):"—"}</strong></div>
+          <div><span style={{ color:INK_MUTED }}>Report No: </span><strong>{report.reportNo||"—"}</strong></div>
+          <div style={{ marginTop:3 }}><span style={{ color:INK_MUTED }}>Period: </span><strong>{report.periodFrom&&report.periodTo?`${new Date(report.periodFrom+"T00:00:00").toLocaleDateString("en-IN")} – ${new Date(report.periodTo+"T00:00:00").toLocaleDateString("en-IN")}`:report.periodFrom?new Date(report.periodFrom+"T00:00:00").toLocaleDateString("en-IN"):"—"}</strong></div>
         </div>
       </div>
 
@@ -43,59 +79,72 @@ function VehiclePreview({ mode, report, employee, entries, vehicles }) {
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:16 }}>
         {mode==="employee" ? (
           <>
-            <div style={{ background:"#F0F9FF", borderRadius:8, padding:"10px 12px" }}>
-              <div style={{ fontSize:9, fontWeight:700, color:"#0284C7", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:5 }}>Employee Details</div>
-              <div style={{ fontWeight:700, fontSize:12 }}>{employee.name||"—"}</div>
-              <div style={{ fontSize:10, color:"#475569", lineHeight:1.7 }}>
+            <div style={{ background:SURFACE, border:`1px solid ${BORDER}`, borderRadius:8, padding:"10px 12px" }}>
+              <div style={{ fontSize:9, fontWeight:700, color:INK_MUTED, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:5 }}>Employee Details</div>
+              <div style={{ fontWeight:700, fontSize:12, color:INK }}>{employee.name||"—"}</div>
+              <div style={{ fontSize:10, color:INK_SOFT, lineHeight:1.7 }}>
                 {employee.department&&<div>{employee.department}</div>}
                 {employee.designation&&<div>{employee.designation}</div>}
                 {employee.empId&&<div>ID: {employee.empId}</div>}
               </div>
             </div>
-            <div style={{ background:"#F0F9FF", borderRadius:8, padding:"10px 12px" }}>
-              <div style={{ fontSize:9, fontWeight:700, color:"#0284C7", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:5 }}>Vehicle Details</div>
-              <div style={{ fontWeight:700, fontSize:12 }}>{vehicles[0]?.regNo||"—"}</div>
-              <div style={{ fontSize:10, color:"#475569", lineHeight:1.7 }}>
+            <div style={{ background:SURFACE, border:`1px solid ${BORDER}`, borderRadius:8, padding:"10px 12px" }}>
+              <div style={{ fontSize:9, fontWeight:700, color:INK_MUTED, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:5 }}>Vehicle Details</div>
+              <div style={{ fontWeight:700, fontSize:12, color:INK }}>{vehicles[0]?.regNo||"—"}</div>
+              <div style={{ fontSize:10, color:INK_SOFT, lineHeight:1.7 }}>
                 {vehicles[0]?.make&&<div>{vehicles[0].make} {vehicles[0].model}</div>}
                 {vehicles[0]?.fuelType&&<div>Fuel: {vehicles[0].fuelType}</div>}
               </div>
             </div>
           </>
         ) : (
-          <div style={{ background:"#F0F9FF", borderRadius:8, padding:"10px 12px", gridColumn:"1/-1" }}>
-            <div style={{ fontSize:9, fontWeight:700, color:"#0284C7", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:5 }}>Fleet Summary — {vehicles.length} Vehicle(s)</div>
-            <div style={{ display:"flex", gap:16, flexWrap:"wrap" }}>
-              {vehicles.filter(v=>v.regNo).map(v=>(
-                <div key={v.id} style={{ fontSize:10, color:"#0F172A" }}>
-                  <strong>{v.regNo}</strong>{v.make?` (${v.make} ${v.model||""})`:""}: <strong>₹{(byVehicle[v.regNo]||0).toFixed(2)}</strong>
-                </div>
-              ))}
-            </div>
+          <div style={{ background:SURFACE, border:`1px solid ${BORDER}`, borderRadius:8, padding:"10px 12px", gridColumn:"1/-1" }}>
+            <div style={{ fontSize:9, fontWeight:700, color:INK_MUTED, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:8 }}>Fleet Summary — {namedVehicles.length} Vehicle(s)</div>
+            {namedVehicles.length>0 ? (
+              <table style={{ width:"100%", borderCollapse:"collapse" }}>
+                <thead><tr>
+                  {["Vehicle","Make/Model","Fuel","Entries","Total (₹)"].map(h=>(
+                    <th key={h} style={{ padding:"4px 6px", fontSize:9, fontWeight:700, color:INK_MUTED, textAlign:h==="Vehicle"||h==="Make/Model"?"left":"right", borderBottom:`1px solid ${BORDER}` }}>{h}</th>
+                  ))}
+                </tr></thead>
+                <tbody>
+                  {namedVehicles.map(v=>(
+                    <tr key={v.id}>
+                      <td style={{ padding:"4px 6px", fontSize:10, fontWeight:700, color:INK }}>{v.regNo}</td>
+                      <td style={{ padding:"4px 6px", fontSize:10, color:INK_SOFT }}>{v.make?`${v.make} ${v.model||""}`:"—"}</td>
+                      <td style={{ padding:"4px 6px", fontSize:10, color:INK_SOFT }}>{v.fuelType||"—"}</td>
+                      <td style={{ padding:"4px 6px", fontSize:10, color:INK_SOFT, textAlign:"right" }}>{byVehicleCount[v.regNo]||0}</td>
+                      <td style={{ padding:"4px 6px", fontSize:10, fontWeight:700, color:INK, textAlign:"right" }}>{(byVehicle[v.regNo]||0).toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : <div style={{ fontSize:10, color:INK_MUTED }}>No vehicles added yet.</div>}
           </div>
         )}
       </div>
 
       {/* Summary cards */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom:16 }}>
-        {[["Total Expenses",`₹${total.toFixed(2)}`,"#0284C7"],["Total Distance",totalKm>0?`${totalKm} km`:"—","#0F172A"],["Entries",entries.length,"#0F172A"]].map(([l,v,c])=>(
-          <div key={l} style={{ background:"#F0F9FF", borderRadius:8, padding:"10px 12px", textAlign:"center" }}>
-            <div style={{ fontSize:18, fontWeight:800, color:c }}>{v}</div>
-            <div style={{ fontSize:10, color:"#64748B", marginTop:2 }}>{l}</div>
+        {[["Total Expenses",`₹${total.toFixed(2)}`],["Total Distance",totalKm>0?`${totalKm} km`:"—"],["Entries",entries.length]].map(([l,v])=>(
+          <div key={l} style={{ background:SURFACE, border:`1px solid ${BORDER}`, borderRadius:8, padding:"10px 12px", textAlign:"center" }}>
+            <div style={{ fontSize:18, fontWeight:800, color:INK }}>{v}</div>
+            <div style={{ fontSize:10, color:INK_MUTED, marginTop:2 }}>{l}</div>
           </div>
         ))}
       </div>
 
       {/* Entries table */}
       <table style={{ width:"100%", borderCollapse:"collapse", marginBottom:14 }}>
-        <thead><tr style={{ background:"#0284C7", color:"#fff" }}>
+        <thead><tr style={{ background:INK, color:"#fff" }}>
           {["Date","Type","Description",mode==="fleet"?"Vehicle":"Odometer","Amount (₹)"].map(h=>(
             <th key={h} style={{ padding:"7px 8px", fontSize:9, fontWeight:700, textAlign:h==="Description"?"left":"right" }}>{h}</th>
           ))}
         </tr></thead>
         <tbody>{entries.map((e,i)=>(
-          <tr key={e.id} style={{ borderBottom:"1px solid #E2E8F0", background:i%2===0?"#fff":"#F0F9FF" }}>
+          <tr key={e.id} style={{ borderBottom:`1px solid ${BORDER}`, background:i%2===0?"#fff":SURFACE }}>
             <td style={{ padding:"7px 8px", textAlign:"right", fontSize:10 }}>{e.date?new Date(e.date+"T00:00:00").toLocaleDateString("en-IN"):"—"}</td>
-            <td style={{ padding:"7px 8px", textAlign:"right" }}><span style={{ background:"#DBEAFE", color:"#1D4ED8", fontSize:9, fontWeight:600, padding:"1px 6px", borderRadius:999 }}>{e.type}</span></td>
+            <td style={{ padding:"7px 8px", textAlign:"right" }}><span style={{ background:SURFACE_ALT, color:INK_SOFT, fontSize:9, fontWeight:600, padding:"1px 6px", borderRadius:999 }}>{e.type}</span></td>
             <td style={{ padding:"7px 8px" }}>{e.description||"—"}</td>
             <td style={{ padding:"7px 8px", textAlign:"right", fontSize:10 }}>
               {mode==="fleet"?(e.vehicle||"—"):(e.odometerStart&&e.odometerEnd?`${e.odometerStart}→${e.odometerEnd} (${Number(e.odometerEnd)-Number(e.odometerStart)} km)`:"—")}
@@ -107,22 +156,22 @@ function VehiclePreview({ mode, report, employee, entries, vehicles }) {
 
       {/* By type breakdown */}
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:14 }}>
-        <div style={{ border:"1px solid #E2E8F0", borderRadius:8, padding:"10px 12px" }}>
-          <div style={{ fontSize:9, fontWeight:700, color:"#0284C7", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:8 }}>By Expense Type</div>
+        <div style={{ border:`1px solid ${BORDER}`, borderRadius:8, padding:"10px 12px" }}>
+          <div style={{ fontSize:9, fontWeight:700, color:INK_MUTED, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:8 }}>By Expense Type</div>
           {Object.entries(byType).map(([t,v])=>(
             <div key={t} style={{ display:"flex", justifyContent:"space-between", fontSize:10, marginBottom:4 }}>
-              <span style={{ color:"#475569" }}>{t}</span><span style={{ fontWeight:600 }}>₹{v.toFixed(2)}</span>
+              <span style={{ color:INK_SOFT }}>{t}</span><span style={{ fontWeight:600, color:INK }}>₹{v.toFixed(2)}</span>
             </div>
           ))}
         </div>
-        <div style={{ border:"1px solid #BAE6FD", borderRadius:8, padding:"10px 12px", background:"#F0F9FF" }}>
-          <div style={{ fontSize:9, fontWeight:700, color:"#0284C7", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:8 }}>Total Reimbursable</div>
-          <div style={{ fontSize:22, fontWeight:900, color:"#0284C7" }}>₹{total.toFixed(2)}</div>
-          {report.approverName&&<div style={{ fontSize:10, color:"#475569", marginTop:6 }}>Approver: {report.approverName}</div>}
+        <div style={{ border:`1px solid ${BORDER}`, borderRadius:8, padding:"10px 12px", background:SURFACE }}>
+          <div style={{ fontSize:9, fontWeight:700, color:INK_MUTED, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:8 }}>Total Reimbursable</div>
+          <div style={{ fontSize:22, fontWeight:900, color:INK }}>₹{total.toFixed(2)}</div>
+          {report.approverName&&<div style={{ fontSize:10, color:INK_SOFT, marginTop:6 }}>Approver: {report.approverName}</div>}
         </div>
       </div>
 
-      {report.notes&&<div style={{ border:"1px solid #E2E8F0", borderRadius:8, padding:"10px 12px", fontSize:10, color:"#475569", marginBottom:12 }}><strong style={{ color:"#0284C7" }}>Notes: </strong>{report.notes}</div>}
+      {report.notes&&<div style={{ border:`1px solid ${BORDER}`, borderRadius:8, padding:"10px 12px", fontSize:10, color:INK_SOFT, marginBottom:12 }}><strong style={{ color:INK }}>Notes: </strong>{report.notes}</div>}
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, marginTop:16 }}>
         {["Employee Signature","Approver Signature"].map(l=>(
@@ -138,12 +187,30 @@ function VehiclePreview({ mode, report, employee, entries, vehicles }) {
 
 export default function VehicleExpensePage() {
   const [mode, setMode] = useState("employee");
-  const [report, setReport] = useState({ reportNo:`VEH-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`, periodFrom:"", periodTo:"", approverName:"", notes:"" });
-  const [employee, setEmployee] = useState({ name:"", empId:"", department:"", designation:"" });
-  const [vehicles, setVehicles] = useState([{ id:1, regNo:"", make:"", model:"", fuelType:"Petrol" }]);
-  const [entries, setEntries] = useState([defaultEntry()]);
+  const [report, setReport] = useState(() => {
+    const [periodFrom, periodTo] = monthBoundsISO();
+    return { reportNo:`VEH-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`, periodFrom, periodTo, approverName:"Priya Mehta", notes:"Client site visits across the Mumbai region." };
+  });
+  const [employee, setEmployee] = useState({ name:"Rajesh Sharma", empId:"EMP-1042", department:"Sales", designation:"Sales Manager" });
+  const [vehicles, setVehicles] = useState([
+    { id:1, regNo:"MH12AB1234", make:"Maruti", model:"Swift", fuelType:"Petrol" },
+    { id:2, regNo:"MH14CD5678", make:"Hyundai", model:"i20", fuelType:"Diesel" },
+  ]);
+  const [entries, setEntries] = useState([
+    { id:1001, date:daysAgoISO(3), type:"Fuel", description:"Client visit — Andheri to Bandra", odometerStart:"12000", odometerEnd:"12150", amount:850, receipt:"", vehicle:"MH12AB1234" },
+    { id:1002, date:daysAgoISO(1), type:"Toll", description:"Western Express Highway toll", odometerStart:"", odometerEnd:"", amount:130, receipt:"", vehicle:"MH12AB1234" },
+    { id:1003, date:todayISO(), type:"Fuel", description:"Site visit — Thane depot", odometerStart:"", odometerEnd:"", amount:620, receipt:"", vehicle:"MH14CD5678" },
+  ]);
   const [downloading, setDownloading] = useState(false);
   const previewRef = useRef(null);
+
+  useSEO({
+    title: content.SEO_TITLE,
+    description: content.SEO_DESCRIPTION,
+    canonical: content.CANONICAL,
+    breadcrumbs: content.BREADCRUMBS,
+    schemas: [content.softwareAppSchema, content.faqSchema],
+  });
 
   const upd=setter=>(k,v)=>setter(p=>({...p,[k]:v}));
   const updEntry=(id,k,v)=>setEntries(p=>p.map(e=>e.id===id?{...e,[k]:v}:e));
@@ -171,26 +238,8 @@ export default function VehicleExpensePage() {
     finally{setDownloading(false);}
   };
 
-  const S=({title,children,accent="#0284C7"})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:accent, margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
-
   return (
-    <>
-      <Helmet>
-        <title>Free Vehicle Expense Report — Fleet and Employee Reimbursement | OpsTools</title>
-        <meta name="description" content="Generate vehicle expense reports for employee reimbursement or fleet management. Free, no login, instant PDF." />
-        <meta property="og:title" content="Free Vehicle Expense Report — Fleet and Employee Reimbursement | OpsTools" />
-        <meta property="og:description" content="Generate vehicle expense reports for employee reimbursement or fleet management. Free, no login, instant PDF." />
-        <meta property="og:url" content="https://www.opstools.ai/documents/vehicle-expense" />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Free Vehicle Expense Report — Fleet and Employee Reimbursement | OpsTools" />
-        <meta name="twitter:description" content="Generate vehicle expense reports for employee reimbursement or fleet management. Free, no login, instant PDF." />
-        <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
-      </Helmet>
-    <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
+    <div style={{ backgroundColor:SURFACE, minHeight:"100vh" }}>
       <style>{`@media(max-width:1023px){.ve-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .ve-grid{grid-template-columns:1fr!important;}}@media print{.no-print{display:none!important;}}`}</style>
       <section style={{ background:"linear-gradient(160deg,#07011F 0%,#0c2340 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
@@ -204,13 +253,13 @@ export default function VehicleExpensePage() {
         {/* Mode toggle */}
         <div style={{ display:"flex", gap:8, marginBottom:24 }}>
           {[{key:"employee",label:"👤 Employee Reimbursement"},{key:"fleet",label:"🚗 Fleet Management"}].map(opt=>(
-            <button key={opt.key} onClick={()=>setMode(opt.key)} style={{ padding:"10px 20px", borderRadius:10, fontSize:13, fontWeight:600, cursor:"pointer", border:mode===opt.key?"1.5px solid #0284C7":"1.5px solid #E2E8F0", background:mode===opt.key?"#F0F9FF":"#fff", color:mode===opt.key?"#0284C7":"#64748B" }}>{opt.label}</button>
+            <button key={opt.key} onClick={()=>setMode(opt.key)} style={{ padding:"10px 20px", borderRadius:10, fontSize:13, fontWeight:600, cursor:"pointer", border:mode===opt.key?`1.5px solid ${INK}`:`1.5px solid ${BORDER}`, background:mode===opt.key?SURFACE_ALT:"#fff", color:mode===opt.key?INK:INK_MUTED }}>{opt.label}</button>
           ))}
         </div>
 
         <div className="ve-grid" style={{ display:"grid", gridTemplateColumns:"1fr 500px", gap:28, alignItems:"start" }}>
           <div>
-            <S title="Report Details">
+            <Section title="Report Details">
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
                 <Field label="Report No." value={report.reportNo} onChange={v=>upd(setReport)("reportNo",v)} />
                 <Field label="Period From" value={report.periodFrom} onChange={v=>upd(setReport)("periodFrom",v)} type="date" />
@@ -218,57 +267,63 @@ export default function VehicleExpensePage() {
                 <Field label="Approver Name" value={report.approverName} onChange={v=>upd(setReport)("approverName",v)} placeholder="Manager name" />
               </div>
               <Field label="Notes" value={report.notes} onChange={v=>upd(setReport)("notes",v)} placeholder="Purpose of travel or additional notes" />
-            </S>
+            </Section>
 
             {mode==="employee" ? (
-              <S title="Employee Details">
+              <Section title="Employee Details">
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
                   <Field label="Employee Name" value={employee.name} onChange={v=>upd(setEmployee)("name",v)} placeholder="Rajesh Sharma" />
                   <Field label="Employee ID" value={employee.empId} onChange={v=>upd(setEmployee)("empId",v)} placeholder="EMP-001" />
                   <Field label="Department" value={employee.department} onChange={v=>upd(setEmployee)("department",v)} placeholder="Sales" />
                   <Field label="Designation" value={employee.designation} onChange={v=>upd(setEmployee)("designation",v)} placeholder="Sales Manager" />
                 </div>
-                <div style={{ background:"#F0F9FF", borderRadius:12, padding:"14px 16px", border:"1px solid #BAE6FD" }}>
-                  <div style={{ fontSize:12, fontWeight:700, color:"#0284C7", marginBottom:12 }}>Vehicle</div>
+                <div style={{ background:SURFACE, borderRadius:12, padding:"14px 16px", border:`1px solid ${BORDER}` }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:INK, marginBottom:12 }}>Vehicle</div>
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                     <Field label="Reg. Number" value={vehicles[0]?.regNo} onChange={v=>updVehicle(1,"regNo",v)} placeholder="MH12AB1234" small />
                     <Field label="Make" value={vehicles[0]?.make} onChange={v=>updVehicle(1,"make",v)} placeholder="Maruti" small />
                     <Field label="Model" value={vehicles[0]?.model} onChange={v=>updVehicle(1,"model",v)} placeholder="Swift" small />
                     <div>
-                      <label style={{ fontSize:11, fontWeight:600, color:"#64748B", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>Fuel Type</label>
-                      <select value={vehicles[0]?.fuelType} onChange={e=>updVehicle(1,"fuelType",e.target.value)} style={{ width:"100%", height:32, border:"1.5px solid #E2E8F0", borderRadius:8, padding:"0 8px", fontSize:12, outline:"none", background:"#fff" }}>
-                        {["Petrol","Diesel","CNG","Electric","Hybrid"].map(f=><option key={f} value={f}>{f}</option>)}
+                      <label style={{ fontSize:11, fontWeight:600, color:INK_MUTED, display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>Fuel Type</label>
+                      <select value={vehicles[0]?.fuelType} onChange={e=>updVehicle(1,"fuelType",e.target.value)} style={{ width:"100%", height:32, border:`1.5px solid ${BORDER}`, borderRadius:8, padding:"0 8px", fontSize:12, outline:"none", background:"#fff" }}>
+                        {FUEL_TYPES.map(f=><option key={f} value={f}>{f}</option>)}
                       </select>
                     </div>
                   </div>
                 </div>
-              </S>
+              </Section>
             ) : (
-              <S title="Fleet Vehicles">
+              <Section title="Fleet Vehicles">
                 {vehicles.map((v,idx)=>(
-                  <div key={v.id} style={{ background:"#F0F9FF", borderRadius:12, padding:"12px 14px", marginBottom:10, border:"1px solid #BAE6FD", position:"relative" }}>
+                  <div key={v.id} style={{ background:SURFACE, borderRadius:12, padding:"12px 14px", marginBottom:10, border:`1px solid ${BORDER}`, position:"relative" }}>
                     {vehicles.length>1&&<button onClick={()=>setVehicles(p=>p.filter(v2=>v2.id!==v.id))} style={{ position:"absolute", top:8, right:8, background:"#FEF2F2", border:"none", borderRadius:6, width:24, height:24, cursor:"pointer", color:"#DC2626", fontSize:14 }}>×</button>}
-                    <div style={{ fontSize:11, fontWeight:700, color:"#0284C7", marginBottom:8 }}>Vehicle {idx+1}</div>
-                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
+                    <div style={{ fontSize:11, fontWeight:700, color:INK, marginBottom:8 }}>Vehicle {idx+1}</div>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                       <Field label="Reg. No." value={v.regNo} onChange={val=>updVehicle(v.id,"regNo",val)} placeholder="MH12AB1234" small />
                       <Field label="Make" value={v.make} onChange={val=>updVehicle(v.id,"make",val)} placeholder="Maruti" small />
                       <Field label="Model" value={v.model} onChange={val=>updVehicle(v.id,"model",val)} placeholder="Swift" small />
+                      <div>
+                        <label style={{ fontSize:11, fontWeight:600, color:INK_MUTED, display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>Fuel Type</label>
+                        <select value={v.fuelType} onChange={e=>updVehicle(v.id,"fuelType",e.target.value)} style={{ width:"100%", height:32, border:`1.5px solid ${BORDER}`, borderRadius:8, padding:"0 8px", fontSize:12, outline:"none", background:"#fff" }}>
+                          {FUEL_TYPES.map(f=><option key={f} value={f}>{f}</option>)}
+                        </select>
+                      </div>
                     </div>
                   </div>
                 ))}
-                <button onClick={()=>setVehicles(p=>[...p,{id:Date.now(),regNo:"",make:"",model:"",fuelType:"Petrol"}])} style={{ width:"100%", padding:10, borderRadius:10, border:"1.5px dashed #0284C7", background:"#F0F9FF", color:"#0284C7", fontSize:13, fontWeight:600, cursor:"pointer" }}>+ Add Vehicle</button>
-              </S>
+                <button onClick={()=>setVehicles(p=>[...p,{id:Date.now(),regNo:"",make:"",model:"",fuelType:"Petrol"}])} style={{ width:"100%", padding:10, borderRadius:10, border:`1.5px dashed ${INK_MUTED}`, background:SURFACE, color:INK_SOFT, fontSize:13, fontWeight:600, cursor:"pointer" }}>+ Add Vehicle</button>
+              </Section>
             )}
 
-            <S title="Expense Entries">
-              {entries.map((e,idx)=>(
-                <div key={e.id} style={{ background:"#F8FAFC", borderRadius:12, padding:"14px 16px", marginBottom:10, border:"1px solid #E2E8F0", position:"relative" }}>
+            <Section title="Expense Entries">
+              {entries.map((e)=>(
+                <div key={e.id} style={{ background:SURFACE, borderRadius:12, padding:"14px 16px", marginBottom:10, border:`1px solid ${BORDER}`, position:"relative" }}>
                   {entries.length>1&&<button onClick={()=>setEntries(p=>p.filter(i=>i.id!==e.id))} style={{ position:"absolute", top:10, right:10, background:"#FEF2F2", border:"none", borderRadius:6, width:24, height:24, cursor:"pointer", color:"#DC2626", fontSize:14 }}>×</button>}
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:8 }}>
                     <Field label="Date" value={e.date} onChange={v=>updEntry(e.id,"date",v)} type="date" small />
                     <div>
-                      <label style={{ fontSize:11, fontWeight:600, color:"#64748B", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>Type</label>
-                      <select value={e.type} onChange={ev=>updEntry(e.id,"type",ev.target.value)} style={{ width:"100%", height:32, border:"1.5px solid #E2E8F0", borderRadius:8, padding:"0 8px", fontSize:12, outline:"none", background:"#fff" }}>
+                      <label style={{ fontSize:11, fontWeight:600, color:INK_MUTED, display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>Type</label>
+                      <select value={e.type} onChange={ev=>updEntry(e.id,"type",ev.target.value)} style={{ width:"100%", height:32, border:`1.5px solid ${BORDER}`, borderRadius:8, padding:"0 8px", fontSize:12, outline:"none", background:"#fff" }}>
                         {EXPENSE_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
                       </select>
                     </div>
@@ -277,8 +332,8 @@ export default function VehicleExpensePage() {
                   <div style={{ display:"grid", gridTemplateColumns: mode==="fleet"?"1fr 1fr":"1fr 1fr 1fr", gap:8 }}>
                     {mode==="fleet" ? (
                       <div>
-                        <label style={{ fontSize:11, fontWeight:600, color:"#64748B", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>Vehicle</label>
-                        <select value={e.vehicle} onChange={ev=>updEntry(e.id,"vehicle",ev.target.value)} style={{ width:"100%", height:32, border:"1.5px solid #E2E8F0", borderRadius:8, padding:"0 8px", fontSize:12, outline:"none", background:"#fff" }}>
+                        <label style={{ fontSize:11, fontWeight:600, color:INK_MUTED, display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>Vehicle</label>
+                        <select value={e.vehicle} onChange={ev=>updEntry(e.id,"vehicle",ev.target.value)} style={{ width:"100%", height:32, border:`1.5px solid ${BORDER}`, borderRadius:8, padding:"0 8px", fontSize:12, outline:"none", background:"#fff" }}>
                           <option value="">Select vehicle</option>
                           {vehicles.filter(v=>v.regNo).map(v=><option key={v.id} value={v.regNo}>{v.regNo}</option>)}
                         </select>
@@ -291,21 +346,21 @@ export default function VehicleExpensePage() {
                     )}
                     <Field label="Amount ₹" value={e.amount} onChange={v=>updEntry(e.id,"amount",v)} type="number" small />
                   </div>
-                  {e.odometerStart&&e.odometerEnd&&mode==="employee"&&<div style={{ fontSize:11, color:"#0284C7", fontWeight:600, marginTop:4 }}>Distance: {Number(e.odometerEnd)-Number(e.odometerStart)} km</div>}
+                  {e.odometerStart&&e.odometerEnd&&mode==="employee"&&<div style={{ fontSize:11, color:INK, fontWeight:600, marginTop:4 }}>Distance: {Number(e.odometerEnd)-Number(e.odometerStart)} km</div>}
                 </div>
               ))}
-              <button onClick={()=>setEntries(p=>[...p,defaultEntry()])} style={{ width:"100%", padding:10, borderRadius:10, border:"1.5px dashed #0284C7", background:"#F0F9FF", color:"#0284C7", fontSize:13, fontWeight:600, cursor:"pointer" }}>+ Add Entry</button>
-              <div style={{ background:"#0284C7", color:"#fff", borderRadius:10, padding:"12px 16px", marginTop:12, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <button onClick={()=>setEntries(p=>[...p,defaultEntry()])} style={{ width:"100%", padding:10, borderRadius:10, border:`1.5px dashed ${INK_MUTED}`, background:SURFACE, color:INK_SOFT, fontSize:13, fontWeight:600, cursor:"pointer" }}>+ Add Entry</button>
+              <div style={{ background:INK, color:"#fff", borderRadius:10, padding:"12px 16px", marginTop:12, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                 <span style={{ fontSize:14, fontWeight:700 }}>Total</span>
                 <span style={{ fontSize:18, fontWeight:900 }}>₹{entries.reduce((s,e)=>s+Number(e.amount||0),0).toFixed(2)}</span>
               </div>
-            </S>
+            </Section>
           </div>
 
           <div className="ve-prev" style={{ position:"sticky", top:88 }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
-              <p style={{ fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#64748B", margin:0 }}>Live Preview</p>
-              <button onClick={handlePDF} disabled={downloading} style={{ background:"linear-gradient(135deg,#0284C7,#0369A1)", border:"none", borderRadius:8, padding:"6px 16px", color:"#fff", fontSize:13, fontWeight:600, cursor:downloading?"wait":"pointer" }}>{downloading?"Saving…":"Save PDF"}</button>
+              <p style={{ fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:INK_MUTED, margin:0 }}>Live Preview</p>
+              <button onClick={handlePDF} disabled={downloading} style={{ background:BRAND_GRADIENT, border:"none", borderRadius:8, padding:"6px 16px", color:"#fff", fontSize:13, fontWeight:600, cursor:downloading?"wait":"pointer" }}>{downloading?"Saving…":"Save PDF"}</button>
             </div>
             <div className="preview-scale-wrap" style={{ transform:"scale(0.68)", transformOrigin:"top left", width:"147%", marginBottom:"-32%" }}>
               <div ref={previewRef}><VehiclePreview mode={mode} report={report} employee={employee} entries={entries} vehicles={vehicles} /></div>
@@ -313,7 +368,24 @@ export default function VehicleExpensePage() {
           </div>
         </div>
       </div>
+
+      <div style={{ background:"#fff", borderTop:`1px solid ${BORDER}` }}>
+        <div className="seo-section" style={{ maxWidth:"80%", margin:"0 auto", width:"80%" }}>
+          <DocumentPageSEO
+            documentName="Vehicle Expense Report"
+            documentSlug="vehicle-expense"
+            intro={content.INTRO}
+            whatIs={content.WHAT_IS}
+            whyUse={content.WHY_USE}
+            features={content.FEATURES}
+            howToSteps={content.HOW_TO_STEPS}
+            benefits={content.BENEFITS}
+            formatFields={content.FORMAT_FIELDS}
+            faqs={content.FAQS}
+            relatedDocs={content.RELATED_DOCS}
+          />
+        </div>
+      </div>
     </div>
-    </>
   );
 }

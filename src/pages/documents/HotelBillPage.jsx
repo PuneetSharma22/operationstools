@@ -1,8 +1,22 @@
-import { Helmet } from 'react-helmet-async';
-import { useState, useRef } from "react";
-import { supabase } from "../../supabase";
+import { useState } from "react";
 import { useSEO } from "../../seo/useSEO";
 import DocumentPageSEO from "../../seo/DocumentPageSEO";
+import SaveMenu from "../../components/common/SaveMenu";
+import { exportSingleDocument } from "../../utils/documentExport";
+import { logSaveRequest } from "../../utils/saveLog";
+
+const TAINTED_HINT = "the logo image doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again.";
+
+// Neutral document palette — a printed bill should read like a normal business
+// document, not a brand-colour showcase. Brand blue is reserved for interactive
+// form chrome (focus rings, add buttons) below, never for the bill preview.
+const INK = "#0F172A";
+const INK_SOFT = "#475569";
+const INK_MUTED = "#64748B";
+const BORDER = "#E2E8F0";
+const SURFACE = "#F8FAFC";
+const SURFACE_ALT = "#F1F5F9";
+const BRAND = "#2563EB";
 
 // ─── SEO ─────────────────────────────────────────────────────────────────────
 const SEO_TITLE = "Free Hotel Bill Generator Online — Stay Receipt PDF (2026)";
@@ -36,7 +50,7 @@ const HOW_TO_STEPS = [
   { step: 3, title: "Add guest details", body: "Guest name and address." },
   { step: 4, title: "Enter charges", body: "Room rate and any additional charges." },
   { step: 5, title: "Preview", body: "Check the live preview — totals update instantly." },
-  { step: 6, title: "Download PDF", body: "Click Save PDF to download the bill." },
+  { step: 6, title: "Download", body: "Click Save to download the bill as a PDF or PNG." },
 ];
 const BENEFITS = [
   "Nights calculated automatically from stay dates.",
@@ -62,10 +76,19 @@ const RELATED_DOCS = [
 function Field({ label, value, onChange, placeholder, type="text", small }) {
   return (
     <div style={{ marginBottom:small?8:12 }}>
-      {label&&<label style={{ fontSize:11, fontWeight:600, color:"#64748B", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>{label}</label>}
+      {label&&<label style={{ fontSize:11, fontWeight:600, color:INK_MUTED, display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>{label}</label>}
       <input type={type} value={value} placeholder={placeholder} onChange={e=>onChange&&onChange(e.target.value)}
-        style={{ width:"100%", height:small?32:38, border:"1.5px solid #E2E8F0", borderRadius:8, padding:"0 10px", fontSize:13, color:"#0F172A", outline:"none", boxSizing:"border-box", background:"#fff" }}
-        onFocus={e=>e.target.style.borderColor="#D97706"} onBlur={e=>e.target.style.borderColor="#E2E8F0"} />
+        style={{ width:"100%", height:small?32:38, border:`1.5px solid ${BORDER}`, borderRadius:8, padding:"0 10px", fontSize:13, color:INK, outline:"none", boxSizing:"border-box", background:"#fff" }}
+        onFocus={e=>e.target.style.borderColor=BRAND} onBlur={e=>e.target.style.borderColor=BORDER} />
+    </div>
+  );
+}
+
+function Section({ title, children }) {
+  return (
+    <div style={{ background:"#fff", borderRadius:16, border:`1px solid ${BORDER}`, padding:"20px 24px", marginBottom:16 }}>
+      <h2 style={{ fontSize:13, fontWeight:700, color:INK, margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>
+      {children}
     </div>
   );
 }
@@ -73,19 +96,24 @@ function Field({ label, value, onChange, placeholder, type="text", small }) {
 const defaultCharge = () => ({ id:Date.now()+Math.random(), description:"", qty:1, rate:0, category:"Room" });
 const CATEGORIES = ["Room","Food & Beverage","Spa","Laundry","Transport","Miscellaneous"];
 
-function HotelPreview({ data, hotel, guest, charges }) {
+const todayISO = () => new Date().toISOString().split("T")[0];
+const daysAgoISO = (n) => { const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().split("T")[0]; };
+
+function HotelPreview({ data }) {
+  const { hotel, guest, charges } = data;
   const nights = data.checkIn&&data.checkOut ? Math.max(1,Math.round((new Date(data.checkOut)-new Date(data.checkIn))/(1000*60*60*24))) : 1;
-  const subtotal = charges.reduce((s,c)=>s+c.qty*c.rate,0);
+  const subtotal = charges.reduce((s,c)=>s+Number(c.qty||0)*Number(c.rate||0),0);
   const cgst = subtotal*(Number(data.cgst)||6)/100;
   const sgst = subtotal*(Number(data.sgst)||6)/100;
   const total = subtotal+cgst+sgst-(Number(data.discount)||0);
   return (
-    <div style={{ background:"#fff", fontFamily:"Georgia,serif", fontSize:12, color:"#1a1a1a", padding:"32px 40px" }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:24, paddingBottom:16, borderBottom:"3px solid #D97706" }}>
+    <div style={{ background:"#fff", fontFamily:"Arial,sans-serif", fontSize:12, color:INK, padding:"32px 40px" }}>
+      {/* Header */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:24, paddingBottom:16, borderBottom:`2px solid ${INK}` }}>
         <div>
           {data.logoUrl&&<img src={data.logoUrl} alt="logo" style={{ maxHeight:56, maxWidth:160, objectFit:"contain", marginBottom:8, display:"block" }}/>}
-          <div style={{ fontSize:20, fontWeight:800, color:"#92400E", fontFamily:"Georgia,serif" }}>{hotel.name||"Hotel Name"}</div>
-          <div style={{ fontSize:11, color:"#475569", marginTop:3, lineHeight:1.7 }}>
+          <div style={{ fontSize:19, fontWeight:800, color:INK }}>{hotel.name||"Hotel Name"}</div>
+          <div style={{ fontSize:11, color:INK_SOFT, marginTop:3, lineHeight:1.7 }}>
             {hotel.address&&<div>{hotel.address}</div>}
             {hotel.phone&&<div>Tel: {hotel.phone}</div>}
             {hotel.email&&<div>{hotel.email}</div>}
@@ -93,95 +121,120 @@ function HotelPreview({ data, hotel, guest, charges }) {
           </div>
         </div>
         <div style={{ textAlign:"right" }}>
-          <div style={{ fontSize:22, fontWeight:900, color:"#0F172A", fontFamily:"Arial,sans-serif" }}>HOTEL BILL</div>
-          <div style={{ background:"#FFFBEB", border:"1px solid #FDE68A", borderRadius:8, padding:"10px 16px", marginTop:8, fontSize:12, fontFamily:"Arial,sans-serif" }}>
-            <div style={{ display:"flex", gap:16, justifyContent:"flex-end" }}><span style={{ color:"#64748B" }}>Bill No.</span><strong>{data.billNo||"—"}</strong></div>
-            <div style={{ display:"flex", gap:16, justifyContent:"flex-end", marginTop:4 }}><span style={{ color:"#64748B" }}>Date</span><strong>{data.checkOut?new Date(data.checkOut+"T00:00:00").toLocaleDateString("en-IN"):"—"}</strong></div>
+          <div style={{ fontSize:20, fontWeight:900, color:INK, letterSpacing:"0.02em" }}>HOTEL BILL</div>
+          <div style={{ background:SURFACE, border:`1px solid ${BORDER}`, borderRadius:8, padding:"10px 16px", marginTop:8, fontSize:12 }}>
+            <div style={{ display:"flex", gap:16, justifyContent:"flex-end" }}><span style={{ color:INK_MUTED }}>Bill No.</span><strong>{data.billNo||"—"}</strong></div>
+            <div style={{ display:"flex", gap:16, justifyContent:"flex-end", marginTop:4 }}><span style={{ color:INK_MUTED }}>Date</span><strong>{data.checkOut?new Date(data.checkOut+"T00:00:00").toLocaleDateString("en-IN"):"—"}</strong></div>
           </div>
         </div>
       </div>
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:20, fontFamily:"Arial,sans-serif" }}>
-        <div style={{ background:"#FFFBEB", borderRadius:8, padding:"12px 14px" }}>
-          <div style={{ fontSize:10, fontWeight:700, color:"#D97706", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6 }}>Guest Details</div>
-          <div style={{ fontWeight:700, fontSize:13 }}>{guest.name||"Guest Name"}</div>
-          <div style={{ fontSize:11, color:"#475569", lineHeight:1.7 }}>
+
+      {/* Guest / stay panels */}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:20 }}>
+        <div style={{ background:SURFACE, border:`1px solid ${BORDER}`, borderRadius:8, padding:"12px 14px" }}>
+          <div style={{ fontSize:10, fontWeight:700, color:INK_MUTED, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6 }}>Guest Details</div>
+          <div style={{ fontWeight:700, fontSize:13, color:INK }}>{guest.name||"Guest Name"}</div>
+          <div style={{ fontSize:11, color:INK_SOFT, lineHeight:1.7 }}>
             {guest.address&&<div>{guest.address}</div>}
             {guest.idType&&guest.idNo&&<div>{guest.idType}: {guest.idNo}</div>}
             {guest.phone&&<div>{guest.phone}</div>}
           </div>
         </div>
-        <div style={{ background:"#FFFBEB", borderRadius:8, padding:"12px 14px" }}>
-          <div style={{ fontSize:10, fontWeight:700, color:"#D97706", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6 }}>Stay Details</div>
-          <div style={{ fontSize:11, lineHeight:1.7 }}>
-            {data.roomNo&&<div><span style={{ color:"#64748B" }}>Room: </span><strong>{data.roomNo} ({data.roomType||"Standard"})</strong></div>}
-            {data.checkIn&&<div><span style={{ color:"#64748B" }}>Check-in: </span>{new Date(data.checkIn+"T00:00:00").toLocaleDateString("en-IN")}</div>}
-            {data.checkOut&&<div><span style={{ color:"#64748B" }}>Check-out: </span>{new Date(data.checkOut+"T00:00:00").toLocaleDateString("en-IN")}</div>}
-            <div><span style={{ color:"#64748B" }}>Nights: </span><strong>{nights}</strong></div>
-            {data.guests&&<div><span style={{ color:"#64748B" }}>Guests: </span>{data.guests}</div>}
+        <div style={{ background:SURFACE, border:`1px solid ${BORDER}`, borderRadius:8, padding:"12px 14px" }}>
+          <div style={{ fontSize:10, fontWeight:700, color:INK_MUTED, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6 }}>Stay Details</div>
+          <div style={{ fontSize:11, lineHeight:1.7, color:INK_SOFT }}>
+            {data.roomNo&&<div><span style={{ color:INK_MUTED }}>Room: </span><strong style={{ color:INK }}>{data.roomNo} ({data.roomType||"Standard"})</strong></div>}
+            {data.checkIn&&<div><span style={{ color:INK_MUTED }}>Check-in: </span>{new Date(data.checkIn+"T00:00:00").toLocaleDateString("en-IN")}</div>}
+            {data.checkOut&&<div><span style={{ color:INK_MUTED }}>Check-out: </span>{new Date(data.checkOut+"T00:00:00").toLocaleDateString("en-IN")}</div>}
+            <div><span style={{ color:INK_MUTED }}>Nights: </span><strong style={{ color:INK }}>{nights}</strong></div>
+            {data.guests&&<div><span style={{ color:INK_MUTED }}>Guests: </span>{data.guests}</div>}
           </div>
         </div>
       </div>
-      <table style={{ width:"100%", borderCollapse:"collapse", marginBottom:16, fontFamily:"Arial,sans-serif" }}>
-        <thead><tr style={{ background:"#D97706", color:"#fff" }}>
+
+      {/* Charges table */}
+      <table style={{ width:"100%", borderCollapse:"collapse", marginBottom:16 }}>
+        <thead><tr style={{ background:INK, color:"#fff" }}>
           {["#","Description","Category","Qty","Rate (₹)","Amount (₹)"].map(h=><th key={h} style={{ padding:"8px 10px", fontSize:10, fontWeight:700, textAlign:h==="Description"||h==="Category"?"left":"right" }}>{h}</th>)}
         </tr></thead>
         <tbody>{charges.map((c,i)=>(
-          <tr key={c.id} style={{ borderBottom:"1px solid #E2E8F0", background:i%2===0?"#fff":"#FFFBEB" }}>
-            <td style={{ padding:"9px 10px", textAlign:"right", color:"#94A3B8" }}>{i+1}</td>
-            <td style={{ padding:"9px 10px" }}>{c.description||"—"}</td>
-            <td style={{ padding:"9px 10px" }}><span style={{ background:"#FEF3C7", color:"#92400E", fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:999 }}>{c.category}</span></td>
-            <td style={{ padding:"9px 10px", textAlign:"right" }}>{c.qty}</td>
-            <td style={{ padding:"9px 10px", textAlign:"right" }}>{c.rate.toFixed(2)}</td>
-            <td style={{ padding:"9px 10px", textAlign:"right", fontWeight:700 }}>{(c.qty*c.rate).toFixed(2)}</td>
+          <tr key={c.id} style={{ borderBottom:`1px solid ${BORDER}`, background:i%2===0?"#fff":SURFACE }}>
+            <td style={{ padding:"9px 10px", textAlign:"right", color:INK_MUTED }}>{i+1}</td>
+            <td style={{ padding:"9px 10px", color:INK }}>{c.description||"—"}</td>
+            <td style={{ padding:"9px 10px" }}><span style={{ background:SURFACE_ALT, color:INK_SOFT, fontSize:10, fontWeight:600, padding:"2px 8px", borderRadius:999 }}>{c.category}</span></td>
+            <td style={{ padding:"9px 10px", textAlign:"right", color:INK_SOFT }}>{c.qty}</td>
+            <td style={{ padding:"9px 10px", textAlign:"right", color:INK_SOFT }}>{Number(c.rate||0).toFixed(2)}</td>
+            <td style={{ padding:"9px 10px", textAlign:"right", fontWeight:700, color:INK }}>{(Number(c.qty||0)*Number(c.rate||0)).toFixed(2)}</td>
           </tr>
         ))}</tbody>
       </table>
-      <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:16, fontFamily:"Arial,sans-serif" }}>
-        <div style={{ width:240 }}>
+
+      {/* Totals */}
+      <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:16 }}>
+        <div style={{ width:250 }}>
           {[["Subtotal",subtotal],[`CGST @${data.cgst||6}%`,cgst],[`SGST @${data.sgst||6}%`,sgst],Number(data.discount)>0?["Discount",-(Number(data.discount)||0)]:null].filter(Boolean).map(([l,v])=>(
-            <div key={l} style={{ display:"flex", justifyContent:"space-between", padding:"5px 0", borderBottom:"1px solid #FEF3C7", fontSize:12 }}><span style={{ color:"#64748B" }}>{l}</span><span>{v<0?`-₹${Math.abs(v).toFixed(2)}`:`₹${v.toFixed(2)}`}</span></div>
+            <div key={l} style={{ display:"flex", justifyContent:"space-between", padding:"5px 0", borderBottom:`1px solid ${BORDER}`, fontSize:12 }}><span style={{ color:INK_MUTED }}>{l}</span><span style={{ color:INK }}>{v<0?`-₹${Math.abs(v).toFixed(2)}`:`₹${v.toFixed(2)}`}</span></div>
           ))}
-          <div style={{ display:"flex", justifyContent:"space-between", padding:"10px 12px", background:"#D97706", color:"#fff", borderRadius:8, marginTop:8, fontSize:14, fontWeight:800 }}><span>Total</span><span>₹{total.toFixed(2)}</span></div>
+          <div style={{ display:"flex", justifyContent:"space-between", padding:"10px 12px", background:INK, color:"#fff", borderRadius:8, marginTop:8, fontSize:14, fontWeight:800 }}><span>Total</span><span>₹{total.toFixed(2)}</span></div>
         </div>
       </div>
-      {data.paymentMode&&<div style={{ fontSize:11, color:"#475569", textAlign:"right", marginBottom:12, fontFamily:"Arial,sans-serif" }}>Payment Mode: <strong>{data.paymentMode}</strong></div>}
-      <div style={{ borderTop:"1px solid #E2E8F0", marginTop:16, paddingTop:12, fontSize:10, color:"#94A3B8", textAlign:"center", fontFamily:"Arial,sans-serif" }}>Thank you for staying with us. We hope to welcome you again.</div>
+
+      {data.paymentMode&&<div style={{ fontSize:11, color:INK_SOFT, textAlign:"right", marginBottom:12 }}>Payment Mode: <strong style={{ color:INK }}>{data.paymentMode}</strong></div>}
+      <div style={{ borderTop:`1px solid ${BORDER}`, marginTop:16, paddingTop:12, fontSize:10, color:INK_MUTED, textAlign:"center" }}>Thank you for staying with us. We hope to welcome you again.</div>
     </div>
   );
 }
 
-const S=({title,children})=>(<div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}><h2 style={{ fontSize:13, fontWeight:700, color:"#D97706", margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>{children}</div>);
-
 export default function HotelBillPage() {
-  const [data, setData] = useState(() => ({ billNo:`HTL-${String(Math.floor(Math.random()*9000)+1000)}`, checkIn:"", checkOut:new Date().toISOString().split("T")[0], roomNo:"", roomType:"Deluxe", guests:"1", logoUrl:"", cgst:"6", sgst:"6", discount:"", paymentMode:"Card" }));
-  const [hotel, setHotel] = useState({ name:"", address:"", phone:"", email:"", gstin:"" });
-  const [guest, setGuest] = useState({ name:"", address:"", phone:"", idType:"Aadhaar", idNo:"" });
-  const [charges, setCharges] = useState([defaultCharge()]);
+  const [data, setData] = useState(() => ({
+    billNo:`HTL-${String(Math.floor(Math.random()*9000)+1000)}`,
+    checkIn:daysAgoISO(2), checkOut:todayISO(),
+    roomNo:"204", roomType:"Deluxe", guests:"2", logoUrl:"",
+    cgst:"6", sgst:"6", discount:"500", paymentMode:"Card",
+  }));
+  const [hotel, setHotel] = useState({
+    name:"Hotel Sahyadri Grand",
+    address:"Plot 14, MG Road, Camp, Pune, Maharashtra 411001",
+    phone:"+91 20 4567 8900",
+    email:"reservations@sahyadrigrand.in",
+    gstin:"27AABCU9603R1ZX",
+  });
+  const [guest, setGuest] = useState({
+    name:"Rajesh Sharma",
+    address:"B-402, Sunrise Residency, Andheri East, Mumbai 400069",
+    phone:"+91 98200 11223",
+    idType:"Aadhaar",
+    idNo:"4821 7734 9056",
+  });
+  const [charges, setCharges] = useState([
+    { id:2001, description:"Deluxe Room — 2 Nights", qty:2, rate:4500, category:"Room" },
+    { id:2002, description:"Restaurant — Dinner & Room Service", qty:1, rate:1250, category:"Food & Beverage" },
+    { id:2003, description:"Laundry Service", qty:1, rate:380, category:"Laundry" },
+  ]);
   const [downloading, setDownloading] = useState(false);
-  const previewRef = useRef(null);
+  const [notice, setNotice] = useState("");
+
   const upd=setter=>(k,v)=>setter(p=>({...p,[k]:v}));
   const updCharge=(id,k,v)=>setCharges(p=>p.map(c=>c.id===id?{...c,[k]:v}:c));
 
-  const handlePDF = async () => {
-    if (!previewRef.current||downloading) return;
+  const doDownload = async (format = "pdf") => {
+    if (downloading) return;
     setDownloading(true);
-    try {
-      try { await supabase.from("save_requests").insert({ template:"hotel-bill", print_id:`HTL-${Date.now()}`, user_id:null, bill_data: { ...data, hotel, guest, charges } }); } catch (err) { console.warn("Save logging for the hotel bill failed (non-blocking); the document itself was unaffected.", err); }
-      const { default:jsPDF } = await import("jspdf");
-      const { default:html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(previewRef.current,{scale:2,useCORS:true,backgroundColor:"#ffffff"});
-      const pdf = new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
-      const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
-      const s=Math.min(pw/(canvas.width*25.4/(96*2)),ph/(canvas.height*25.4/(96*2)));
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92),"JPEG",(pw-canvas.width*25.4/(96*2)*s)/2,0,canvas.width*25.4/(96*2)*s,canvas.height*25.4/(96*2)*s);
-      pdf.save(`hotel-bill-${data.billNo}.pdf`);
-    } catch(e){
-      const isTainted = /tainted|cross-origin|SecurityError/i.test(e?.message || e?.name || "");
-      alert(isTainted
-        ? "PDF failed: the logo image doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again."
-        : "PDF failed: " + (e?.message || "Unknown error"));
-    }
-    finally{setDownloading(false);}
+    setNotice("");
+
+    const billData = { ...data, hotel, guest, charges };
+    const printId = `HTL-${Date.now()}`;
+    const logged = await logSaveRequest({ template: "hotel-bill", printId, billData });
+    if (!logged.ok) setNotice("Your bill downloaded fine, but we couldn't record it on our side.");
+
+    await exportSingleDocument({
+      Template: HotelPreview,
+      data: billData,
+      format,
+      fileBase: `hotel-bill-${data.billNo}`,
+      taintedHint: TAINTED_HINT,
+    });
+    setDownloading(false);
   };
 
   useSEO({
@@ -195,35 +248,19 @@ export default function HotelBillPage() {
   });
 
   return (
-    <>
-      <Helmet>
-        <title>Free Hotel Bill Generator — Stay Receipt with GST | OpsTools</title>
-        <meta name="description" content="Generate hotel bills with room charges, F&B, stay details and CGST/SGST. Free, no login, instant PDF." />
-        <meta property="og:title" content="Free Hotel Bill Generator — Stay Receipt with GST | OpsTools" />
-        <meta property="og:description" content="Generate hotel bills with room charges, F&B, stay details and CGST/SGST. Free, no login, instant PDF." />
-        <meta property="og:url" content="https://www.opstools.ai/documents/hotel-bill" />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Free Hotel Bill Generator — Stay Receipt with GST | OpsTools" />
-        <meta name="twitter:description" content="Generate hotel bills with room charges, F&B, stay details and CGST/SGST. Free, no login, instant PDF." />
-        <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
-      </Helmet>
-    <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
+    <div style={{ backgroundColor:SURFACE, minHeight:"100vh" }}>
       <style>{`@media(max-width:1023px){.hb-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .hb-grid{grid-template-columns:1fr!important;}}@media(max-width:768px){.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}@media print{.no-print{display:none!important;}}`}</style>
-      <section style={{ background:"linear-gradient(160deg,#07011F 0%,#1c0a00 100%)", padding:"40px 24px 36px" }} className="no-print">
+      <section style={{ background:"linear-gradient(160deg,#07011F 0%,#0c2340 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
-          <nav style={{ marginBottom:16, fontSize:13, color:"#FCD34D" }}><a href="/" style={{ color:"#FCD34D", textDecoration:"none" }}>Home</a><span style={{ margin:"0 8px" }}>›</span><a href="/documents" style={{ color:"#FCD34D", textDecoration:"none" }}>Documents</a><span style={{ margin:"0 8px" }}>›</span><span style={{ color:"#FDE68A" }}>Hotel Bill</span></nav>
+          <nav style={{ marginBottom:16, fontSize:13, color:"#7DD3FC" }}><a href="/" style={{ color:"#7DD3FC", textDecoration:"none" }}>Home</a><span style={{ margin:"0 8px" }}>›</span><a href="/documents" style={{ color:"#7DD3FC", textDecoration:"none" }}>Documents</a><span style={{ margin:"0 8px" }}>›</span><span style={{ color:"#BAE6FD" }}>Hotel Bill</span></nav>
           <h1 style={{ fontSize:"clamp(20px,3vw,30px)", fontWeight:800, color:"#fff", margin:"0 0 8px", letterSpacing:"-0.02em" }}>Hotel Bill Generator</h1>
-          <p style={{ fontSize:14, color:"#FCD34D", margin:0 }}>Professional hotel bills with room charges, F&B, stay details, and CGST/SGST.</p>
+          <p style={{ fontSize:14, color:"#7DD3FC", margin:0 }}>Professional hotel bills with room charges, F&B, stay details, and CGST/SGST.</p>
         </div>
       </section>
       <div style={{ maxWidth:1280, margin:"0 auto", padding:"32px 24px" }} className="no-print">
         <div className="hb-grid" style={{ display:"grid", gridTemplateColumns:"1fr 500px", gap:28, alignItems:"start" }}>
           <div>
-            <S title="Hotel Details">
+            <Section title="Hotel Details">
               <Field label="Hotel Name" value={hotel.name} onChange={v=>upd(setHotel)("name",v)} placeholder="The Grand Hotel" />
               <Field label="Address" value={hotel.address} onChange={v=>upd(setHotel)("address",v)} />
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
@@ -232,8 +269,8 @@ export default function HotelBillPage() {
                 <Field label="GSTIN" value={hotel.gstin} onChange={v=>upd(setHotel)("gstin",v)} />
                 <Field label="Logo URL" value={data.logoUrl} onChange={v=>upd(setData)("logoUrl",v)} placeholder="https://..." />
               </div>
-            </S>
-            <S title="Stay Details">
+            </Section>
+            <Section title="Stay Details">
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
                 <Field label="Bill No." value={data.billNo} onChange={v=>upd(setData)("billNo",v)} />
                 <Field label="Room No." value={data.roomNo} onChange={v=>upd(setData)("roomNo",v)} placeholder="101" />
@@ -242,30 +279,30 @@ export default function HotelBillPage() {
                 <Field label="Check-in" value={data.checkIn} onChange={v=>upd(setData)("checkIn",v)} type="date" />
                 <Field label="Check-out" value={data.checkOut} onChange={v=>upd(setData)("checkOut",v)} type="date" />
               </div>
-            </S>
-            <S title="Guest Details">
+            </Section>
+            <Section title="Guest Details">
               <Field label="Guest Name" value={guest.name} onChange={v=>upd(setGuest)("name",v)} placeholder="Rajesh Sharma" />
               <Field label="Address" value={guest.address} onChange={v=>upd(setGuest)("address",v)} />
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
                 <Field label="Phone" value={guest.phone} onChange={v=>upd(setGuest)("phone",v)} />
                 <div>
-                  <label style={{ fontSize:11, fontWeight:600, color:"#64748B", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>ID Type</label>
-                  <select value={guest.idType} onChange={e=>upd(setGuest)("idType",e.target.value)} style={{ width:"100%", height:38, border:"1.5px solid #E2E8F0", borderRadius:8, padding:"0 10px", fontSize:13, outline:"none", background:"#fff" }}>
+                  <label style={{ fontSize:11, fontWeight:600, color:INK_MUTED, display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>ID Type</label>
+                  <select value={guest.idType} onChange={e=>upd(setGuest)("idType",e.target.value)} style={{ width:"100%", height:38, border:`1.5px solid ${BORDER}`, borderRadius:8, padding:"0 10px", fontSize:13, outline:"none", background:"#fff" }}>
                     {["Aadhaar","Passport","Driving License","Voter ID","PAN"].map(t=><option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <Field label="ID Number" value={guest.idNo} onChange={v=>upd(setGuest)("idNo",v)} />
               </div>
-            </S>
-            <S title="Charges">
+            </Section>
+            <Section title="Charges">
               {charges.map((c,idx)=>(
-                <div key={c.id} style={{ background:"#F8FAFC", borderRadius:12, padding:"14px 16px", marginBottom:10, border:"1px solid #E2E8F0", position:"relative" }}>
+                <div key={c.id} style={{ background:SURFACE, borderRadius:12, padding:"14px 16px", marginBottom:10, border:`1px solid ${BORDER}`, position:"relative" }}>
                   {charges.length>1&&<button onClick={()=>setCharges(p=>p.filter(i=>i.id!==c.id))} style={{ position:"absolute", top:10, right:10, background:"#FEF2F2", border:"none", borderRadius:6, width:24, height:24, cursor:"pointer", color:"#DC2626", fontSize:14 }}>×</button>}
                   <Field label={`Item ${idx+1}`} value={c.description} onChange={v=>updCharge(c.id,"description",v)} placeholder="Room Charge - 1 Night" small />
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
                     <div>
-                      <label style={{ fontSize:11, fontWeight:600, color:"#64748B", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>Category</label>
-                      <select value={c.category} onChange={e=>updCharge(c.id,"category",e.target.value)} style={{ width:"100%", height:32, border:"1.5px solid #E2E8F0", borderRadius:8, padding:"0 8px", fontSize:12, outline:"none", background:"#fff" }}>
+                      <label style={{ fontSize:11, fontWeight:600, color:INK_MUTED, display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>Category</label>
+                      <select value={c.category} onChange={e=>updCharge(c.id,"category",e.target.value)} style={{ width:"100%", height:32, border:`1.5px solid ${BORDER}`, borderRadius:8, padding:"0 8px", fontSize:12, outline:"none", background:"#fff" }}>
                         {CATEGORIES.map(t=><option key={t} value={t}>{t}</option>)}
                       </select>
                     </div>
@@ -274,40 +311,51 @@ export default function HotelBillPage() {
                   </div>
                 </div>
               ))}
-              <button onClick={()=>setCharges(p=>[...p,defaultCharge()])} style={{ width:"100%", padding:10, borderRadius:10, border:"1.5px dashed #D97706", background:"#FFFBEB", color:"#92400E", fontSize:13, fontWeight:600, cursor:"pointer" }}>+ Add Charge</button>
-            </S>
-            <S title="Tax & Payment">
+              <button onClick={()=>setCharges(p=>[...p,defaultCharge()])} style={{ width:"100%", padding:10, borderRadius:10, border:`1.5px dashed ${BRAND}`, background:SURFACE, color:BRAND, fontSize:13, fontWeight:600, cursor:"pointer" }}>+ Add Charge</button>
+              <div style={{ background:INK, color:"#fff", borderRadius:10, padding:"12px 16px", marginTop:12, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <span style={{ fontSize:14, fontWeight:700 }}>Subtotal</span>
+                <span style={{ fontSize:18, fontWeight:900 }}>₹{charges.reduce((s,c)=>s+Number(c.qty||0)*Number(c.rate||0),0).toFixed(2)}</span>
+              </div>
+            </Section>
+            <Section title="Tax & Payment">
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
                 <Field label="CGST %" value={data.cgst} onChange={v=>upd(setData)("cgst",v)} type="number" placeholder="6" />
                 <Field label="SGST %" value={data.sgst} onChange={v=>upd(setData)("sgst",v)} type="number" placeholder="6" />
                 <Field label="Discount ₹" value={data.discount} onChange={v=>upd(setData)("discount",v)} type="number" placeholder="0" />
               </div>
               <div>
-                <label style={{ fontSize:11, fontWeight:600, color:"#64748B", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>Payment Mode</label>
-                <select value={data.paymentMode} onChange={e=>upd(setData)("paymentMode",e.target.value)} style={{ width:"100%", height:38, border:"1.5px solid #E2E8F0", borderRadius:8, padding:"0 10px", fontSize:13, outline:"none", background:"#fff" }}>
+                <label style={{ fontSize:11, fontWeight:600, color:INK_MUTED, display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:"0.06em" }}>Payment Mode</label>
+                <select value={data.paymentMode} onChange={e=>upd(setData)("paymentMode",e.target.value)} style={{ width:"100%", height:38, border:`1.5px solid ${BORDER}`, borderRadius:8, padding:"0 10px", fontSize:13, outline:"none", background:"#fff" }}>
                   {["Card","Cash","UPI","Bank Transfer","Online"].map(m=><option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
-            </S>
+            </Section>
           </div>
           <div className="hb-prev" style={{ position:"sticky", top:88 }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
-              <p style={{ fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#64748B", margin:0 }}>Live Preview</p>
-              <button onClick={handlePDF} disabled={downloading} style={{ background:"linear-gradient(135deg,#D97706,#B45309)", border:"none", borderRadius:8, padding:"6px 16px", color:"#fff", fontSize:13, fontWeight:600, cursor:downloading?"wait":"pointer" }}>{downloading?"Saving…":"Save PDF"}</button>
+              <p style={{ fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:INK_MUTED, margin:0 }}>Live Preview</p>
+              <SaveMenu onSave={doDownload} downloading={downloading} small />
             </div>
+
+            {notice && (
+              <div style={{ background:"#FFFBEB", border:"1px solid #FDE68A", borderRadius:8, padding:"8px 12px", marginBottom:10, fontSize:12, color:"#92400E", display:"flex", justifyContent:"space-between", gap:8 }}>
+                <span>⚠ {notice}</span>
+                <button onClick={()=>setNotice("")} style={{ background:"none", border:"none", color:"#92400E", cursor:"pointer", fontSize:14, lineHeight:1 }} aria-label="Dismiss">×</button>
+              </div>
+            )}
+
             <div className="preview-scale-wrap" style={{ transform:"scale(0.68)", transformOrigin:"top left", width:"147%", marginBottom:"-32%" }}>
-              <div ref={previewRef}><HotelPreview data={data} hotel={hotel} guest={guest} charges={charges} /></div>
+              <HotelPreview data={{ ...data, hotel, guest, charges }} />
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+      <div style={{ background: "#fff", borderTop: `1px solid ${BORDER}` }}>
         <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
           <DocumentPageSEO documentName="Hotel Bill" documentSlug="hotel-bill" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
         </div>
       </div>
     </div>
-    </>
   );
 }

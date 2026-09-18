@@ -1,8 +1,23 @@
-import { Helmet } from 'react-helmet-async';
-import { useState, useRef } from "react";
-import { supabase } from "../../supabase";
+import { useState } from "react";
 import { useSEO } from "../../seo/useSEO";
 import DocumentPageSEO from "../../seo/DocumentPageSEO";
+import SaveMenu from "../../components/common/SaveMenu";
+import { exportSingleDocument } from "../../utils/documentExport";
+import { logSaveRequest } from "../../utils/saveLog";
+
+const TAINTED_HINT = "the logo image doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again.";
+
+// Neutral document palette — a printed invoice should read like a normal
+// business document, not a brand-colour showcase. Brand blue is reserved for
+// interactive form chrome (field focus, the dashed "+ Add" button) below,
+// never for the invoice preview itself.
+const INK = "#0F172A";
+const INK_SOFT = "#475569";
+const INK_MUTED = "#64748B";
+const BORDER = "#E2E8F0";
+const SURFACE = "#F8FAFC";
+const SURFACE_ALT = "#F1F5F9";
+const BRAND = "#2563EB";
 
 // ─── SEO ─────────────────────────────────────────────────────────────────────
 const SEO_TITLE = "Free Invoice Generator India — Professional Invoices with Tax (2026)";
@@ -37,7 +52,7 @@ const HOW_TO_STEPS = [
   { step: 3, title: "Add client details", body: "Name, address, and contact info for the client." },
   { step: 4, title: "Add line items", body: "List each item with quantity, rate, and tax." },
   { step: 5, title: "Add bank details", body: "Optional — include account details or UPI ID for payment." },
-  { step: 6, title: "Download PDF", body: "Click Save PDF to download the invoice." },
+  { step: 6, title: "Download PDF", body: "Click Save to download the invoice as a PDF or PNG." },
 ];
 const BENEFITS = [
   "Unlimited line items per invoice.",
@@ -63,12 +78,21 @@ const RELATED_DOCS = [
 function Field({ label, value, onChange, placeholder, type = "text", small }) {
   return (
     <div style={{ marginBottom: small ? 8 : 12 }}>
-      {label && <label style={{ fontSize: 11, fontWeight: 600, color: "#64748B", display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</label>}
+      {label && <label style={{ fontSize: 11, fontWeight: 600, color: INK_MUTED, display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</label>}
       <input type={type} value={value} placeholder={placeholder}
         onChange={e => onChange && onChange(e.target.value)}
-        style={{ width: "100%", height: small ? 32 : 38, border: "1.5px solid #E2E8F0", borderRadius: 8, padding: "0 10px", fontSize: 13, color: "#0F172A", outline: "none", boxSizing: "border-box", background: "#fff" }}
-        onFocus={e => e.target.style.borderColor = "#6366F1"}
-        onBlur={e => e.target.style.borderColor = "#E2E8F0"} />
+        style={{ width: "100%", height: small ? 32 : 38, border: `1.5px solid ${BORDER}`, borderRadius: 8, padding: "0 10px", fontSize: 13, color: INK, outline: "none", boxSizing: "border-box", background: "#fff" }}
+        onFocus={e => e.target.style.borderColor = BRAND}
+        onBlur={e => e.target.style.borderColor = BORDER} />
+    </div>
+  );
+}
+
+function Section({ title, children }) {
+  return (
+    <div style={{ background: "#fff", borderRadius: 16, border: `1px solid ${BORDER}`, padding: "20px 24px", marginBottom: 16 }}>
+      <h2 style={{ fontSize: 13, fontWeight: 700, color: INK, margin: "0 0 16px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</h2>
+      {children}
     </div>
   );
 }
@@ -87,19 +111,27 @@ function numberToWords(n) {
   return convert(Math.floor(n)) + " Rupees Only";
 }
 
-const defaultItem = () => ({ id: Date.now()+Math.random(), description: "", qty: 1, rate: 0, tax: 0 });
+const defaultItem = () => ({ id: Date.now()+Math.random(), description: "", qty: 1, rate: 0, tax: 18 });
 
-function InvoicePreview({ data, from, to, items }) {
-  const subtotal = items.reduce((s,i) => s + i.qty*i.rate, 0);
-  const tax = items.reduce((s,i) => s + i.qty*i.rate*i.tax/100, 0);
-  const total = subtotal + tax - (Number(data.discount)||0);
+const todayISO = () => new Date().toISOString().split("T")[0];
+const daysFromNowISO = (n) => { const d = new Date(); d.setDate(d.getDate()+n); return d.toISOString().split("T")[0]; };
+
+const invoiceTotals = (items, discount) => {
+  const subtotal = items.reduce((s,i) => s + Number(i.qty||0)*Number(i.rate||0), 0);
+  const tax = items.reduce((s,i) => s + Number(i.qty||0)*Number(i.rate||0)*Number(i.tax||0)/100, 0);
+  return { subtotal, tax, total: subtotal + tax - (Number(discount)||0) };
+};
+
+function InvoicePreview({ data }) {
+  const { from, to, items } = data;
+  const { subtotal, tax, total } = invoiceTotals(items, data.discount);
   return (
     <div style={{ background:"#fff", fontFamily:"Arial,sans-serif", fontSize:12, color:"#1a1a1a", padding:"32px 40px" }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:24, paddingBottom:20, borderBottom:"2px solid #6366F1" }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:24, paddingBottom:20, borderBottom:`2px solid ${INK}` }}>
         <div>
           {data.logoUrl && <img src={data.logoUrl} alt="logo" style={{ maxHeight:52, maxWidth:160, objectFit:"contain", marginBottom:8, display:"block" }} />}
-          <div style={{ fontSize:20, fontWeight:800, color:"#6366F1" }}>{from.name || "Your Business"}</div>
-          <div style={{ fontSize:11, color:"#475569", marginTop:4, lineHeight:1.7 }}>
+          <div style={{ fontSize:20, fontWeight:800, color:INK }}>{from.name || "Your Business"}</div>
+          <div style={{ fontSize:11, color:INK_SOFT, marginTop:4, lineHeight:1.7 }}>
             {from.address && <div>{from.address}</div>}
             {from.gstin && <div>GSTIN: {from.gstin}</div>}
             {from.email && <div>{from.email}</div>}
@@ -107,34 +139,34 @@ function InvoicePreview({ data, from, to, items }) {
           </div>
         </div>
         <div style={{ textAlign:"right" }}>
-          <div style={{ fontSize:24, fontWeight:900, color:"#0F172A" }}>INVOICE</div>
-          <div style={{ background:"#EEF2FF", borderRadius:8, padding:"10px 16px", marginTop:8, fontSize:12 }}>
-            <div style={{ display:"flex", gap:16, justifyContent:"flex-end" }}><span style={{ color:"#64748B" }}>Invoice No.</span><strong>{data.invoiceNo||"—"}</strong></div>
-            <div style={{ display:"flex", gap:16, justifyContent:"flex-end", marginTop:4 }}><span style={{ color:"#64748B" }}>Date</span><strong>{data.date ? new Date(data.date+"T00:00:00").toLocaleDateString("en-IN") : "—"}</strong></div>
-            {data.dueDate && <div style={{ display:"flex", gap:16, justifyContent:"flex-end", marginTop:4 }}><span style={{ color:"#64748B" }}>Due</span><strong>{new Date(data.dueDate+"T00:00:00").toLocaleDateString("en-IN")}</strong></div>}
+          <div style={{ fontSize:24, fontWeight:900, color:INK, letterSpacing:"0.06em" }}>INVOICE</div>
+          <div style={{ background:SURFACE, border:`1px solid ${BORDER}`, borderRadius:8, padding:"10px 16px", marginTop:8, fontSize:12 }}>
+            <div style={{ display:"flex", gap:16, justifyContent:"flex-end" }}><span style={{ color:INK_MUTED }}>Invoice No.</span><strong style={{ color:INK }}>{data.invoiceNo||"—"}</strong></div>
+            <div style={{ display:"flex", gap:16, justifyContent:"flex-end", marginTop:4 }}><span style={{ color:INK_MUTED }}>Date</span><strong style={{ color:INK }}>{data.date ? new Date(data.date+"T00:00:00").toLocaleDateString("en-IN") : "—"}</strong></div>
+            {data.dueDate && <div style={{ display:"flex", gap:16, justifyContent:"flex-end", marginTop:4 }}><span style={{ color:INK_MUTED }}>Due</span><strong style={{ color:INK }}>{new Date(data.dueDate+"T00:00:00").toLocaleDateString("en-IN")}</strong></div>}
           </div>
         </div>
       </div>
-      <div style={{ background:"#F8FAFC", borderRadius:8, padding:"12px 16px", marginBottom:20, border:"1px solid #E2E8F0" }}>
-        <div style={{ fontSize:11, fontWeight:700, color:"#6366F1", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6 }}>Bill To</div>
-        <div style={{ fontWeight:700, fontSize:13 }}>{to.name||"Client Name"}</div>
-        <div style={{ fontSize:11, color:"#475569", lineHeight:1.7, marginTop:2 }}>
+      <div style={{ background:SURFACE, borderRadius:8, padding:"12px 16px", marginBottom:20, border:`1px solid ${BORDER}` }}>
+        <div style={{ fontSize:10, fontWeight:700, color:INK_MUTED, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:6 }}>Bill To</div>
+        <div style={{ fontWeight:700, fontSize:13, color:INK }}>{to.name||"Client Name"}</div>
+        <div style={{ fontSize:11, color:INK_SOFT, lineHeight:1.7, marginTop:2 }}>
           {to.address && <span>{to.address}<br/></span>}
           {to.email && <span>{to.email}</span>}
           {to.phone && <span>  ·  {to.phone}</span>}
         </div>
       </div>
       <table style={{ width:"100%", borderCollapse:"collapse", marginBottom:16 }}>
-        <thead><tr style={{ background:"#6366F1", color:"#fff" }}>
+        <thead><tr style={{ background:INK, color:"#fff" }}>
           {["#","Description","Qty","Rate (₹)","Tax %","Amount (₹)"].map(h => <th key={h} style={{ padding:"8px 10px", fontSize:10, fontWeight:700, textAlign:h==="Description"?"left":"right" }}>{h}</th>)}
         </tr></thead>
         <tbody>{items.map((item,i) => {
-          const amt = item.qty*item.rate*(1+item.tax/100);
-          return <tr key={item.id} style={{ borderBottom:"1px solid #E2E8F0", background:i%2===0?"#fff":"#F8FAFC" }}>
-            <td style={{ padding:"9px 10px", textAlign:"right", color:"#94A3B8" }}>{i+1}</td>
+          const amt = Number(item.qty||0)*Number(item.rate||0)*(1+Number(item.tax||0)/100);
+          return <tr key={item.id} style={{ borderBottom:`1px solid ${BORDER}`, background:i%2===0?"#fff":SURFACE }}>
+            <td style={{ padding:"9px 10px", textAlign:"right", color:INK_MUTED }}>{i+1}</td>
             <td style={{ padding:"9px 10px" }}>{item.description||"—"}</td>
             <td style={{ padding:"9px 10px", textAlign:"right" }}>{item.qty}</td>
-            <td style={{ padding:"9px 10px", textAlign:"right" }}>{item.rate.toFixed(2)}</td>
+            <td style={{ padding:"9px 10px", textAlign:"right" }}>{Number(item.rate||0).toFixed(2)}</td>
             <td style={{ padding:"9px 10px", textAlign:"right" }}>{item.tax}%</td>
             <td style={{ padding:"9px 10px", textAlign:"right", fontWeight:700 }}>{amt.toFixed(2)}</td>
           </tr>;
@@ -143,76 +175,95 @@ function InvoicePreview({ data, from, to, items }) {
       <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:16 }}>
         <div style={{ width:240 }}>
           {[["Subtotal", subtotal],["Tax", tax],["Discount", -(Number(data.discount)||0)]].filter(([,v])=>v!==0).map(([l,v]) => (
-            <div key={l} style={{ display:"flex", justifyContent:"space-between", padding:"5px 0", borderBottom:"1px solid #F1F5F9", fontSize:12 }}>
-              <span style={{ color:"#64748B" }}>{l}</span><span>{v<0?`-₹${Math.abs(v).toFixed(2)}`:`₹${v.toFixed(2)}`}</span>
+            <div key={l} style={{ display:"flex", justifyContent:"space-between", padding:"5px 0", borderBottom:`1px solid ${SURFACE_ALT}`, fontSize:12 }}>
+              <span style={{ color:INK_MUTED }}>{l}</span><span style={{ color:INK }}>{v<0?`-₹${Math.abs(v).toFixed(2)}`:`₹${v.toFixed(2)}`}</span>
             </div>
           ))}
-          <div style={{ display:"flex", justifyContent:"space-between", padding:"10px 12px", background:"#6366F1", color:"#fff", borderRadius:8, marginTop:8, fontSize:14, fontWeight:800 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", padding:"10px 12px", background:INK, color:"#fff", borderRadius:8, marginTop:8, fontSize:14, fontWeight:800 }}>
             <span>Total</span><span>₹{total.toFixed(2)}</span>
           </div>
         </div>
       </div>
-      <div style={{ background:"#EEF2FF", borderRadius:8, padding:"10px 14px", marginBottom:16, fontSize:11, color:"#3730A3" }}>
-        <strong>Amount in words:</strong> {numberToWords(Math.round(total))}
+      <div style={{ background:SURFACE_ALT, border:`1px solid ${BORDER}`, borderRadius:8, padding:"10px 14px", marginBottom:16, fontSize:11, color:INK_SOFT }}>
+        <strong style={{ color:INK }}>Amount in words:</strong> {numberToWords(Math.round(total))}
       </div>
-      {data.notes && <div style={{ border:"1px solid #E2E8F0", borderRadius:8, padding:"12px 14px", fontSize:11, color:"#475569" }}><strong style={{ color:"#6366F1" }}>Notes: </strong>{data.notes}</div>}
+      {data.notes && <div style={{ border:`1px solid ${BORDER}`, borderRadius:8, padding:"12px 14px", fontSize:11, color:INK_SOFT }}><strong style={{ color:INK }}>Notes: </strong>{data.notes}</div>}
       {(data.bankName||data.accountNo||data.ifsc) && (
-        <div style={{ marginTop:12, border:"1px solid #E2E8F0", borderRadius:8, padding:"12px 14px", fontSize:11 }}>
-          <div style={{ fontWeight:700, color:"#6366F1", marginBottom:6, textTransform:"uppercase", letterSpacing:"0.08em", fontSize:10 }}>Bank Details</div>
-          {data.bankName && <div><span style={{ color:"#64748B" }}>Bank: </span>{data.bankName}</div>}
-          {data.accountNo && <div><span style={{ color:"#64748B" }}>A/C: </span>{data.accountNo}</div>}
-          {data.ifsc && <div><span style={{ color:"#64748B" }}>IFSC: </span>{data.ifsc}</div>}
-          {data.upi && <div><span style={{ color:"#64748B" }}>UPI: </span>{data.upi}</div>}
+        <div style={{ marginTop:12, border:`1px solid ${BORDER}`, borderRadius:8, padding:"12px 14px", fontSize:11, color:INK_SOFT }}>
+          <div style={{ fontWeight:700, color:INK_MUTED, marginBottom:6, textTransform:"uppercase", letterSpacing:"0.08em", fontSize:10 }}>Bank Details</div>
+          {data.bankName && <div><span style={{ color:INK_MUTED }}>Bank: </span>{data.bankName}</div>}
+          {data.accountNo && <div><span style={{ color:INK_MUTED }}>A/C: </span>{data.accountNo}</div>}
+          {data.ifsc && <div><span style={{ color:INK_MUTED }}>IFSC: </span>{data.ifsc}</div>}
+          {data.upi && <div><span style={{ color:INK_MUTED }}>UPI: </span>{data.upi}</div>}
         </div>
       )}
       <div style={{ marginTop:20, display:"flex", justifyContent:"flex-end" }}>
         <div style={{ textAlign:"center" }}>
           <div style={{ width:120, height:40, borderBottom:"1px solid #CBD5E1", marginBottom:6 }}/>
-          <div style={{ fontSize:11, color:"#64748B" }}>Authorised Signatory</div>
+          <div style={{ fontSize:10, color:"#94A3B8" }}>Authorised Signatory</div>
         </div>
       </div>
     </div>
   );
 }
 
-const S = ({ title, accent="#6366F1", children }) => (
-  <div style={{ background:"#fff", borderRadius:16, border:"1px solid #E2E8F0", padding:"20px 24px", marginBottom:16 }}>
-    <h2 style={{ fontSize:13, fontWeight:700, color:accent, margin:"0 0 16px", textTransform:"uppercase", letterSpacing:"0.08em" }}>{title}</h2>
-    {children}
-  </div>
-);
-
 export default function InvoiceGeneratorPage() {
-  const [data, setData] = useState(() => ({ invoiceNo:`INV-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`, date:new Date().toISOString().split("T")[0], dueDate:"", logoUrl:"", discount:"", bankName:"", accountNo:"", ifsc:"", upi:"", notes:"Thank you for your business." }));
-  const [from, setFrom] = useState({ name:"", address:"", gstin:"", email:"", phone:"" });
-  const [to, setTo] = useState({ name:"", address:"", email:"", phone:"" });
-  const [items, setItems] = useState([defaultItem()]);
+  const [invoice, setInvoice] = useState(() => ({
+    invoiceNo: `INV-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`,
+    date: todayISO(),
+    dueDate: daysFromNowISO(15),
+    logoUrl: "",
+    discount: 2000,
+    bankName: "HDFC Bank",
+    accountNo: "50200012345678",
+    ifsc: "HDFC0001234",
+    upi: "sharmaconsulting@hdfcbank",
+    notes: "Thank you for your business. Payment is due within 15 days of the invoice date.",
+  }));
+  const [from, setFrom] = useState({
+    name: "Sharma Consulting Services",
+    address: "412, Nirmal Tower, Barakhamba Road, New Delhi - 110001",
+    gstin: "07ABCDE1234F1Z5",
+    email: "billing@sharmaconsulting.in",
+    phone: "+91 98100 45210",
+  });
+  const [to, setTo] = useState({
+    name: "Vega Retail Pvt Ltd",
+    address: "Plot 22, Sector 44, Gurugram, Haryana - 122003",
+    email: "accounts@vegaretail.in",
+    phone: "+91 98111 23456",
+  });
+  const [items, setItems] = useState(() => [
+    { id: 1001, description: "Website design & development — Phase 1", qty: 1, rate: 45000, tax: 18 },
+    { id: 1002, description: "Monthly maintenance retainer (3 months)", qty: 3, rate: 8000, tax: 18 },
+    { id: 1003, description: "Domain & SSL renewal (annual)", qty: 1, rate: 2400, tax: 18 },
+  ]);
   const [downloading, setDownloading] = useState(false);
-  const previewRef = useRef(null);
+  const [notice, setNotice] = useState("");
+
   const upd = setter => (k,v) => setter(p=>({...p,[k]:v}));
   const updItem = (id,k,v) => setItems(p=>p.map(i=>i.id===id?{...i,[k]:v}:i));
 
-  const handlePDF = async () => {
-    if (!previewRef.current||downloading) return;
+  const { subtotal, tax, total } = invoiceTotals(items, invoice.discount);
+
+  const doDownload = async (format = "pdf") => {
+    if (downloading) return;
     setDownloading(true);
-    try {
-      try { await supabase.from("save_requests").insert({ template:"invoice-generator", print_id:`INV-${Date.now()}`, user_id:null, bill_data: { ...data, from, to, items } }); } catch (err) { console.warn("Save logging for the invoice failed (non-blocking); the document itself was unaffected.", err); }
-      const { default: jsPDF } = await import("jspdf");
-      const { default: html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(previewRef.current, { scale:2, useCORS:true, backgroundColor:"#ffffff" });
-      const pdf = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
-      const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
-      const s=Math.min(pw/(canvas.width*25.4/(96*2)), ph/(canvas.height*25.4/(96*2)));
-      const fw=canvas.width*25.4/(96*2)*s, fh=canvas.height*25.4/(96*2)*s;
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92),"JPEG",(pw-fw)/2,0,fw,fh);
-      pdf.save(`invoice-${data.invoiceNo}.pdf`);
-    } catch(e) {
-      const isTainted = /tainted|cross-origin|SecurityError/i.test(e?.message || e?.name || "");
-      alert(isTainted
-        ? "PDF failed: the logo image doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again."
-        : "PDF failed: " + (e?.message || "Unknown error"));
-    }
-    finally { setDownloading(false); }
+    setNotice("");
+
+    const data = { ...invoice, from, to, items };
+    const printId = `INV-${Date.now()}`;
+    const logged = await logSaveRequest({ template: "invoice", printId, billData: data });
+    if (!logged.ok) setNotice("Your invoice downloaded fine, but we couldn't record it on our side.");
+
+    await exportSingleDocument({
+      Template: InvoicePreview,
+      data,
+      format,
+      fileBase: `invoice-${invoice.invoiceNo || Date.now()}`,
+      taintedHint: TAINTED_HINT,
+    });
+    setDownloading(false);
   };
 
   useSEO({
@@ -226,48 +277,32 @@ export default function InvoiceGeneratorPage() {
   });
 
   return (
-    <>
-      <Helmet>
-        <title>Free Invoice Generator India — Professional Invoices with Tax | OpsTools</title>
-        <meta name="description" content="Generate professional invoices with line items, tax, discounts and bank details. Free, no login, instant PDF." />
-        <meta property="og:title" content="Free Invoice Generator India — Professional Invoices with Tax | OpsTools" />
-        <meta property="og:description" content="Generate professional invoices with line items, tax, discounts and bank details. Free, no login, instant PDF." />
-        <meta property="og:url" content="https://www.opstools.ai/documents/invoice" />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Free Invoice Generator India — Professional Invoices with Tax | OpsTools" />
-        <meta name="twitter:description" content="Generate professional invoices with line items, tax, discounts and bank details. Free, no login, instant PDF." />
-        <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
-      </Helmet>
-    <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
+    <div style={{ backgroundColor:SURFACE, minHeight:"100vh" }}>
       <style>{`@media(max-width:1023px){.inv-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .inv-grid{grid-template-columns:1fr!important;}}@media(max-width:768px){.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}@media print{.no-print{display:none!important;}}`}</style>
-      <section style={{ background:"linear-gradient(160deg,#07011F 0%,#1e1b4b 100%)", padding:"40px 24px 36px" }} className="no-print">
+      <section style={{ background:"linear-gradient(160deg,#07011F 0%,#0c2340 100%)", padding:"40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth:1280, margin:"0 auto" }}>
-          <nav style={{ marginBottom:16, fontSize:13, color:"#818CF8" }}>
-            <a href="/" style={{ color:"#818CF8", textDecoration:"none" }}>Home</a><span style={{ margin:"0 8px" }}>›</span>
-            <a href="/documents" style={{ color:"#818CF8", textDecoration:"none" }}>Documents</a><span style={{ margin:"0 8px" }}>›</span>
-            <span style={{ color:"#C7D2FE" }}>Invoice Generator</span>
+          <nav style={{ marginBottom:16, fontSize:13, color:"#7DD3FC" }}>
+            <a href="/" style={{ color:"#7DD3FC", textDecoration:"none" }}>Home</a><span style={{ margin:"0 8px" }}>›</span>
+            <a href="/documents" style={{ color:"#7DD3FC", textDecoration:"none" }}>Documents</a><span style={{ margin:"0 8px" }}>›</span>
+            <span style={{ color:"#BAE6FD" }}>Invoice Generator</span>
           </nav>
           <h1 style={{ fontSize:"clamp(20px,3vw,30px)", fontWeight:800, color:"#fff", margin:"0 0 8px", letterSpacing:"-0.02em" }}>Invoice Generator</h1>
-          <p style={{ fontSize:14, color:"#818CF8", margin:0 }}>Professional invoices with line items, tax, discounts and bank details.</p>
+          <p style={{ fontSize:14, color:"#7DD3FC", margin:0 }}>Professional invoices with line items, tax, discounts and bank details.</p>
         </div>
       </section>
       <div style={{ maxWidth:1280, margin:"0 auto", padding:"32px 24px" }} className="no-print">
         <div className="inv-grid" style={{ display:"grid", gridTemplateColumns:"1fr 500px", gap:28, alignItems:"start" }}>
           <div>
-            <S title="Invoice Details">
+            <Section title="Invoice Details">
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
-                <Field label="Invoice No." value={data.invoiceNo} onChange={v=>upd(setData)("invoiceNo",v)} />
-                <Field label="Invoice Date" value={data.date} onChange={v=>upd(setData)("date",v)} type="date" />
-                <Field label="Due Date" value={data.dueDate} onChange={v=>upd(setData)("dueDate",v)} type="date" />
-                <Field label="Discount (₹)" value={data.discount} onChange={v=>upd(setData)("discount",v)} type="number" placeholder="0" />
+                <Field label="Invoice No." value={invoice.invoiceNo} onChange={v=>upd(setInvoice)("invoiceNo",v)} />
+                <Field label="Invoice Date" value={invoice.date} onChange={v=>upd(setInvoice)("date",v)} type="date" />
+                <Field label="Due Date" value={invoice.dueDate} onChange={v=>upd(setInvoice)("dueDate",v)} type="date" />
+                <Field label="Discount (₹)" value={invoice.discount} onChange={v=>upd(setInvoice)("discount",v)} type="number" placeholder="0" />
               </div>
-              <Field label="Logo URL" value={data.logoUrl} onChange={v=>upd(setData)("logoUrl",v)} placeholder="https://..." />
-            </S>
-            <S title="From (Your Business)">
+              <Field label="Logo URL" value={invoice.logoUrl} onChange={v=>upd(setInvoice)("logoUrl",v)} placeholder="https://..." />
+            </Section>
+            <Section title="From (Your Business)">
               <Field label="Business Name" value={from.name} onChange={v=>upd(setFrom)("name",v)} placeholder="Your Company" />
               <Field label="Address" value={from.address} onChange={v=>upd(setFrom)("address",v)} placeholder="City, State - PIN" />
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
@@ -275,63 +310,81 @@ export default function InvoiceGeneratorPage() {
                 <Field label="Email" value={from.email} onChange={v=>upd(setFrom)("email",v)} />
                 <Field label="Phone" value={from.phone} onChange={v=>upd(setFrom)("phone",v)} />
               </div>
-            </S>
-            <S title="Bill To (Client)">
+            </Section>
+            <Section title="Bill To (Client)">
               <Field label="Client Name" value={to.name} onChange={v=>upd(setTo)("name",v)} placeholder="Client / Company" />
               <Field label="Address" value={to.address} onChange={v=>upd(setTo)("address",v)} />
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
                 <Field label="Email" value={to.email} onChange={v=>upd(setTo)("email",v)} />
                 <Field label="Phone" value={to.phone} onChange={v=>upd(setTo)("phone",v)} />
               </div>
-            </S>
-            <S title="Line Items">
+            </Section>
+            <Section title="Line Items">
               {items.map((item,idx) => (
-                <div key={item.id} style={{ background:"#F8FAFC", borderRadius:12, padding:"14px 16px", marginBottom:10, border:"1px solid #E2E8F0", position:"relative" }}>
+                <div key={item.id} style={{ background:SURFACE, borderRadius:12, padding:"14px 16px", marginBottom:10, border:`1px solid ${BORDER}`, position:"relative" }}>
                   {items.length>1 && <button onClick={()=>setItems(p=>p.filter(i=>i.id!==item.id))} style={{ position:"absolute", top:10, right:10, background:"#FEF2F2", border:"none", borderRadius:6, width:24, height:24, cursor:"pointer", color:"#DC2626", fontSize:14 }}>×</button>}
-                  <div style={{ fontSize:11, fontWeight:700, color:"#94A3B8", marginBottom:8, textTransform:"uppercase" }}>Item {idx+1}</div>
+                  <div style={{ fontSize:11, fontWeight:700, color:INK_MUTED, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.06em" }}>Item {idx+1}</div>
                   <Field label="Description" value={item.description} onChange={v=>updItem(item.id,"description",v)} placeholder="Service or product" small />
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
                     <Field label="Qty" value={item.qty} onChange={v=>updItem(item.id,"qty",Number(v))} type="number" small />
                     <Field label="Rate ₹" value={item.rate} onChange={v=>updItem(item.id,"rate",Number(v))} type="number" small />
                     <Field label="Tax %" value={item.tax} onChange={v=>updItem(item.id,"tax",Number(v))} type="number" small />
                   </div>
-                  <div style={{ fontSize:12, color:"#6366F1", fontWeight:700, marginTop:6 }}>= ₹{(item.qty*item.rate*(1+item.tax/100)).toFixed(2)}</div>
+                  <div style={{ fontSize:12, color:INK, fontWeight:700, marginTop:6 }}>= ₹{(Number(item.qty||0)*Number(item.rate||0)*(1+Number(item.tax||0)/100)).toFixed(2)}</div>
                 </div>
               ))}
-              <button onClick={()=>setItems(p=>[...p,defaultItem()])} style={{ width:"100%", padding:10, borderRadius:10, border:"1.5px dashed #6366F1", background:"#EEF2FF", color:"#4F46E5", fontSize:13, fontWeight:600, cursor:"pointer" }}>+ Add Item</button>
-            </S>
-            <S title="Bank Details (Optional)">
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
-                <Field label="Bank Name" value={data.bankName} onChange={v=>upd(setData)("bankName",v)} placeholder="HDFC Bank" />
-                <Field label="Account No." value={data.accountNo} onChange={v=>upd(setData)("accountNo",v)} />
-                <Field label="IFSC" value={data.ifsc} onChange={v=>upd(setData)("ifsc",v)} placeholder="HDFC0001234" />
-                <Field label="UPI ID" value={data.upi} onChange={v=>upd(setData)("upi",v)} placeholder="name@upi" />
+              <button onClick={()=>setItems(p=>[...p,defaultItem()])} style={{ width:"100%", padding:10, borderRadius:10, border:`1.5px dashed ${BRAND}`, background:SURFACE, color:BRAND, fontSize:13, fontWeight:600, cursor:"pointer" }}>+ Add Item</button>
+              <div style={{ marginTop:12, border:`1px solid ${BORDER}`, borderRadius:10, overflow:"hidden" }}>
+                {[["Subtotal", `₹${subtotal.toFixed(2)}`],["Tax", `₹${tax.toFixed(2)}`],["Discount", `-₹${(Number(invoice.discount)||0).toFixed(2)}`]].map(([l,v]) => (
+                  <div key={l} style={{ display:"flex", justifyContent:"space-between", padding:"8px 16px", fontSize:12, color:INK_SOFT, borderBottom:`1px solid ${SURFACE_ALT}`, background:"#fff" }}>
+                    <span>{l}</span><span style={{ fontWeight:600, color:INK }}>{v}</span>
+                  </div>
+                ))}
+                <div style={{ background:INK, color:"#fff", padding:"12px 16px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                  <span style={{ fontSize:14, fontWeight:700 }}>Total</span>
+                  <span style={{ fontSize:18, fontWeight:900 }}>₹{total.toFixed(2)}</span>
+                </div>
               </div>
-            </S>
-            <S title="Notes">
-              <textarea value={data.notes} onChange={e=>upd(setData)("notes",e.target.value)} rows={2} style={{ width:"100%", border:"1.5px solid #E2E8F0", borderRadius:8, padding:"8px 12px", fontSize:13, color:"#0F172A", resize:"vertical", boxSizing:"border-box", outline:"none" }}/>
-            </S>
+            </Section>
+            <Section title="Bank Details (Optional)">
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+                <Field label="Bank Name" value={invoice.bankName} onChange={v=>upd(setInvoice)("bankName",v)} placeholder="HDFC Bank" />
+                <Field label="Account No." value={invoice.accountNo} onChange={v=>upd(setInvoice)("accountNo",v)} />
+                <Field label="IFSC" value={invoice.ifsc} onChange={v=>upd(setInvoice)("ifsc",v)} placeholder="HDFC0001234" />
+                <Field label="UPI ID" value={invoice.upi} onChange={v=>upd(setInvoice)("upi",v)} placeholder="name@upi" />
+              </div>
+            </Section>
+            <Section title="Notes">
+              <textarea value={invoice.notes} onChange={e=>upd(setInvoice)("notes",e.target.value)} rows={2}
+                style={{ width:"100%", border:`1.5px solid ${BORDER}`, borderRadius:8, padding:"8px 12px", fontSize:13, color:INK, resize:"vertical", boxSizing:"border-box", outline:"none" }}
+                onFocus={e=>e.target.style.borderColor=BRAND} onBlur={e=>e.target.style.borderColor=BORDER} />
+            </Section>
           </div>
           <div className="inv-prev" style={{ position:"sticky", top:88 }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
-              <p style={{ fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#64748B", margin:0 }}>Live Preview</p>
-              <button onClick={handlePDF} disabled={downloading} style={{ background:"linear-gradient(135deg,#6366F1,#4F46E5)", border:"none", borderRadius:8, padding:"6px 16px", color:"#fff", fontSize:13, fontWeight:600, cursor:downloading?"wait":"pointer", opacity:downloading?0.7:1 }}>
-                {downloading?"Saving…":"Save PDF"}
-              </button>
+              <p style={{ fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:INK_MUTED, margin:0 }}>Live Preview</p>
+              <SaveMenu onSave={doDownload} downloading={downloading} small />
             </div>
+
+            {notice && (
+              <div style={{ background:"#FFFBEB", border:"1px solid #FDE68A", borderRadius:8, padding:"8px 12px", marginBottom:10, fontSize:12, color:"#92400E", display:"flex", justifyContent:"space-between", gap:8 }}>
+                <span>⚠ {notice}</span>
+                <button onClick={()=>setNotice("")} style={{ background:"none", border:"none", color:"#92400E", cursor:"pointer", fontSize:14, lineHeight:1 }} aria-label="Dismiss">×</button>
+              </div>
+            )}
+
             <div className="preview-scale-wrap" style={{ transform:"scale(0.68)", transformOrigin:"top left", width:"147%", marginBottom:"-32%" }}>
-              <div ref={previewRef}><InvoicePreview data={data} from={from} to={to} items={items} /></div>
+              <InvoicePreview data={{ ...invoice, from, to, items }} />
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+      <div style={{ background: "#fff", borderTop: `1px solid ${BORDER}` }}>
         <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
           <DocumentPageSEO documentName="Invoice Generator" documentSlug="invoice" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
         </div>
       </div>
     </div>
-    </>
   );
 }

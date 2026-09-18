@@ -1,8 +1,23 @@
-import { Helmet } from 'react-helmet-async';
-import { useState, useRef } from "react";
-import { supabase } from "../../supabase";
+import { useState } from "react";
 import { useSEO } from "../../seo/useSEO";
 import DocumentPageSEO from "../../seo/DocumentPageSEO";
+import SaveMenu from "../../components/common/SaveMenu";
+import { exportSingleDocument } from "../../utils/documentExport";
+import { logSaveRequest } from "../../utils/saveLog";
+
+const TAINTED_HINT = "the logo image doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again.";
+
+// Neutral document palette — a printed payslip should read like a normal HR
+// document, not a brand-colour showcase. Brand blue is reserved for
+// interactive form chrome (focus rings, buttons) below, never for the payslip
+// preview itself.
+const INK = "#0F172A";
+const INK_SOFT = "#475569";
+const INK_MUTED = "#64748B";
+const BORDER = "#E2E8F0";
+const SURFACE = "#F8FAFC";
+const SURFACE_ALT = "#F1F5F9";
+const BRAND = "#2563EB";
 
 // ─── SEO ─────────────────────────────────────────────────────────────────────
 const SEO_TITLE = "Free Salary Slip Generator Online — Payslip with CTC (2026)";
@@ -64,12 +79,12 @@ const RELATED_DOCS = [
 function Field({ label, value, onChange, placeholder, type = "text", small, readOnly }) {
   return (
     <div style={{ marginBottom: small ? 8 : 12 }}>
-      {label && <label style={{ fontSize: 11, fontWeight: 600, color: "#64748B", display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</label>}
+      {label && <label style={{ fontSize: 11, fontWeight: 600, color: INK_MUTED, display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</label>}
       <input type={type} value={value} placeholder={placeholder} readOnly={readOnly}
         onChange={e => onChange && onChange(e.target.value)}
-        style={{ width: "100%", height: small ? 32 : 38, border: "1.5px solid #E2E8F0", borderRadius: 8, padding: "0 10px", fontSize: 13, color: "#0F172A", outline: "none", boxSizing: "border-box", background: readOnly ? "#F8FAFC" : "#fff" }}
-        onFocus={e => { if (!readOnly) e.target.style.borderColor = "#DB2777"; }}
-        onBlur={e => { if (!readOnly) e.target.style.borderColor = "#E2E8F0"; }}
+        style={{ width: "100%", height: small ? 32 : 38, border: `1.5px solid ${BORDER}`, borderRadius: 8, padding: "0 10px", fontSize: 13, color: INK, outline: "none", boxSizing: "border-box", background: readOnly ? SURFACE : "#fff" }}
+        onFocus={e => { if (!readOnly) e.target.style.borderColor = BRAND; }}
+        onBlur={e => { if (!readOnly) e.target.style.borderColor = BORDER; }}
       />
     </div>
   );
@@ -93,7 +108,8 @@ function numberToWords(n) {
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 // ─── Salary Slip Preview ──────────────────────────────────────────────────────
-function SlipPreview({ company, employee, salary, month, year }) {
+function SlipPreview({ data }) {
+  const { company, employee, salary, month, year } = data;
   const earnings = [
     { label: "Basic Salary", value: Number(salary.basic) || 0 },
     { label: "House Rent Allowance (HRA)", value: Number(salary.hra) || 0 },
@@ -120,23 +136,23 @@ function SlipPreview({ company, employee, salary, month, year }) {
   return (
     <div style={{ background: "#fff", fontFamily: "Arial, sans-serif", fontSize: 12, color: "#1a1a1a", padding: "28px 36px" }}>
       {/* Header */}
-      <div style={{ background: "linear-gradient(135deg,#BE185D,#9D174D)", borderRadius: 10, padding: "20px 24px", marginBottom: 20, color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, paddingBottom: 16, borderBottom: `2px solid ${INK}` }}>
         <div>
-          {company.logoUrl && <img src={company.logoUrl} alt="logo" style={{ maxHeight: 40, maxWidth: 120, objectFit: "contain", marginBottom: 8, display: "block", filter: "brightness(0) invert(1)" }} />}
-          <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.01em" }}>{company.name || "Company Name"}</div>
-          <div style={{ fontSize: 11, opacity: 0.8, marginTop: 3, lineHeight: 1.6 }}>
+          {company.logoUrl && <img src={company.logoUrl} alt="logo" style={{ maxHeight: 40, maxWidth: 120, objectFit: "contain", marginBottom: 8, display: "block" }} />}
+          <div style={{ fontSize: 18, fontWeight: 900, color: INK, letterSpacing: "-0.01em" }}>{company.name || "Company Name"}</div>
+          <div style={{ fontSize: 11, color: INK_SOFT, marginTop: 3, lineHeight: 1.6 }}>
             {company.address && <div>{company.address}</div>}
             {company.gstin && <div>GSTIN: {company.gstin}</div>}
           </div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.8, letterSpacing: "0.1em", textTransform: "uppercase" }}>Pay Slip</div>
-          <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.02em" }}>{MONTHS[month]} {year}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: INK_MUTED, letterSpacing: "0.1em", textTransform: "uppercase" }}>Pay Slip</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: INK, letterSpacing: "-0.02em", marginTop: 2 }}>{MONTHS[month]} {year}</div>
         </div>
       </div>
 
       {/* Employee details */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, marginBottom: 16, border: "1px solid #E2E8F0", borderRadius: 8, overflow: "hidden" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, marginBottom: 16, border: `1px solid ${BORDER}`, borderRadius: 8, overflow: "hidden" }}>
         {[
           ["Employee Name", employee.name || "—"],
           ["Employee ID", employee.empId || "—"],
@@ -149,9 +165,9 @@ function SlipPreview({ company, employee, salary, month, year }) {
           ["Working Days", employee.workingDays || "—"],
           ["Days Paid", employee.daysPaid || "—"],
         ].map(([k, v], i) => (
-          <div key={k} style={{ display: "flex", padding: "8px 14px", background: i % 4 < 2 ? "#fff" : "#F8FAFC", borderBottom: "1px solid #F1F5F9" }}>
-            <span style={{ color: "#64748B", minWidth: 130, fontSize: 11 }}>{k}</span>
-            <span style={{ fontWeight: 600, fontSize: 11 }}>{v}</span>
+          <div key={k} style={{ display: "flex", padding: "8px 14px", background: i % 4 < 2 ? "#fff" : SURFACE, borderBottom: `1px solid ${SURFACE_ALT}` }}>
+            <span style={{ color: INK_MUTED, minWidth: 130, fontSize: 11 }}>{k}</span>
+            <span style={{ fontWeight: 600, fontSize: 11, color: INK }}>{v}</span>
           </div>
         ))}
       </div>
@@ -160,8 +176,8 @@ function SlipPreview({ company, employee, salary, month, year }) {
       <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 16 }}>
         <thead>
           <tr>
-            <th colSpan={2} style={{ background: "#BE185D", color: "#fff", padding: "8px 14px", fontSize: 11, fontWeight: 700, textAlign: "left", letterSpacing: "0.08em" }}>EARNINGS</th>
-            <th colSpan={2} style={{ background: "#9D174D", color: "#fff", padding: "8px 14px", fontSize: 11, fontWeight: 700, textAlign: "left", letterSpacing: "0.08em", borderLeft: "2px solid rgba(255,255,255,0.2)" }}>DEDUCTIONS</th>
+            <th colSpan={2} style={{ background: INK, color: "#fff", padding: "8px 14px", fontSize: 11, fontWeight: 700, textAlign: "left", letterSpacing: "0.08em" }}>EARNINGS</th>
+            <th colSpan={2} style={{ background: INK, color: "#fff", padding: "8px 14px", fontSize: 11, fontWeight: 700, textAlign: "left", letterSpacing: "0.08em", borderLeft: "2px solid rgba(255,255,255,0.25)" }}>DEDUCTIONS</th>
           </tr>
         </thead>
         <tbody>
@@ -169,37 +185,37 @@ function SlipPreview({ company, employee, salary, month, year }) {
             const e = earnings[i] || null;
             const d = deductions[i] || null;
             return (
-              <tr key={i} style={{ background: i % 2 === 0 ? "#fff" : "#FDF2F8", borderBottom: "1px solid #FCE7F3" }}>
-                <td style={{ padding: "8px 14px", fontSize: 11, width: "30%" }}>{e ? e.label : ""}</td>
-                <td style={{ padding: "8px 14px", fontSize: 11, textAlign: "right", width: "20%", fontWeight: e ? 600 : 400 }}>{e ? `₹${e.value.toLocaleString("en-IN")}` : ""}</td>
-                <td style={{ padding: "8px 14px", fontSize: 11, width: "30%", borderLeft: "2px solid #FCE7F3" }}>{d ? d.label : ""}</td>
-                <td style={{ padding: "8px 14px", fontSize: 11, textAlign: "right", width: "20%", fontWeight: d ? 600 : 400, color: d ? "#DC2626" : "inherit" }}>{d ? `₹${d.value.toLocaleString("en-IN")}` : ""}</td>
+              <tr key={i} style={{ background: i % 2 === 0 ? "#fff" : SURFACE, borderBottom: `1px solid ${BORDER}` }}>
+                <td style={{ padding: "8px 14px", fontSize: 11, width: "30%", color: INK_SOFT }}>{e ? e.label : ""}</td>
+                <td style={{ padding: "8px 14px", fontSize: 11, textAlign: "right", width: "20%", fontWeight: e ? 600 : 400, color: INK }}>{e ? `₹${e.value.toLocaleString("en-IN")}` : ""}</td>
+                <td style={{ padding: "8px 14px", fontSize: 11, width: "30%", borderLeft: `2px solid ${BORDER}`, color: INK_SOFT }}>{d ? d.label : ""}</td>
+                <td style={{ padding: "8px 14px", fontSize: 11, textAlign: "right", width: "20%", fontWeight: d ? 600 : 400, color: INK }}>{d ? `₹${d.value.toLocaleString("en-IN")}` : ""}</td>
               </tr>
             );
           })}
-          <tr style={{ background: "#FCE7F3", fontWeight: 700 }}>
+          <tr style={{ background: SURFACE_ALT, fontWeight: 700, color: INK }}>
             <td style={{ padding: "9px 14px", fontSize: 12 }}>Gross Earnings</td>
             <td style={{ padding: "9px 14px", fontSize: 12, textAlign: "right" }}>₹{grossEarnings.toLocaleString("en-IN")}</td>
-            <td style={{ padding: "9px 14px", fontSize: 12, borderLeft: "2px solid #FBCFE8" }}>Total Deductions</td>
-            <td style={{ padding: "9px 14px", fontSize: 12, textAlign: "right", color: "#DC2626" }}>₹{totalDeductions.toLocaleString("en-IN")}</td>
+            <td style={{ padding: "9px 14px", fontSize: 12, borderLeft: `2px solid ${BORDER}` }}>Total Deductions</td>
+            <td style={{ padding: "9px 14px", fontSize: 12, textAlign: "right" }}>₹{totalDeductions.toLocaleString("en-IN")}</td>
           </tr>
         </tbody>
       </table>
 
       {/* Net Pay */}
-      <div style={{ background: "linear-gradient(135deg,#BE185D,#9D174D)", borderRadius: 10, padding: "16px 20px", color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+      <div style={{ background: INK, borderRadius: 10, padding: "16px 20px", color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <div>
-          <div style={{ fontSize: 11, opacity: 0.8, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>Net Pay</div>
+          <div style={{ fontSize: 11, opacity: 0.75, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 3 }}>Net Pay</div>
           <div style={{ fontSize: 11, opacity: 0.7 }}>{numberToWords(netPay)}</div>
         </div>
         <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: "-0.02em" }}>₹{netPay.toLocaleString("en-IN")}</div>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 24, paddingTop: 16, borderTop: "1px solid #E2E8F0" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 24, paddingTop: 16, borderTop: `1px solid ${BORDER}` }}>
         <div style={{ fontSize: 10, color: "#94A3B8" }}>This is a computer generated pay slip and does not require signature.</div>
         <div style={{ textAlign: "right" }}>
           <div style={{ width: 120, height: 36, borderBottom: "1px solid #CBD5E1", marginBottom: 4 }} />
-          <div style={{ fontSize: 10, color: "#64748B" }}>Employer Signature</div>
+          <div style={{ fontSize: 10, color: INK_MUTED }}>Employer Signature</div>
         </div>
       </div>
     </div>
@@ -207,21 +223,36 @@ function SlipPreview({ company, employee, salary, month, year }) {
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
-const Section = ({ title, children }) => (
-  <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #E2E8F0", padding: "20px 24px", marginBottom: 16 }}>
-    <h2 style={{ fontSize: 13, fontWeight: 700, color: "#DB2777", margin: "0 0 16px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</h2>
-    {children}
-  </div>
-);
+function Section({ title, children }) {
+  return (
+    <div style={{ background: "#fff", borderRadius: 16, border: `1px solid ${BORDER}`, padding: "20px 24px", marginBottom: 16 }}>
+      <h2 style={{ fontSize: 13, fontWeight: 700, color: INK, margin: "0 0 16px", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</h2>
+      {children}
+    </div>
+  );
+}
 
 export default function SalarySlipPage() {
-  const [company, setCompany] = useState({ name: "", address: "", gstin: "", logoUrl: "" });
-  const [employee, setEmployee] = useState({ name: "", empId: "", designation: "", department: "", doj: "", pan: "", bankAccount: "", pfAccount: "", workingDays: "26", daysPaid: "26" });
-  const [salary, setSalary] = useState({ basic: "", hra: "", conveyance: "", medical: "", special: "", otherEarning: "", pf: "", profTax: "", tds: "", esi: "", otherDeduction: "" });
-  const [month, setMonth] = useState(new Date().getMonth());
-  const [year, setYear] = useState(new Date().getFullYear());
+  const [company, setCompany] = useState({
+    name: "Nimbus Technologies Pvt Ltd",
+    address: "5th Floor, Prestige Tech Park, Whitefield, Bengaluru, Karnataka 560066",
+    gstin: "29ABCDE1234F1Z5",
+    logoUrl: "",
+  });
+  const [employee, setEmployee] = useState({
+    name: "Rajesh Sharma", empId: "EMP-1042", designation: "Senior Software Engineer",
+    department: "Engineering", doj: "2021-06-14", pan: "ABCDE1234F",
+    bankAccount: "XXXXXXXX4821", pfAccount: "KA/BNG/12345/67890",
+    workingDays: "26", daysPaid: "26",
+  });
+  const [salary, setSalary] = useState({
+    basic: "45000", hra: "18000", conveyance: "1600", medical: "1250", special: "8000", otherEarning: "",
+    pf: "5400", profTax: "200", tds: "3200", esi: "", otherDeduction: "",
+  });
+  const [month, setMonth] = useState(() => new Date().getMonth());
+  const [year, setYear] = useState(() => new Date().getFullYear());
   const [downloading, setDownloading] = useState(false);
-  const previewRef = useRef(null);
+  const [notice, setNotice] = useState("");
 
   const upd = setter => (k, v) => setter(p => ({ ...p, [k]: v }));
 
@@ -231,28 +262,24 @@ export default function SalarySlipPage() {
     setSalary(p => ({ ...p, basic: v, pf: Math.round(basic * 0.12).toString() }));
   };
 
-  const handlePDF = async () => {
-    if (!previewRef.current || downloading) return;
+  const doDownload = async (format = "pdf") => {
+    if (downloading) return;
     setDownloading(true);
-    try {
-      try { await supabase.from("print_requests").insert({ template: "salary-slip", print_id: `SAL-${Date.now()}`, user_id: null, bill_data: { company, employee, salary, month, year } }); } catch (err) { console.warn("Save logging for the salary slip failed (non-blocking); the document itself was unaffected.", err); }
-      const { default: jsPDF } = await import("jspdf");
-      const { default: html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(previewRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false });
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
-      const pxmm = 25.4/(96*2);
-      const scale = Math.min(pw/(canvas.width*pxmm), ph/(canvas.height*pxmm));
-      const fw = canvas.width*pxmm*scale, fh = canvas.height*pxmm*scale;
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", (pw-fw)/2, 0, fw, fh);
-      pdf.save(`salary-slip-${employee.name || "employee"}-${MONTHS[month]}-${year}.pdf`);
-    } catch (e) {
-      const isTainted = /tainted|cross-origin|SecurityError/i.test(e?.message || e?.name || "");
-      alert(isTainted
-        ? "PDF failed: the logo image doesn't allow cross-origin access, which blocks export. Try a different image host, or remove the logo URL and try again."
-        : "PDF failed: " + (e?.message || "Unknown error"));
-    }
-    finally { setDownloading(false); }
+    setNotice("");
+
+    const data = { company, employee, salary, month, year };
+    const printId = `SAL-${Date.now()}`;
+    const logged = await logSaveRequest({ template: "salary-slip", printId, billData: data });
+    if (!logged.ok) setNotice("Your payslip downloaded fine, but we couldn't record it on our side.");
+
+    await exportSingleDocument({
+      Template: SlipPreview,
+      data,
+      format,
+      fileBase: `salary-slip-${employee.empId || Date.now()}`,
+      taintedHint: TAINTED_HINT,
+    });
+    setDownloading(false);
   };
 
   useSEO({
@@ -266,34 +293,18 @@ export default function SalarySlipPage() {
   });
 
   return (
-    <>
-      <Helmet>
-        <title>Free Salary Slip Generator India — Payslip with CTC and Deductions | OpsTools</title>
-        <meta name="description" content="Generate professional salary slips with basic pay, HRA, PF, TDS and net pay. Free, no login, instant PDF." />
-        <meta property="og:title" content="Free Salary Slip Generator India — Payslip with CTC and Deductions | OpsTools" />
-        <meta property="og:description" content="Generate professional salary slips with basic pay, HRA, PF, TDS and net pay. Free, no login, instant PDF." />
-        <meta property="og:url" content="https://www.opstools.ai/documents/salary-slip" />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Free Salary Slip Generator India — Payslip with CTC and Deductions | OpsTools" />
-        <meta name="twitter:description" content="Generate professional salary slips with basic pay, HRA, PF, TDS and net pay. Free, no login, instant PDF." />
-        <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
-      </Helmet>
-    <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: SURFACE, minHeight: "100vh" }}>
       <style>{`@media(max-width:1023px){.sal-prev{position:static!important;} .preview-scale-wrap{transform:none!important;width:100%!important;margin-bottom:0!important;overflow-x:auto!important;} .sal-grid{grid-template-columns:1fr !important;}}@media(max-width:768px){.seo-section{max-width:100%!important;width:100%!important;padding:0 16px!important;}}@media print{.no-print{display:none !important;}}`}</style>
 
-      <section style={{ background: "linear-gradient(160deg,#07011F 0%,#4a0025 100%)", padding: "40px 24px 36px" }} className="no-print">
+      <section style={{ background: "linear-gradient(160deg,#07011F 0%,#0c2340 100%)", padding: "40px 24px 36px" }} className="no-print">
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <nav style={{ marginBottom: 16, fontSize: 13, color: "#F9A8D4" }}>
-            <a href="/" style={{ color: "#F9A8D4", textDecoration: "none" }}>Home</a>
+          <nav style={{ marginBottom: 16, fontSize: 13, color: "#7DD3FC" }}>
+            <a href="/" style={{ color: "#7DD3FC", textDecoration: "none" }}>Home</a>
             <span style={{ margin: "0 8px" }}>›</span>
-            <span style={{ color: "#FBCFE8" }}>Salary Slip</span>
+            <span style={{ color: "#BAE6FD" }}>Salary Slip</span>
           </nav>
           <h1 style={{ fontSize: "clamp(20px,3vw,30px)", fontWeight: 800, color: "#fff", margin: "0 0 8px", letterSpacing: "-0.02em" }}>Salary Slip Generator</h1>
-          <p style={{ fontSize: 14, color: "#F9A8D4", margin: 0 }}>Generate professional payslips with CTC breakdown, deductions, and net pay in seconds.</p>
+          <p style={{ fontSize: 14, color: "#7DD3FC", margin: 0 }}>Generate professional payslips with CTC breakdown, deductions, and net pay in seconds.</p>
         </div>
       </section>
 
@@ -304,8 +315,8 @@ export default function SalarySlipPage() {
             <Section title="Pay Period">
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: "#64748B", display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>Month</label>
-                  <select value={month} onChange={e => setMonth(Number(e.target.value))} style={{ width: "100%", height: 38, border: "1.5px solid #E2E8F0", borderRadius: 8, padding: "0 10px", fontSize: 13, color: "#0F172A", outline: "none", background: "#fff" }}>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: INK_MUTED, display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>Month</label>
+                  <select value={month} onChange={e => setMonth(Number(e.target.value))} style={{ width: "100%", height: 38, border: `1.5px solid ${BORDER}`, borderRadius: 8, padding: "0 10px", fontSize: 13, color: INK, outline: "none", background: "#fff" }}>
                     {MONTHS.map((m, i) => <option key={m} value={i}>{m}</option>)}
                   </select>
                 </div>
@@ -364,24 +375,29 @@ export default function SalarySlipPage() {
 
           <div className="sal-prev" style={{ position: "sticky", top: 88 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#64748B", margin: 0 }}>Live Preview</p>
-              <button onClick={handlePDF} disabled={downloading} style={{ background: "linear-gradient(135deg,#BE185D,#9D174D)", border: "none", borderRadius: 8, padding: "6px 16px", color: "#fff", fontSize: 13, fontWeight: 600, cursor: downloading ? "wait" : "pointer", opacity: downloading ? 0.7 : 1 }}>
-                {downloading ? "Saving…" : "Save PDF"}
-              </button>
+              <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: INK_MUTED, margin: 0 }}>Live Preview</p>
+              <SaveMenu onSave={doDownload} downloading={downloading} small />
             </div>
+
+            {notice && (
+              <div style={{ background: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: 8, padding: "8px 12px", marginBottom: 10, fontSize: 12, color: "#92400E", display: "flex", justifyContent: "space-between", gap: 8 }}>
+                <span>⚠ {notice}</span>
+                <button onClick={() => setNotice("")} style={{ background: "none", border: "none", color: "#92400E", cursor: "pointer", fontSize: 14, lineHeight: 1 }} aria-label="Dismiss">×</button>
+              </div>
+            )}
+
             <div className="preview-scale-wrap" style={{ transform: "scale(0.68)", transformOrigin: "top left", width: "147%", marginBottom: "-32%" }}>
-              <div ref={previewRef}><SlipPreview company={company} employee={employee} salary={salary} month={month} year={year} /></div>
+              <SlipPreview data={{ company, employee, salary, month, year }} />
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+      <div style={{ background: "#fff", borderTop: `1px solid ${BORDER}` }}>
         <div className="seo-section" style={{ maxWidth: "80%", margin: "0 auto", width: "80%" }}>
           <DocumentPageSEO documentName="Salary Slip" documentSlug="salary-slip" intro={INTRO} whatIs={WHAT_IS} whyUse={WHY_USE} features={FEATURES} howToSteps={HOW_TO_STEPS} benefits={BENEFITS} formatFields={FORMAT_FIELDS} faqs={FAQS} relatedDocs={RELATED_DOCS} />
         </div>
       </div>
     </div>
-    </>
   );
 }

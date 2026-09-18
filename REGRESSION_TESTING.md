@@ -3,7 +3,7 @@
 ## Setup (one-time)
 
 ```bash
-cd /Users/puneetsharma/Fuel_Bill_Generator
+cd <repo-root>
 
 # Install test dependencies
 npm install -D vitest @vitest/ui jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event @playwright/test

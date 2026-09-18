@@ -1,10 +1,8 @@
 # OpsTools — Project Context & Build Summary
 
 **Last Updated:** 15 September 2026
-**Developer:** Puneet Sharma (GitHub: PuneetSharma22)
 **Live URL:** https://www.opstools.ai
 **GitHub:** https://github.com/PuneetSharma22/operationstools
-**Local Path:** /Users/puneetsharma/Fuel_Bill_Generator
 **Vercel Project:** project-8j23l
 
 ---
@@ -41,7 +39,7 @@ A free React web application — a toolkit for Indian small business operators t
 ## Project File Structure
 
 ```
-/Users/puneetsharma/Fuel_Bill_Generator/
+<repo-root>/
 ├── src/
 │   ├── App.jsx                              # BrowserRouter + AuthProvider + lazy routes
 │   ├── App.css                              # Print styles only (@media print)
@@ -74,7 +72,7 @@ A free React web application — a toolkit for Indian small business operators t
 │       ├── LoginPage.jsx
 │       ├── SignupPage.jsx
 │       ├── AccountPage.jsx
-│       ├── AdminPage.jsx                    # Admin analytics dashboard (recharts) — gated to ADMIN_EMAIL
+│       ├── AdminPage.jsx                    # Admin analytics dashboard (recharts) — gated to profiles.is_admin (server-side flag)
 │       ├── EmailVerifiedPage.jsx            # Post-signup email confirmation landing page
 │       ├── BlogsPage.jsx                    # ALL_BLOGS array — magazine listing
 │       ├── blogs/                           # 5 blog posts
@@ -161,7 +159,7 @@ A free React web application — a toolkit for Indian small business operators t
 /login                               → LoginPage
 /signup                              → SignupPage
 /account                             → AccountPage
-/admin                               → AdminPage (gated to ADMIN_EMAIL)
+/admin                               → AdminPage (gated to profiles.is_admin (server-side flag))
 /verified                            → EmailVerifiedPage
 ```
 
@@ -313,7 +311,7 @@ Every Save PDF click also logs to `save_requests` table via the shared `supabase
 ## Deployment
 
 ```bash
-cd /Users/puneetsharma/Fuel_Bill_Generator
+cd <repo-root>
 git add .
 git commit -m "your message"
 git push

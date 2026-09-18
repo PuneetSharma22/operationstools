@@ -7,7 +7,6 @@ import {
   Tooltip, ResponsiveContainer, Legend, Cell
 } from "recharts";
 
-const ADMIN_EMAIL = "punitshrma769@gmail.com";
 const RANGES = ["7d", "30d", "90d", "all"];
 const RANGE_LABELS = { "7d": "Last 7 days", "30d": "Last 30 days", "90d": "Last 90 days", "all": "All time" };
 
@@ -89,8 +88,13 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!user) { navigate("/login"); return; }
-    if (user.email !== ADMIN_EMAIL) { navigate("/"); return; }
-    loadAll();
+    // Admin access is a server-side flag (profiles.is_admin), checked fresh
+    // on every load — never a hardcoded email in the client bundle.
+    supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle()
+      .then(({ data, error }) => {
+        if (error || !data?.is_admin) { navigate("/"); return; }
+        loadAll();
+      });
   }, [user]);
 
   async function loadAll() {

@@ -2,7 +2,7 @@
 
 > Generate fuel bills, rent receipts, GST invoices, salary slips and more — free, no login, instant PDF.
 
-**Live:** [opstools.ai](https://www.opstools.ai) · **Built by:** Puneet Sharma · **Stack:** React 19 + Vite 8 + Supabase + Vercel
+**Live:** [opstools.ai](https://www.opstools.ai) · **Stack:** React 19 + Vite 8 + Supabase + Vercel
 
 ---
 
@@ -227,5 +227,4 @@ Primary button: `linear-gradient(135deg, #2563EB 0%, #4F46E5 100%)`
 ## Contact
 
 - **Email:** hello@opstools.ai
-- **GitHub:** [PuneetSharma22](https://github.com/PuneetSharma22)
 - **Live:** [opstools.ai](https://www.opstools.ai)

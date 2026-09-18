@@ -1,8 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const WEBHOOK_SECRET = Deno.env.get("WEBHOOK_SECRET");
 
 serve(async (req) => {
+  // This function has verify_jwt=false (a Supabase DB webhook call carries
+  // no user JWT), so without this check anyone who found the function's URL
+  // could POST an arbitrary {record:{email:...}} and get a real, branded
+  // email sent to any recipient of their choosing. The webhook is
+  // configured with a custom "x-webhook-secret" header matching this value.
+  if (!WEBHOOK_SECRET || req.headers.get("x-webhook-secret") !== WEBHOOK_SECRET) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
   try {
     const payload = await req.json();
     const record = payload.record;

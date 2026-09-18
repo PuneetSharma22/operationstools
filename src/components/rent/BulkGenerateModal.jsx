@@ -85,7 +85,6 @@ export default function BulkGenerateModal({ user, formData, activeTemplate, temp
 
       await settleBulkCredits({
         userId: user.id,
-        creditsBefore: credits,
         generated,
         template: `bulk-${activeTemplate}`,
         description: `Bulk rent receipt generation — ${generated.length} receipts`,

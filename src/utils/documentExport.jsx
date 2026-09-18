@@ -139,22 +139,18 @@ export async function renderBulkPdf({ rows, Template, realisticLook, onProgress 
  * save_requests row per generated document.
  *
  * Runs only after the PDF has been produced: a failure here must not cost the
- * user documents they never received.
+ * user documents they never received. The debit itself goes through the
+ * spend_credits() RPC (a SECURITY DEFINER function) rather than a direct
+ * table UPDATE — the balance is recomputed and bounds-checked server-side,
+ * so a client can no longer set its own balance to an arbitrary value.
+ * spend_credits() throws if the balance is insufficient, which callers
+ * already surface via their existing catch block.
  */
-export async function settleBulkCredits({ userId, creditsBefore, generated, template, description }) {
+export async function settleBulkCredits({ userId, generated, template, description }) {
   const count = generated.length;
 
-  await supabase.from("user_credits").update({
-    balance: creditsBefore - count,
-    updated_at: new Date().toISOString(),
-  }).eq("user_id", userId);
-
-  await supabase.from("credit_transactions").insert({
-    user_id: userId,
-    type: "bulk_generation",
-    amount: -count,
-    description,
-  });
+  const { error } = await supabase.rpc("spend_credits", { p_count: count, p_template: description });
+  if (error) throw error;
 
   // Includes the full document content (bill_data), not just which
   // template/print_id was used, so every generated document is recorded.

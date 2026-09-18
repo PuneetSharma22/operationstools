@@ -87,7 +87,6 @@ export default function BulkGenerateModal({ user, stationData, activeTemplate, t
 
       await settleBulkCredits({
         userId: user.id,
-        creditsBefore: credits,
         generated,
         template: `bulk-${activeTemplate}`,
         description: `Bulk fuel bill generation — ${generated.length} bills`,

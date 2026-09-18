@@ -149,57 +149,27 @@ export default function AdminPage() {
   const periodSaves = filteredSaves.length;
   const periodSignups = filteredProfiles.length;
 
-  // Applies the actual credit grant first, and only marks the request
-  // "approved" once that succeeds — previously the request was marked
-  // approved BEFORE the credit write, so a silently RLS-blocked write to
-  // user_credits (the admin's session can't read/write another user's row
-  // under the "own row" policy) left the request showing "approved" with
-  // no credits actually granted, and no visible error either. Both parts
-  // of that bug are fixed here: correct ordering, and every step's error
-  // is now checked and surfaced instead of only relying on a thrown
-  // exception (RLS-blocked writes return an error object, they don't throw).
+  // Grants the credits and marks the request approved in a single
+  // server-side transaction via admin_grant_credits() — a SECURITY DEFINER
+  // RPC that checks profiles.is_admin itself, so it can no longer partially
+  // fail the way separate direct table writes previously could (credits
+  // granted but request left "pending", or vice versa).
   async function handleApprove(req) {
     setProcessing(req.id);
     try {
-      const { data: existing, error: selErr } = await supabase
-        .from("user_credits").select("balance").eq("user_id", req.user_id).maybeSingle();
-      if (selErr) throw selErr;
-
-      if (existing) {
-        const { error: updErr } = await supabase
-          .from("user_credits")
-          .update({ balance: existing.balance + req.amount, updated_at: new Date().toISOString() })
-          .eq("user_id", req.user_id);
-        if (updErr) throw updErr;
-      } else {
-        const { error: insErr } = await supabase
-          .from("user_credits").insert({ user_id: req.user_id, balance: req.amount });
-        if (insErr) throw insErr;
-      }
-
-      const { error: txnErr } = await supabase.from("credit_transactions").insert({
-        user_id: req.user_id,
-        type: "credit_request_approved",
-        amount: req.amount,
-        description: `Credit request approved — ${req.amount} credits added`,
+      const { error } = await supabase.rpc("admin_grant_credits", {
+        p_user_id: req.user_id,
+        p_amount: req.amount,
+        p_description: `Credit request approved — ${req.amount} credits added`,
+        p_type: "credit_request_approved",
+        p_request_id: req.id,
       });
-      if (txnErr) throw txnErr;
-
-      const { error: reqErr } = await supabase
-        .from("credit_requests")
-        .update({ status: "approved", resolved_at: new Date().toISOString(), resolved_by: user.id })
-        .eq("id", req.id);
-      if (reqErr) throw reqErr;
+      if (error) throw error;
 
       await loadAll();
     } catch (e) {
       console.error(e);
-      alert(
-        "Approval failed: " + (e?.message || e?.details || "Unknown error") +
-        "\n\nThe request was left as-is (not marked approved), so it's safe to retry. " +
-        "This is very likely a database permissions (RLS) issue on user_credits/credit_transactions — " +
-        "the admin's session needs an explicit policy to write to another user's row."
-      );
+      alert("Approval failed: " + (e?.message || e?.details || "Unknown error"));
     }
     setProcessing(null);
   }
@@ -229,29 +199,13 @@ export default function AdminPage() {
       if (profErr) throw profErr;
       if (!profile) { setManualMsg({ type: "error", text: "User not found." }); return; }
 
-      const { data: existing, error: selErr } = await supabase
-        .from("user_credits").select("balance").eq("user_id", profile.id).maybeSingle();
-      if (selErr) throw selErr;
-
-      if (existing) {
-        const { error: updErr } = await supabase
-          .from("user_credits")
-          .update({ balance: existing.balance + Number(manualUser.amount), updated_at: new Date().toISOString() })
-          .eq("user_id", profile.id);
-        if (updErr) throw updErr;
-      } else {
-        const { error: insErr } = await supabase
-          .from("user_credits").insert({ user_id: profile.id, balance: Number(manualUser.amount) });
-        if (insErr) throw insErr;
-      }
-
-      const { error: txnErr } = await supabase.from("credit_transactions").insert({
-        user_id: profile.id,
-        type: "manual_grant",
-        amount: Number(manualUser.amount),
-        description: manualUser.note || `Manual grant — ${manualUser.amount} credits`,
+      const { error } = await supabase.rpc("admin_grant_credits", {
+        p_user_id: profile.id,
+        p_amount: Number(manualUser.amount),
+        p_description: manualUser.note || `Manual grant — ${manualUser.amount} credits`,
+        p_type: "manual_grant",
       });
-      if (txnErr) throw txnErr;
+      if (error) throw error;
 
       setManualMsg({ type: "success", text: `✅ ${manualUser.amount} credits added to ${manualUser.email}` });
       setManualUser({ email: "", amount: "", note: "" });

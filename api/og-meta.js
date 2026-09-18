@@ -34,7 +34,17 @@ const PAGE_META = {
 };
 
 export default function handler(req, res) {
-  const path = req.query.path || "/";
+  // `path` must be an exact match against the known PAGE_META keys — never
+  // reflected into the response otherwise. It used to be interpolated
+  // straight into HTML/meta attributes and a redirect URL with no
+  // validation, which allowed both reflected XSS (breaking out of the
+  // content="..." attribute with a raw ") and an open-redirect/phishing
+  // vector (a path starting with "@" turns opstools.ai into a URL userinfo
+  // segment, sending the browser to an attacker-controlled host instead).
+  const rawPath = req.query.path;
+  const path = typeof rawPath === "string" && Object.prototype.hasOwnProperty.call(PAGE_META, rawPath)
+    ? rawPath
+    : "/";
   const meta = PAGE_META[path] || {
     title: "OpsTools — Free Business Document Generator for India",
     description: "Free online document generators for Indian small businesses. No login, no cost, instant PDF.",

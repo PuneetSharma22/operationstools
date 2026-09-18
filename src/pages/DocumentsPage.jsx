@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { supabase } from "../supabase";
+import { useSEO } from "../seo/useSEO";
 
 const DOC_ICON_MAP = {
   "fuel-bill": { bg: "#DBEAFE", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="5" y="3" width="14" height="19" rx="2" fill="#BFDBFE"/><rect x="8" y="7" width="8" height="1.5" rx="0.75" fill="#3B82F6"/><rect x="8" y="10.5" width="6" height="1.5" rx="0.75" fill="#3B82F6"/><rect x="8" y="14" width="8" height="1.5" rx="0.75" fill="#3B82F6"/><circle cx="20" cy="19" r="5" fill="#FDE68A"/><path d="M19 17.5l1.5 1.5-1.5 1.5" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M18 17.5v3" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round"/></svg> },
@@ -37,6 +38,16 @@ export default function DocumentsPage() {
   const liveDocs = allDocs.filter(d => d.status === "live");
   const retailDocs = allDocs.filter(d => d.category === "retail");
   const businessDocs = allDocs.filter(d => d.category === "business");
+
+  useSEO({
+    title: "All Free Business Document Generators — OpsTools",
+    description: `Browse ${liveDocs.length || "all"} free document generators for Indian businesses — fuel bills, rent receipts, GST invoices, salary slips, expense reports and more. No login, instant PDF.`,
+    canonical: "https://www.opstools.ai/documents",
+    breadcrumbs: [
+      { name: "Home", url: "https://www.opstools.ai" },
+      { name: "Documents", url: "https://www.opstools.ai/documents" },
+    ],
+  });
 
   return (
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>

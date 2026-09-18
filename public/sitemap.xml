@@ -19,6 +19,8 @@
   <url><loc>https://www.opstools.ai/documents/e-invoice</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.opstools.ai/documents/vehicle-expense</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.opstools.ai/documents/travel-expense</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.opstools.ai/documents/book-invoice</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.opstools.ai/documents/mobile-bill</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.opstools.ai/business/roi-calculator</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.opstools.ai/business/gst-calculator</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.opstools.ai/blogs</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>

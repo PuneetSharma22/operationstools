@@ -35,6 +35,8 @@ const ElectricityBillPage = lazy(() => import("./pages/documents/ElectricityBill
 const EInvoicePage = lazy(() => import("./pages/documents/EInvoicePage"));
 const VehicleExpensePage = lazy(() => import("./pages/documents/VehicleExpensePage"));
 const TravelExpensePage = lazy(() => import("./pages/documents/TravelExpensePage"));
+const BookInvoicePage = lazy(() => import("./pages/documents/BookInvoicePage"));
+const MobileBillPage = lazy(() => import("./pages/documents/MobileBillPage"));
 const GSTCalculatorPage = lazy(() => import("./pages/business/GSTCalculatorPage"));
 const ROICalculatorPage = lazy(() => import("./pages/business/ROICalculatorPage"));
 
@@ -82,6 +84,8 @@ export default function App() {
                 <Route path="/documents/e-invoice" element={<EInvoicePage />} />
                 <Route path="/documents/vehicle-expense" element={<VehicleExpensePage />} />
                 <Route path="/documents/travel-expense" element={<TravelExpensePage />} />
+                <Route path="/documents/book-invoice" element={<BookInvoicePage />} />
+                <Route path="/documents/mobile-bill" element={<MobileBillPage />} />
                 <Route path="/business/gst-calculator" element={<GSTCalculatorPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/login" element={<LoginPage />} />

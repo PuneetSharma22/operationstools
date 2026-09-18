@@ -127,7 +127,7 @@ export default function Home() {
                     <div><div style={{ fontSize: 12, fontWeight: 700, color: "#0F172A" }}>Rent Receipt</div><div style={{ fontSize: 10, color: "#64748B" }}>June 2026</div></div>
                   </div>
                   <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: 10 }}>
-                    {[["Tenant", "Rajesh Sharma"], ["Rent", "₹18,000"], ["Period", "Jun 2026"], ["PAN", "ABCDE1234F"]].map(([k, v]) => (
+                    {[["Tenant", "Rajesh Verma"], ["Rent", "₹18,000"], ["Period", "Jun 2026"], ["PAN", "ABCDE1234F"]].map(([k, v]) => (
                       <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 5 }}>
                         <span style={{ color: "#64748B" }}>{k}</span><span style={{ fontWeight: 600, color: "#0F172A", fontSize: 10 }}>{v}</span>
                       </div>

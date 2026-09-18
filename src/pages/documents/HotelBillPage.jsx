@@ -200,7 +200,7 @@ export default function HotelBillPage() {
     gstin:"27AABCU9603R1ZX",
   });
   const [guest, setGuest] = useState({
-    name:"Rajesh Sharma",
+    name:"Rajesh Verma",
     address:"B-402, Sunrise Residency, Andheri East, Mumbai 400069",
     phone:"+91 98200 11223",
     idType:"Aadhaar",
@@ -281,7 +281,7 @@ export default function HotelBillPage() {
               </div>
             </Section>
             <Section title="Guest Details">
-              <Field label="Guest Name" value={guest.name} onChange={v=>upd(setGuest)("name",v)} placeholder="Rajesh Sharma" />
+              <Field label="Guest Name" value={guest.name} onChange={v=>upd(setGuest)("name",v)} placeholder="Rajesh Verma" />
               <Field label="Address" value={guest.address} onChange={v=>upd(setGuest)("address",v)} />
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
                 <Field label="Phone" value={guest.phone} onChange={v=>upd(setGuest)("phone",v)} />

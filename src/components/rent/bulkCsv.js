@@ -19,7 +19,7 @@ export const CSV_COLUMN_ORDER = [
 
 export const CSV_OPTIONAL_COLUMNS = CSV_COLUMN_ORDER.filter((c) => !CSV_REQUIRED_COLUMNS.includes(c));
 export const CSV_TEMPLATE_HEADERS = CSV_COLUMN_ORDER.join(",");
-export const CSV_SAMPLE_ROW = "2026-07-01,001,2026-07,2026-07,Rajesh Sharma,15000,Cash,,\"Flat 4B, Sunrise Apartments, Andheri West, Mumbai\",Ramesh Kumar,ABCDE1234F";
+export const CSV_SAMPLE_ROW = "2026-07-01,001,2026-07,2026-07,Rajesh Verma,15000,Cash,,\"Flat 4B, Sunrise Apartments, Andheri West, Mumbai\",Ramesh Kumar,ABCDE1234F";
 
 /** Per-row validation of the two required columns. */
 export function validateRentRow(row) {

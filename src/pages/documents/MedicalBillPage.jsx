@@ -61,7 +61,7 @@ const BENEFITS = [
   "Completely free — no subscription.",
 ];
 const FORMAT_FIELDS = [
-  { field: "Patient Name", description: "Name of the patient receiving treatment", example: "Rajesh Sharma" },
+  { field: "Patient Name", description: "Name of the patient receiving treatment", example: "Rajesh Verma" },
   { field: "Line Items", description: "Individual charges, tests, or medicines", example: "Consultation Fee — ₹500" },
   { field: "Hospital GSTIN", description: "GST registration number of the hospital/clinic", example: "27AABCU9603R1ZX" },
   { field: "Total Amount", description: "Sum of all itemized charges", example: "₹2,450.00" },
@@ -182,7 +182,7 @@ function Section({title,children}) {
 export default function MedicalBillPage() {
   const [data, setData] = useState(() => ({ billNo:`MED-${String(Math.floor(Math.random()*9000)+1000)}`, date:new Date().toISOString().split("T")[0], logoUrl:"", doctorName:"Dr. Anjali Deshmukh", department:"General Medicine", admitDate:"", dischargeDate:"", discount:"200", paymentMode:"UPI" }));
   const [hospital, setHospital] = useState({ name:"Sunrise Multispeciality Hospital", address:"Plot 14, MG Road, Andheri East, Mumbai 400069", phone:"+91 22 4012 8890", gstin:"27AABCU9603R1ZX", regNo:"MH/HOSP/2011/4472" });
-  const [patient, setPatient] = useState({ name:"Rajesh Sharma", age:"38", gender:"Male", phone:"+91 98200 44561", uhid:"UHID-204519" });
+  const [patient, setPatient] = useState({ name:"Rajesh Verma", age:"38", gender:"Male", phone:"+91 98200 44561", uhid:"UHID-204519" });
   const [items, setItems] = useState([
     { id:1001, description:"Consultation — General Medicine (OPD)", type:"Consultation", qty:1, rate:800 },
     { id:1002, description:"Complete Blood Count (CBC) + CRP", type:"Lab Test", qty:1, rate:450 },
@@ -250,7 +250,7 @@ export default function MedicalBillPage() {
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
                 <Field label="Bill No." value={data.billNo} onChange={v=>upd(setData)("billNo",v)} />
                 <Field label="Date" value={data.date} onChange={v=>upd(setData)("date",v)} type="date" />
-                <Field label="Doctor Name" value={data.doctorName} onChange={v=>upd(setData)("doctorName",v)} placeholder="Dr. Sharma" />
+                <Field label="Doctor Name" value={data.doctorName} onChange={v=>upd(setData)("doctorName",v)} placeholder="Dr. Verma" />
                 <Field label="Department" value={data.department} onChange={v=>upd(setData)("department",v)} placeholder="General Medicine" />
                 <Field label="Admit Date" value={data.admitDate} onChange={v=>upd(setData)("admitDate",v)} type="date" />
                 <Field label="Discharge Date" value={data.dischargeDate} onChange={v=>upd(setData)("dischargeDate",v)} type="date" />
@@ -258,7 +258,7 @@ export default function MedicalBillPage() {
             </Section>
             <Section title="Patient Details">
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
-                <Field label="Patient Name" value={patient.name} onChange={v=>upd(setPatient)("name",v)} placeholder="Rajesh Sharma" />
+                <Field label="Patient Name" value={patient.name} onChange={v=>upd(setPatient)("name",v)} placeholder="Rajesh Verma" />
                 <Field label="UHID / MRN" value={patient.uhid} onChange={v=>upd(setPatient)("uhid",v)} placeholder="UHID-12345" />
                 <Field label="Age" value={patient.age} onChange={v=>upd(setPatient)("age",v)} placeholder="35" />
                 <Field label="Gender" value={patient.gender} onChange={v=>upd(setPatient)("gender",v)} placeholder="Male" />

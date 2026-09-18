@@ -224,7 +224,7 @@ export default function ElectricityBillPage() {
     phone:"1912", email:"helpdesk@mahadiscom.in", gstin:"27AAECM2933K1ZB",
   });
   const [consumer, setConsumer] = useState({
-    name:"Rajesh Sharma",
+    name:"Rajesh Verma",
     address:"Flat 402, Sai Residency, Andheri West, Mumbai – 400058",
     consumerId:"CA-180023456", meterNo:"MT-9876543", category:"Domestic",
   });
@@ -285,7 +285,7 @@ export default function ElectricityBillPage() {
               </div>
             </Section>
             <Section title="Consumer Details">
-              <Field label="Consumer Name" value={consumer.name} onChange={v=>upd(setConsumer)("name",v)} placeholder="Rajesh Sharma" />
+              <Field label="Consumer Name" value={consumer.name} onChange={v=>upd(setConsumer)("name",v)} placeholder="Rajesh Verma" />
               <Field label="Address" value={consumer.address} onChange={v=>upd(setConsumer)("address",v)} />
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
                 <Field label="Consumer No." value={consumer.consumerId} onChange={v=>upd(setConsumer)("consumerId",v)} placeholder="CA-12345678" />

@@ -240,7 +240,7 @@ export default function SalarySlipPage() {
     logoUrl: "",
   });
   const [employee, setEmployee] = useState({
-    name: "Rajesh Sharma", empId: "EMP-1042", designation: "Senior Software Engineer",
+    name: "Rajesh Verma", empId: "EMP-1042", designation: "Senior Software Engineer",
     department: "Engineering", doj: "2021-06-14", pan: "ABCDE1234F",
     bankAccount: "XXXXXXXX4821", pfAccount: "KA/BNG/12345/67890",
     workingDays: "26", daysPaid: "26",
@@ -335,7 +335,7 @@ export default function SalarySlipPage() {
 
             <Section title="Employee Details">
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <Field label="Full Name" value={employee.name} onChange={v => upd(setEmployee)("name",v)} placeholder="Rajesh Sharma" />
+                <Field label="Full Name" value={employee.name} onChange={v => upd(setEmployee)("name",v)} placeholder="Rajesh Verma" />
                 <Field label="Employee ID" value={employee.empId} onChange={v => upd(setEmployee)("empId",v)} placeholder="EMP-001" />
                 <Field label="Designation" value={employee.designation} onChange={v => upd(setEmployee)("designation",v)} placeholder="Software Engineer" />
                 <Field label="Department" value={employee.department} onChange={v => upd(setEmployee)("department",v)} placeholder="Engineering" />

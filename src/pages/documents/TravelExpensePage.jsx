@@ -220,7 +220,7 @@ export default function TravelExpensePage() {
     destination:"Mumbai → Delhi", purpose:"Client meeting — Q3 review",
     advanceAmount:5000, notes:"Client meetings across Delhi NCR region.",
   }));
-  const [traveller, setTraveller] = useState({ name:"Rajesh Sharma", empId:"EMP-1042", department:"Sales" });
+  const [traveller, setTraveller] = useState({ name:"Rajesh Verma", empId:"EMP-1042", department:"Sales" });
   const [singleExpenses, setSingleExpenses] = useState([
     { id:1001, date:daysFromNowISO(5), category:"Flight", description:"BOM-DEL, IndiGo 6E-204", amount:4500, billNo:"AI-2506", paymentMode:"Company Card" },
     { id:1002, date:daysFromNowISO(5), category:"Hotel", description:"Taj City Centre, 2 nights", amount:3200, billNo:"HTL-889", paymentMode:"Company Card" },
@@ -307,7 +307,7 @@ export default function TravelExpensePage() {
 
             <Section title="Traveller Details">
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
-                <Field label="Name" value={traveller.name} onChange={v=>upd(setTraveller)("name",v)} placeholder="Rajesh Sharma" />
+                <Field label="Name" value={traveller.name} onChange={v=>upd(setTraveller)("name",v)} placeholder="Rajesh Verma" />
                 <Field label="Employee ID" value={traveller.empId} onChange={v=>upd(setTraveller)("empId",v)} placeholder="EMP-001" />
                 <Field label="Department" value={traveller.department} onChange={v=>upd(setTraveller)("department",v)} placeholder="Sales" />
               </div>

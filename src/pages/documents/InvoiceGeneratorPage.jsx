@@ -217,14 +217,14 @@ export default function InvoiceGeneratorPage() {
     bankName: "HDFC Bank",
     accountNo: "50200012345678",
     ifsc: "HDFC0001234",
-    upi: "sharmaconsulting@hdfcbank",
+    upi: "vermaconsulting@hdfcbank",
     notes: "Thank you for your business. Payment is due within 15 days of the invoice date.",
   }));
   const [from, setFrom] = useState({
-    name: "Sharma Consulting Services",
+    name: "Verma Consulting Services",
     address: "412, Nirmal Tower, Barakhamba Road, New Delhi - 110001",
     gstin: "07ABCDE1234F1Z5",
-    email: "billing@sharmaconsulting.in",
+    email: "billing@vermaconsulting.in",
     phone: "+91 98100 45210",
   });
   const [to, setTo] = useState({

@@ -446,7 +446,7 @@ export default function LDBillPage() {
             <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #E2E8F0", padding: "20px 24px", marginBottom: 16 }}>
               <h2 style={{ fontSize: 14, fontWeight: 700, color: "#7C3AED", margin: "0 0 16px", textTransform: "uppercase", letterSpacing: "0.06em" }}>Recipient Details</h2>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <Field label="Full Name" value={recipient.name} onChange={v => updateRecipient("name", v)} placeholder="Rajesh Sharma" />
+                <Field label="Full Name" value={recipient.name} onChange={v => updateRecipient("name", v)} placeholder="Rajesh Verma" />
                 <Field label="Email" value={recipient.email} onChange={v => updateRecipient("email", v)} placeholder="rajesh@company.com" />
               </div>
               <Field label="Address" value={recipient.address} onChange={v => updateRecipient("address", v)} placeholder="Block, Area, City, State - PIN" />

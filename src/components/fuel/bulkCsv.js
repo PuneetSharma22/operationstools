@@ -26,7 +26,7 @@ export const CSV_COLUMN_ORDER = [
 
 export const CSV_OPTIONAL_COLUMNS = CSV_COLUMN_ORDER.filter((c) => !CSV_REQUIRED_COLUMNS.includes(c));
 export const CSV_TEMPLATE_HEADERS = CSV_COLUMN_ORDER.join(",");
-export const CSV_SAMPLE_ROW = "PK FUEL STATION,\"PAREKH NAGAR S V RD, KANDIVALI W, MUMBAI - 400067\",38055913,27AABCU9603R1ZX,https://example.com/logo.png,https://example.com/bank-logo.png,2026-07-10,14:30,G64695,927267,MH12AB1234,4W,Rajesh Sharma,9876543210,Petrol,104.29,992.00,745.0,Amount,Cash,N-02,AT-102";
+export const CSV_SAMPLE_ROW = "PK FUEL STATION,\"PAREKH NAGAR S V RD, KANDIVALI W, MUMBAI - 400067\",38055913,27AABCU9603R1ZX,https://example.com/logo.png,https://example.com/bank-logo.png,2026-07-10,14:30,G64695,927267,MH12AB1234,4W,Rajesh Verma,9876543210,Petrol,104.29,992.00,745.0,Amount,Cash,N-02,AT-102";
 
 /** Per-row validation of the three required columns. */
 export function validateFuelRow(row) {

@@ -195,7 +195,7 @@ export default function VehicleExpensePage() {
     const [periodFrom, periodTo] = monthBoundsISO();
     return { reportNo:`VEH-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`, periodFrom, periodTo, approverName:"Priya Mehta", notes:"Client site visits across the Mumbai region." };
   });
-  const [employee, setEmployee] = useState({ name:"Rajesh Sharma", empId:"EMP-1042", department:"Sales", designation:"Sales Manager" });
+  const [employee, setEmployee] = useState({ name:"Rajesh Verma", empId:"EMP-1042", department:"Sales", designation:"Sales Manager" });
   const [vehicles, setVehicles] = useState([
     { id:1, regNo:"MH12AB1234", make:"Maruti", model:"Swift", fuelType:"Petrol" },
     { id:2, regNo:"MH14CD5678", make:"Hyundai", model:"i20", fuelType:"Diesel" },
@@ -274,7 +274,7 @@ export default function VehicleExpensePage() {
             {mode==="employee" ? (
               <Section title="Employee Details">
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
-                  <Field label="Employee Name" value={employee.name} onChange={v=>upd(setEmployee)("name",v)} placeholder="Rajesh Sharma" />
+                  <Field label="Employee Name" value={employee.name} onChange={v=>upd(setEmployee)("name",v)} placeholder="Rajesh Verma" />
                   <Field label="Employee ID" value={employee.empId} onChange={v=>upd(setEmployee)("empId",v)} placeholder="EMP-001" />
                   <Field label="Department" value={employee.department} onChange={v=>upd(setEmployee)("department",v)} placeholder="Sales" />
                   <Field label="Designation" value={employee.designation} onChange={v=>upd(setEmployee)("designation",v)} placeholder="Sales Manager" />

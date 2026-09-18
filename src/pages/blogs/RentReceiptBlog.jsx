@@ -127,7 +127,7 @@ export default function RentReceiptBlog() {
             <thead><tr style={{ background: "#F8FAFC" }}>{["Field","Example","Required?"].map(h=><th key={h} style={{ padding:"10px 14px", fontSize:12, fontWeight:700, color:"#64748B", textTransform:"uppercase", letterSpacing:"0.06em", textAlign:"left", borderBottom:"1px solid #E2E8F0" }}>{h}</th>)}</tr></thead>
             <tbody>
               {[
-                ["Tenant Name","Rajesh Sharma","✅ Required"],
+                ["Tenant Name","Rajesh Verma","✅ Required"],
                 ["Landlord Name","Suresh Patel","✅ Required"],
                 ["Rental Property Address","123, MG Road, Bangalore 560001","✅ Required"],
                 ["Rent Amount","₹18,000 per month","✅ Required"],

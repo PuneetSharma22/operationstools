@@ -206,7 +206,7 @@ export default function LDBillBlog() {
                 ["Supplier Name", "Udemy India LLP", "✅ Required"],
                 ["Supplier Address", "10th Floor, Gurugram 122003", "✅ Required"],
                 ["Supplier GSTIN", "06AAFFU9763M1ZE", "✅ Required"],
-                ["Recipient Name", "Rajesh Sharma", "✅ Required"],
+                ["Recipient Name", "Rajesh Verma", "✅ Required"],
                 ["Recipient Email", "rajesh@company.com", "✅ Required"],
                 ["Course Description", "Leadership with AI", "✅ Required"],
                 ["HSN/SAC Code", "998433", "✅ Required"],

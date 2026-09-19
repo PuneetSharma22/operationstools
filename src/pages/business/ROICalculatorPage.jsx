@@ -9,8 +9,8 @@ import OthersResultPanel from "../../components/roi/OthersResultPanel";
 import ROISeoSection from "../../components/roi/ROISeoSection";
 import { logSaveRequest } from "../../utils/saveLog";
 
-const SEO_TITLE = "Free ROI Calculator India — Return on Investment Tool | OpsTools";
-const SEO_DESCRIPTION = "Calculate ROI, compare investments, run what-if scenarios. FD, RD and savings account comparisons included. Free.";
+const SEO_TITLE = "ROI Calculator — Return on Investment Calculator India | OpsTools";
+const SEO_DESCRIPTION = "Free ROI calculator (return on investment calculator) for India. Compare FD, RD and savings account returns, run what-if scenarios, no login required.";
 
 export default function ROICalculatorPage() {
   const [currency, setCurrency] = useState(CURRENCIES[0]);

@@ -47,6 +47,9 @@ const DOC_ICON_MAP = {
   "service-invoice": { bg: "#FEF3C7", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#FDE68A"/><circle cx="14" cy="14" r="5" fill="#F59E0B" opacity="0.4"/><circle cx="14" cy="14" r="2" fill="#D97706"/></svg> },
   "freelancer-invoice": { bg: "#DBEAFE", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="5" width="22" height="18" rx="2.5" fill="#BFDBFE"/><rect x="6" y="9" width="16" height="2" rx="1" fill="#3B82F6"/><rect x="6" y="13" width="10" height="1.5" rx="0.75" fill="#93C5FD"/><circle cx="21" cy="8" r="4" fill="#2563EB"/><path d="M19.5 8l1 1 2-2" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg> },
   "invoice": { bg: "#EEF2FF", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="4" y="3" width="20" height="22" rx="2.5" fill="#C7D2FE"/><rect x="7" y="7" width="14" height="2" rx="1" fill="#4F46E5"/><rect x="7" y="11" width="9" height="1.5" rx="0.75" fill="#818CF8"/><rect x="7" y="14" width="11" height="1.5" rx="0.75" fill="#818CF8"/><rect x="15" y="20" width="6" height="2" rx="1" fill="#4F46E5"/></svg> },
+  "book-invoice": { bg: "#FEF3C7", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><path d="M5 5a2 2 0 0 1 2-2h9v22H7a2 2 0 0 1-2-2V5z" fill="#FDE68A"/><path d="M16 3h5a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2h-5V3z" fill="#FCD34D"/><rect x="8" y="7" width="6" height="1.4" rx="0.7" fill="#D97706"/><rect x="8" y="10" width="5" height="1.4" rx="0.7" fill="#D97706"/></svg> },
+  "mobile-bill": { bg: "#FCE7F3", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="8" y="2" width="12" height="24" rx="2.5" fill="#FBCFE8"/><rect x="10.5" y="5" width="7" height="14" rx="0.8" fill="#fff"/><circle cx="14" cy="22" r="1.4" fill="#DB2777"/></svg> },
+  "gst-calculator": { bg: "#CCFBF1", svg: <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#5EEAD4"/><rect x="7" y="7" width="14" height="5" rx="1" fill="#0F766E"/><rect x="7" y="15" width="4" height="4" rx="1" fill="#0F766E"/><rect x="13" y="15" width="4" height="4" rx="1" fill="#0F766E"/><rect x="19" y="15" width="4" height="4" rx="1" fill="#0F766E"/><rect x="7" y="20" width="4" height="3" rx="1" fill="#0F766E"/><rect x="13" y="20" width="4" height="3" rx="1" fill="#0F766E"/><rect x="19" y="20" width="4" height="3" rx="1" fill="#0F766E"/></svg> },
 };
 
 function StatusBadge({ status }) {
@@ -64,9 +67,13 @@ function MobileDrawer({ open, onClose, retailDocs, businessDocs, user, signOut }
   ];
   return (
     <>
-      <div onClick={onClose} aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(0,0,0,0.5)" }} />
-      <div role="dialog" aria-modal="true" aria-label="Navigation menu" style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: "min(320px, 85vw)", background: "#07011F", zIndex: 301, overflowY: "auto", display: "flex", flexDirection: "column" }}>
-        <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}} @keyframes slideInLeft{from{transform:translateX(-100%)}to{transform:translateX(0)}} .drawer-item:hover{background:rgba(255,255,255,0.06)!important;} .drawer-doc-item:active{background:rgba(255,255,255,0.08)!important;}`}</style>
+      <div onClick={onClose} aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(0,0,0,0.5)", animation: "fadeIn 0.18s ease-out" }} />
+      {/* The hamburger trigger sits on the right of the mobile header (see
+          .mobile-nav below), so the drawer opens from the right too — it
+          used to open from the left, which felt disconnected from where the
+          user actually tapped. */}
+      <div role="dialog" aria-modal="true" aria-label="Navigation menu" style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: "min(320px, 85vw)", background: "#07011F", zIndex: 301, overflowY: "auto", display: "flex", flexDirection: "column", animation: "slideInRight 0.22s ease-out" }}>
+        <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}} @keyframes slideInRight{from{transform:translateX(100%)}to{transform:translateX(0)}} .drawer-item:hover{background:rgba(255,255,255,0.06)!important;} .drawer-doc-item:active{background:rgba(255,255,255,0.08)!important;}`}</style>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", height: 64, flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <OpsToolsLogo />

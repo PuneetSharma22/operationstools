@@ -22,6 +22,9 @@ const DOC_ICON_MAP = {
   "service-invoice": { bg: "#FEF3C7", svg: <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#FDE68A"/><circle cx="14" cy="14" r="5" fill="#F59E0B" opacity="0.4"/><circle cx="14" cy="14" r="2" fill="#D97706"/><path d="M14 7v2M14 19v2M7 14h2M19 14h2" stroke="#D97706" strokeWidth="1.3" strokeLinecap="round"/></svg> },
   "freelancer-invoice": { bg: "#DBEAFE", svg: <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="3" y="5" width="22" height="18" rx="2.5" fill="#BFDBFE"/><rect x="6" y="9" width="16" height="2" rx="1" fill="#3B82F6"/><rect x="6" y="13" width="10" height="1.5" rx="0.75" fill="#93C5FD"/><rect x="6" y="16" width="12" height="1.5" rx="0.75" fill="#93C5FD"/></svg> },
   "invoice": { bg: "#EEF2FF", svg: <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="4" y="3" width="20" height="22" rx="2.5" fill="#C7D2FE"/><rect x="7" y="7" width="14" height="2" rx="1" fill="#4F46E5"/><rect x="7" y="11" width="9" height="1.5" rx="0.75" fill="#818CF8"/><rect x="7" y="14" width="11" height="1.5" rx="0.75" fill="#818CF8"/><rect x="15" y="20" width="6" height="2" rx="1" fill="#4F46E5"/></svg> },
+  "book-invoice": { bg: "#FEF3C7", svg: <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><path d="M5 5a2 2 0 0 1 2-2h9v22H7a2 2 0 0 1-2-2V5z" fill="#FDE68A"/><path d="M16 3h5a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2h-5V3z" fill="#FCD34D"/><rect x="8" y="7" width="6" height="1.4" rx="0.7" fill="#D97706"/><rect x="8" y="10" width="5" height="1.4" rx="0.7" fill="#D97706"/></svg> },
+  "mobile-bill": { bg: "#FCE7F3", svg: <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="8" y="2" width="12" height="24" rx="2.5" fill="#FBCFE8"/><rect x="10.5" y="5" width="7" height="14" rx="0.8" fill="#fff"/><circle cx="14" cy="22" r="1.4" fill="#DB2777"/></svg> },
+  "gst-calculator": { bg: "#CCFBF1", svg: <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#5EEAD4"/><rect x="7" y="7" width="14" height="5" rx="1" fill="#0F766E"/><rect x="7" y="15" width="4" height="4" rx="1" fill="#0F766E"/><rect x="13" y="15" width="4" height="4" rx="1" fill="#0F766E"/><rect x="19" y="15" width="4" height="4" rx="1" fill="#0F766E"/><rect x="7" y="20" width="4" height="3" rx="1" fill="#0F766E"/><rect x="13" y="20" width="4" height="3" rx="1" fill="#0F766E"/><rect x="19" y="20" width="4" height="3" rx="1" fill="#0F766E"/></svg> },
 };
 
 const stats = [
@@ -48,7 +51,7 @@ export default function Home() {
     <>
       <Helmet>
         <title>OpsTools — Free Business Document Generator for India</title>
-        <meta name="description" content="Free online document generators for Indian small businesses. Fuel bills, rent receipts, GST invoices, salary slips — no login, no cost, instant PDF." />
+        <meta name="description" content="Free online document generators and calculators for Indian small businesses. Fuel bills, rent receipts, GST invoices, salary slips, ROI calculator — no login, no cost, instant results." />
         <link rel="canonical" href="https://www.opstools.ai/" />
       </Helmet>
       <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
@@ -185,18 +188,48 @@ export default function Home() {
 
         {/* Why */}
         <section style={{ background: "linear-gradient(135deg, #07011F 0%, #0D0630 100%)", padding: "64px 20px", textAlign: "center" }}>
-          <div style={{ maxWidth: 720, margin: "0 auto" }}>
-            <h2 style={{ fontSize: "clamp(20px, 3vw, 28px)", fontWeight: 700, color: "#fff", margin: "0 0 16px", letterSpacing: "-0.02em" }}>Built for the operator, not the accountant</h2>
-            <p style={{ fontSize: 15, color: "#94A3B8", lineHeight: 1.75, margin: "0 0 40px" }}>Most document tools are built for chartered accountants — complex, expensive, and full of fields you don't understand. OpsTools is different.</p>
-            <div className="why-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 20, textAlign: "left" }}>
+          <div style={{ maxWidth: 960, margin: "0 auto" }}>
+            <div style={{ maxWidth: 640, margin: "0 auto" }}>
+              <h2 style={{ fontSize: "clamp(20px, 3vw, 28px)", fontWeight: 700, color: "#fff", margin: "0 0 16px", letterSpacing: "-0.02em" }}>Built for the operator, not the accountant</h2>
+              <p style={{ fontSize: 15, color: "#94A3B8", lineHeight: 1.75, margin: "0 0 40px" }}>Most document tools are built for chartered accountants — complex, expensive, and full of fields you don't understand. OpsTools is different.</p>
+            </div>
+            <div className="why-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, textAlign: "left" }}>
               {[
-                { icon: "⚡", title: "Instant", body: "Fill the form, hit print. No account, no waiting." },
-                { icon: "🔒", title: "Private", body: "Nothing stored on our servers. Your data stays in your browser." },
-                { icon: "📱", title: "Mobile-ready", body: "Works on any phone. Generate a PDF from anywhere." },
-                { icon: "🇮🇳", title: "India-specific", body: "Templates based on actual Indian receipts and compliance formats." },
+                {
+                  title: "Instant",
+                  body: "Open the tool, fill it, download. No account, no approval queue, no waiting on anyone.",
+                  icon: <path d="M13 3 4 14h6l-1 7 9-11h-6l1-7z" />,
+                },
+                {
+                  title: "Private",
+                  body: "Your PDF is generated client-side, in your browser. Nothing you type ever reaches our servers — not even us can see it.",
+                  icon: <><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></>,
+                },
+                {
+                  title: "Mobile-ready",
+                  body: "Every generator is a responsive web form, not an app to install. Fill it on your phone between customers, download, done.",
+                  icon: <><rect x="7" y="2" width="10" height="20" rx="2" /><line x1="11" y1="18" x2="13" y2="18" /></>,
+                },
+                {
+                  title: "India-specific",
+                  body: "IOCL/POS-style fuel bills, HRA-compliant rent receipts with landlord PAN, GST invoices with HSN codes — modeled on real Indian paperwork.",
+                  icon: <><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z" /><path d="M9 10l2 2 4-4" /></>,
+                },
+                {
+                  title: "Bulk-ready",
+                  body: "Need 50 bills for month-end? Upload a CSV and generate them all as one PDF, in a single pass.",
+                  icon: <><path d="M12 2 2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></>,
+                },
+                {
+                  title: "Always free",
+                  body: "Every single-document download is free, forever — no card on file, no trial, no catch.",
+                  icon: <><path d="M20.6 13.4 12 22l-9-9V4a1 1 0 0 1 1-1h9l9 9a2 2 0 0 1 0 2.83z" /><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none" /></>,
+                },
               ].map(f => (
                 <div key={f.title} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 14, padding: "20px 18px" }}>
-                  <div style={{ fontSize: 24, marginBottom: 10 }}>{f.icon}</div>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(129,140,248,0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A5B4FC" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{f.icon}</svg>
+                  </div>
                   <div style={{ fontSize: 15, fontWeight: 600, color: "#E2E8F0", marginBottom: 6 }}>{f.title}</div>
                   <div style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.6 }}>{f.body}</div>
                 </div>
@@ -274,7 +307,7 @@ function ToolCard({ doc }) {
   const iconData = DOC_ICON_MAP[doc.slug];
   const accentColor = iconData?.bg || "#F1F5F9";
   const inner = (
-    <div style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 16, padding: "20px 18px", width: 210, flexShrink: 0, display: "flex", flexDirection: "column", gap: 12, cursor: isLive ? "pointer" : "default", opacity: isLive ? 1 : 0.72, transition: "box-shadow 0.18s, transform 0.18s" }}
+    <div style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 16, padding: "20px 18px", width: 210, height: "100%", boxSizing: "border-box", flexShrink: 0, display: "flex", flexDirection: "column", gap: 12, cursor: isLive ? "pointer" : "default", opacity: isLive ? 1 : 0.72, transition: "box-shadow 0.18s, transform 0.18s" }}
       onMouseEnter={e => { if (isLive) { e.currentTarget.style.boxShadow = "0 8px 30px rgba(0,0,0,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}}
       onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}
     >

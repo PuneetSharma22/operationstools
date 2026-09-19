@@ -24,7 +24,7 @@ const PAGE_META = {
   "/documents/travel-expense": { title: "Free Travel Expense Report — Single Trip & Multi-Day | OpsTools", description: "Generate travel expense reports with flights, hotel, meals and per-day breakdown. Free, no login, instant PDF." },
   "/documents/book-invoice": { title: "Free Book & Periodical Invoice Generator — Retail GST Bill | OpsTools", description: "Generate a GST invoice for book, magazine and periodical sales. Multiple items, CGST/SGST breakdown. Free, no login, instant PDF." },
   "/documents/mobile-bill": { title: "Free Mobile & Telephone Bill Generator — Postpaid Invoice & Prepaid Receipt | OpsTools", description: "Generate a postpaid mobile tax invoice or a prepaid recharge receipt. Airtel, Jio, Vi and BSNL themes. Free, no login, instant PDF." },
-  "/business/roi-calculator": { title: "Free ROI Calculator India — Return on Investment Tool | OpsTools", description: "Calculate ROI, compare investments, run what-if scenarios. FD, RD comparisons. Free." },
+  "/business/roi-calculator": { title: "ROI Calculator — Return on Investment Calculator India | OpsTools", description: "Free ROI calculator (return on investment calculator) for India. Compare FD, RD and savings account returns, run what-if scenarios, no login required." },
   "/business/gst-calculator": { title: "Free GST Calculator India — Add or Remove GST with CGST/SGST | OpsTools", description: "Calculate GST instantly. CGST, SGST and IGST breakdown for any rate. Free." },
   "/blogs/how-to-generate-fuel-bill-online-india": { title: "How to Generate a Fuel Bill Online for Free in India (2026) | OpsTools", description: "Complete guide to generating petrol and diesel receipts online for reimbursement and fleet management." },
   "/blogs/how-to-generate-ld-bill-online-india": { title: "How to Generate an L&D Tax Invoice Online in India (2026) | OpsTools", description: "Complete guide to generating GST tax invoices for training and L&D expenses." },
@@ -50,7 +50,7 @@ export default function handler(req, res) {
     : "/";
   const meta = PAGE_META[path] || {
     title: "OpsTools — Free Business Document Generator for India",
-    description: "Free online document generators for Indian small businesses. No login, no cost, instant PDF.",
+    description: "Free online document generators and calculators for Indian small businesses. Fuel bills, rent receipts, GST invoices, salary slips, ROI calculator — no login, no cost, instant results.",
   };
 
   const url = `https://www.opstools.ai${path}`;

@@ -37,6 +37,8 @@ const footerLinks = [
       { label: "GST Invoice", href: "/documents/gst-invoice" },
       { label: "Salary Slip", href: "/documents/salary-slip" },
       { label: "L&D Bill", href: "/documents/ld-bill" },
+      { label: "ROI Calculator", href: "/business/roi-calculator" },
+      { label: "GST Calculator", href: "/business/gst-calculator" },
     ],
   },
   {

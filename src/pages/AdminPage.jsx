@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../supabase";
 import {
@@ -225,6 +226,11 @@ export default function AdminPage() {
   );
 
   return (
+    <>
+    <Helmet>
+      <title>Admin — OpsTools</title>
+      <meta name="robots" content="noindex, follow" />
+    </Helmet>
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "calc(100vh - 64px)" }}>
       <section style={{ background: "linear-gradient(160deg,#07011F 0%,#0D0630 100%)", padding: "28px 24px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -416,5 +422,6 @@ export default function AdminPage() {
         )}
       </div>
     </div>
+    </>
   );
 }

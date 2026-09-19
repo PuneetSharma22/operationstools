@@ -34,6 +34,7 @@ export default function SalarySlipBlog() {
         <meta property="og:title" content="How to Generate a Salary Slip Online in India for Free (2026) | OpsTools" />
         <meta property="og:description" content="Complete guide to generating professional salary slips in India. Covers CTC structure, basic pay, HRA, PF, TDS, deductions and net pay calculation." />
         <meta property="og:url" content="https://www.opstools.ai/blogs/how-to-generate-salary-slip-online-india" />
+        <link rel="canonical" href="https://www.opstools.ai/blogs/how-to-generate-salary-slip-online-india" />
         <meta property="og:type" content="article" />
         <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
         <meta name="twitter:card" content="summary_large_image" />

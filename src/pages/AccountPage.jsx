@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../supabase";
 
@@ -236,6 +237,11 @@ export default function AccountPage() {
   );
 
   return (
+    <>
+    <Helmet>
+      <title>My Account — OpsTools</title>
+      <meta name="robots" content="noindex, follow" />
+    </Helmet>
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "calc(100vh - 64px)" }}>
       {/* Hero */}
       <section style={{ background: "linear-gradient(160deg,#07011F 0%,#0D0630 100%)", padding: "40px 24px 36px" }}>
@@ -400,5 +406,6 @@ export default function AccountPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

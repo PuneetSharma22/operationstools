@@ -29,6 +29,13 @@ export function useSEO({
     document.title = title;
 
     // ── Meta helpers ──
+    // Every element this hook touches is tagged data-opstools-seo so the
+    // cleanup below can remove exactly those on unmount. Without this, a tag
+    // created here (e.g. robots, canonical) would survive a client-side
+    // navigation to a page managed by react-helmet-async instead — Helmet
+    // has no idea this pre-existing node exists, so it just adds its own
+    // alongside it, leaving two conflicting <meta name="robots"> or
+    // <link rel="canonical"> tags in the document at once.
     const setMeta = (selector, attr, value) => {
       let el = document.querySelector(selector);
       if (!el) {
@@ -37,6 +44,7 @@ export function useSEO({
         el.setAttribute(k.trim(), v?.replace(/"/g, "") ?? "");
         document.head.appendChild(el);
       }
+      el.setAttribute("data-opstools-seo", "true");
       el.setAttribute("content", value);
     };
 
@@ -61,6 +69,7 @@ export function useSEO({
       canonEl.rel = "canonical";
       document.head.appendChild(canonEl);
     }
+    canonEl.setAttribute("data-opstools-seo", "true");
     canonEl.href = canonical;
 
     // ── JSON-LD schemas ──
@@ -92,6 +101,7 @@ export function useSEO({
 
     return () => {
       document.querySelectorAll('script[data-opstools-schema]').forEach((s) => s.remove());
+      document.querySelectorAll('[data-opstools-seo]').forEach((s) => s.remove());
     };
   }, [title, description, canonical, ogImage, ogType]);
 }

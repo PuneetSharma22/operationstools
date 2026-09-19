@@ -25,6 +25,7 @@ export default function EmailVerifiedPage() {
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
       <Helmet>
         <title>Email Verified — OpsTools</title>
+        <meta name="robots" content="noindex, follow" />
       </Helmet>
 
       <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>

@@ -57,6 +57,7 @@ export default function ROICalculatorPage() {
         <meta property="og:title" content={SEO_TITLE} />
         <meta property="og:description" content={SEO_DESCRIPTION} />
         <meta property="og:url" content="https://www.opstools.ai/business/roi-calculator" />
+        <link rel="canonical" href="https://www.opstools.ai/business/roi-calculator" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
         <meta property="og:image:width" content="1200" />

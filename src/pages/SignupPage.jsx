@@ -1,6 +1,16 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useAuth } from '../context/AuthContext'
+
+function NoIndex({ title }) {
+  return (
+    <Helmet>
+      <title>{title}</title>
+      <meta name="robots" content="noindex, follow" />
+    </Helmet>
+  )
+}
 
 export default function SignupPage() {
   const { signUp } = useAuth()
@@ -39,6 +49,8 @@ export default function SignupPage() {
 
   if (success) {
     return (
+      <>
+      <NoIndex title="Check your email — OpsTools" />
       <div className="min-h-[80vh] flex items-center justify-center px-4">
         <div className="w-full max-w-[400px]">
           <div className="bg-white border border-[#E2E8F0] rounded-2xl p-8 shadow-sm text-center">
@@ -57,10 +69,13 @@ export default function SignupPage() {
           </div>
         </div>
       </div>
+      </>
     )
   }
 
   return (
+    <>
+    <NoIndex title="Sign up — OpsTools" />
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-[400px]">
         <div className="bg-white border border-[#E2E8F0] rounded-2xl p-8 shadow-sm">
@@ -143,5 +158,6 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }

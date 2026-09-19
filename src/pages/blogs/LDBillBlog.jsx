@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 function Callout({ icon, title, children, color = "#EFF6FF", borderColor = "#2563EB" }) {
   return (
@@ -112,6 +113,18 @@ function HeroIllustration() {
 
 export default function LDBillBlog() {
   return (
+    <>
+    <Helmet>
+      <title>How to Generate an L&D Tax Invoice Online in India (2026) | OpsTools</title>
+      <meta name="description" content="Complete guide to generating GST tax invoices for training and L&D expenses." />
+      <meta property="og:title" content="How to Generate an L&D Tax Invoice Online in India (2026) | OpsTools" />
+      <meta property="og:description" content="Complete guide to generating GST tax invoices for training and L&D expenses." />
+      <meta property="og:url" content="https://www.opstools.ai/blogs/how-to-generate-ld-bill-online-india" />
+      <link rel="canonical" href="https://www.opstools.ai/blogs/how-to-generate-ld-bill-online-india" />
+      <meta property="og:type" content="article" />
+      <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
+      <meta name="twitter:card" content="summary_large_image" />
+    </Helmet>
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
 
       {/* Hero */}
@@ -300,5 +313,6 @@ export default function LDBillBlog() {
         </div>
       </div>
     </div>
+    </>
   );
 }

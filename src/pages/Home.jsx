@@ -49,6 +49,7 @@ export default function Home() {
       <Helmet>
         <title>OpsTools — Free Business Document Generator for India</title>
         <meta name="description" content="Free online document generators for Indian small businesses. Fuel bills, rent receipts, GST invoices, salary slips — no login, no cost, instant PDF." />
+        <link rel="canonical" href="https://www.opstools.ai/" />
       </Helmet>
       <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
         <style>{`

@@ -34,6 +34,7 @@ export default function RentReceiptBlog() {
         <meta property="og:title" content="How to Generate a Rent Receipt Online for HRA Exemption in India (2026) | OpsTools" />
         <meta property="og:description" content="Complete guide to rent receipts for HRA tax exemption in India. Covers mandatory fields, landlord PAN requirement, monthly vs annual receipts, and free PDF download." />
         <meta property="og:url" content="https://www.opstools.ai/blogs/how-to-generate-rent-receipt-online-india" />
+        <link rel="canonical" href="https://www.opstools.ai/blogs/how-to-generate-rent-receipt-online-india" />
         <meta property="og:type" content="article" />
         <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
         <meta name="twitter:card" content="summary_large_image" />

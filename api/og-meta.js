@@ -32,6 +32,7 @@ const PAGE_META = {
   "/blogs/how-to-generate-salary-slip-online-india": { title: "How to Generate a Salary Slip Online in India for Free (2026) | OpsTools", description: "Complete guide to salary slips — CTC structure, basic pay, HRA, PF, TDS and net pay." },
   "/blogs/how-to-generate-rent-receipt-online-india": { title: "How to Generate a Rent Receipt Online for HRA Exemption in India (2026) | OpsTools", description: "Complete guide to rent receipts for HRA tax exemption — mandatory fields, landlord PAN and free PDF." },
   "/about": { title: "About OpsTools — Free Business Document Tools for India", description: "OpsTools is a free toolkit for Indian small business operators to generate professional documents without sign-ups." },
+  "/documents": { title: "All Free Business Document Generators — OpsTools", description: "Browse free document generators for Indian small businesses — fuel bills, rent receipts, GST invoices, salary slips, expense reports and more. No login, instant PDF." },
   "/blogs": { title: "Blog — GST, Documents & Business Guides for India | OpsTools", description: "Practical guides for Indian small business owners on generating fuel bills, GST invoices, salary slips and more." },
 };
 

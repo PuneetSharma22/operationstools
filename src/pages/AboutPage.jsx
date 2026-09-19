@@ -36,11 +36,24 @@ function groupByMonth(items) {
 }
 
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 export default function AboutPage() {
   const grouped = groupByMonth(ROADMAP);
 
   return (
+    <>
+    <Helmet>
+      <title>About OpsTools — Free Business Document Tools for India</title>
+      <meta name="description" content="OpsTools is a free toolkit for Indian small business operators to generate professional documents without sign-ups." />
+      <meta property="og:title" content="About OpsTools — Free Business Document Tools for India" />
+      <meta property="og:description" content="OpsTools is a free toolkit for Indian small business operators to generate professional documents without sign-ups." />
+      <meta property="og:url" content="https://www.opstools.ai/about" />
+      <link rel="canonical" href="https://www.opstools.ai/about" />
+      <meta property="og:type" content="website" />
+      <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
+      <meta name="twitter:card" content="summary_large_image" />
+    </Helmet>
     <div className="max-w-[720px] mx-auto px-6 py-16">
 
       {/* Hero */}
@@ -154,5 +167,6 @@ export default function AboutPage() {
       </section>
 
     </div>
+    </>
   );
 }

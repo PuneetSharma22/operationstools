@@ -56,6 +56,7 @@ export default function GSTCalculatorPage() {
         <meta property="og:title" content="Free GST Calculator India — Add or Remove GST with CGST/SGST | OpsTools" />
         <meta property="og:description" content="Calculate GST instantly. Add or remove GST. CGST, SGST and IGST breakdown for any rate. Free." />
         <meta property="og:url" content="https://www.opstools.ai/business/gst-calculator" />
+        <link rel="canonical" href="https://www.opstools.ai/business/gst-calculator" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
         <meta property="og:image:width" content="1200" />

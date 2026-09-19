@@ -133,6 +133,7 @@ export default function GSTInvoiceBlog() {
         <meta property="og:title" content="How to Generate a GST Invoice Online in India for Free (2026) | OpsTools" />
         <meta property="og:description" content="Complete guide to generating GST-compliant tax invoices in India. Covers CGST, SGST, IGST, HSN codes, mandatory fields and free PDF download." />
         <meta property="og:url" content="https://www.opstools.ai/blogs/how-to-generate-gst-invoice-online-india" />
+        <link rel="canonical" href="https://www.opstools.ai/blogs/how-to-generate-gst-invoice-online-india" />
         <meta property="og:type" content="article" />
         <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
         <meta name="twitter:card" content="summary_large_image" />

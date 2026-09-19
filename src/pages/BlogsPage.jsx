@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 const ALL_BLOGS = [
   {
@@ -137,6 +138,18 @@ export default function BlogsPage() {
   const rest = ALL_BLOGS.slice(1);
 
   return (
+    <>
+    <Helmet>
+      <title>Blog — GST, Documents & Business Guides for India | OpsTools</title>
+      <meta name="description" content="Practical guides for Indian small business owners on generating fuel bills, GST invoices, salary slips and more." />
+      <meta property="og:title" content="Blog — GST, Documents & Business Guides for India | OpsTools" />
+      <meta property="og:description" content="Practical guides for Indian small business owners on generating fuel bills, GST invoices, salary slips and more." />
+      <meta property="og:url" content="https://www.opstools.ai/blogs" />
+      <link rel="canonical" href="https://www.opstools.ai/blogs" />
+      <meta property="og:type" content="website" />
+      <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
+      <meta name="twitter:card" content="summary_large_image" />
+    </Helmet>
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
 
       {/* Hero */}
@@ -186,5 +199,6 @@ export default function BlogsPage() {
         )}
       </div>
     </div>
+    </>
   );
 }

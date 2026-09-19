@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useAuth } from '../context/AuthContext'
 
 export default function LoginPage() {
@@ -28,7 +29,12 @@ export default function LoginPage() {
   const inputClass = "w-full h-11 px-4 bg-white border border-[#E2E8F0] rounded-xl text-[#0F172A] text-[14px] focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-all duration-150 placeholder:text-[#94a3b8]"
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
+    <>
+      <Helmet>
+        <title>Log in — OpsTools</title>
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
+      <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-[400px]">
 
         {/* Card */}
@@ -100,5 +106,6 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }

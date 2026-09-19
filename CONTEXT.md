@@ -260,7 +260,7 @@ Every Save PDF click also logs to `save_requests` table via the shared `supabase
 
 - Address: hello@opstools.ai
 - Provider: Cloudflare Email Routing
-- Forwards to: punitshrma769@gmail.com
+- Forwards to: owner's personal inbox (not recorded here)
 - DNS: MX records locked on Cloudflare, SPF/DKIM configured
 - Status: Live and verified
 

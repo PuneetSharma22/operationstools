@@ -17,12 +17,15 @@ async function loginAs(page, email, password) {
 
 test.describe("Account Page — UI Structure", () => {
 
-  // These tests use a real logged-in session
-  // Set TEST_EMAIL and TEST_PASSWORD in your .env or replace inline
-  const TEST_EMAIL = process.env.TEST_EMAIL || "punitshrma769@gmail.com";
+  // These tests use a real logged-in session against a dedicated test
+  // account — never a real personal/admin account. Set TEST_EMAIL and
+  // TEST_PASSWORD (e.g. as CI secrets) to enable them; both are required,
+  // with no fallback to any real account, so a misconfigured CI run skips
+  // cleanly instead of attempting a login that was never meant to succeed.
+  const TEST_EMAIL = process.env.TEST_EMAIL || "";
   const TEST_PASSWORD = process.env.TEST_PASSWORD || "";
 
-  test.skip(!TEST_PASSWORD, "Skipping auth tests — set TEST_PASSWORD env var");
+  test.skip(!TEST_EMAIL || !TEST_PASSWORD, "Skipping auth tests — set TEST_EMAIL and TEST_PASSWORD env vars for a dedicated test account");
 
   test.beforeEach(async ({ page }) => {
     await loginAs(page, TEST_EMAIL, TEST_PASSWORD);

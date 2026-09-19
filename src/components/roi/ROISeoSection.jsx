@@ -2,14 +2,8 @@
 // state, no props — kept out of the page file so the page stays about
 // behaviour.
 
-const FAQS = [
-  { q: "What is ROI?", a: "ROI (Return on Investment) measures the gain or loss from an investment relative to its cost. Formula: ROI% = ((Amount Returned − Amount Invested) ÷ Amount Invested) × 100." },
-  { q: "What is a good ROI in India?", a: "A good ROI depends on the investment type. Bank FDs offer ~7% p.a., gold averages ~12% over 10 years, and Nifty 50 has historically returned ~14% p.a. Any annualized return above 15% is considered strong." },
-  { q: "What is annualized ROI?", a: "Annualized ROI (also called CAGR) normalizes the return over a multi-year period to show the equivalent annual rate. It accounts for compounding frequency — monthly, quarterly, or annually." },
-  { q: "How is break-even calculated?", a: "Break-even point is the number of years it takes to recover your investment at the current annual gain rate. Break-even = Amount Invested ÷ Annual Gain." },
-  { q: "What does inflation-adjusted ROI mean?", a: "Real ROI subtracts the inflation rate from your nominal ROI. If your investment returns 12% but inflation is 6%, your real purchasing power only grew by ~6%." },
-  { q: "Is this ROI calculator free?", a: "Yes — completely free, no login required, and your data never leaves your device." },
-];
+import { Link } from "react-router-dom";
+import { FAQS } from "./roiFaqs";
 
 const FORMULAS = [
   { label: "Basic ROI", formula: "(Return − Cost) ÷ Cost × 100", color: "#2563EB" },
@@ -22,6 +16,18 @@ const WHY_USE = [
   { icon: "🎯", title: "Set return targets", body: "Work backwards from a goal — know exactly what return rate you need to reach your target." },
   { icon: "📈", title: "Track performance", body: "Measure how an existing investment is performing against benchmarks like Nifty 50 or gold." },
   { icon: "💡", title: "Justify business spend", body: "Evaluate whether a marketing campaign, equipment purchase, or expansion is worth the cost." },
+];
+
+const HOW_TO_STEPS = [
+  { step: 1, title: "Enter your numbers", body: "Amount invested, amount returned, and the number of years you held it." },
+  { step: 2, title: "Pick a mode", body: "Basic for a quick ROI%, or switch to Advanced, Compare, or What-if to see annualized returns, compare two investments side by side, or test a different outcome." },
+  { step: 3, title: "Read your results", body: "ROI%, annualized (CAGR) return, and break-even period — turn on inflation to see your real, purchasing-power-adjusted return too." },
+];
+
+const RELATED_TOOLS = [
+  { name: "GST Calculator", href: "/business/gst-calculator", description: "Add or remove GST with a CGST/SGST/IGST breakdown." },
+  { name: "Salary Slip Generator", href: "/documents/salary-slip", description: "Payslips with CTC, deductions & net pay." },
+  { name: "GST Invoice Generator", href: "/documents/gst-invoice", description: "Tax-compliant GST invoices with HSN codes." },
 ];
 
 const BENCHMARK_TABLE = [
@@ -72,6 +78,26 @@ export default function ROISeoSection() {
         </section>
 
         <section style={{ marginBottom: 56 }}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", margin: "0 0 20px", letterSpacing: "-0.01em" }}>How to Calculate ROI with This Tool</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            {HOW_TO_STEPS.map((s, i) => (
+              <div key={s.step} style={{ display: "flex", gap: 16, paddingBottom: 20, position: "relative" }}>
+                {i < HOW_TO_STEPS.length - 1 && (
+                  <div style={{ position: "absolute", left: 15, top: 32, bottom: 0, width: 2, background: "#E2E8F0" }} />
+                )}
+                <div style={{ flexShrink: 0, width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, #2563EB, #4F46E5)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, zIndex: 1 }}>
+                  {s.step}
+                </div>
+                <div style={{ paddingTop: 6 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#0F172A", marginBottom: 3 }}>{s.title}</div>
+                  <div style={{ fontSize: 13.5, color: "#64748B", lineHeight: 1.65 }}>{s.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 56 }}>
           <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", margin: "0 0 16px", letterSpacing: "-0.01em" }}>ROI Benchmarks in India (2024–25)</h2>
           <p style={{ fontSize: 14, color: "#64748B", margin: "0 0 20px", lineHeight: 1.7 }}>
             Use these benchmarks to contextualise your investment returns. Historical averages are approximate and vary with market conditions.
@@ -107,6 +133,21 @@ export default function ROISeoSection() {
                 <div style={{ fontSize: 14, fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>{faq.q}</div>
                 <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.7 }}>{faq.a}</div>
               </div>
+            ))}
+          </div>
+        </section>
+
+        <section style={{ marginTop: 56 }}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", margin: "0 0 16px", letterSpacing: "-0.01em" }}>Related Tools</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+            {RELATED_TOOLS.map((t) => (
+              <Link key={t.href} to={t.href} style={{ background: "#fff", border: "1px solid #E2E8F0", borderRadius: 12, padding: "14px 16px", textDecoration: "none", display: "block" }}
+                onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.08)"}
+                onMouseLeave={(e) => e.currentTarget.style.boxShadow = "none"}
+              >
+                <div style={{ fontSize: 14, fontWeight: 600, color: "#0F172A", marginBottom: 4 }}>{t.name}</div>
+                <div style={{ fontSize: 12.5, color: "#94A3B8", lineHeight: 1.5 }}>{t.description}</div>
+              </Link>
             ))}
           </div>
         </section>

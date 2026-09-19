@@ -7,10 +7,36 @@ import ROIResultsPanel from "../../components/roi/ROIResultsPanel";
 import OthersCalculator from "../../components/roi/OthersCalculator";
 import OthersResultPanel from "../../components/roi/OthersResultPanel";
 import ROISeoSection from "../../components/roi/ROISeoSection";
+import { FAQS } from "../../components/roi/roiFaqs";
 import { logSaveRequest } from "../../utils/saveLog";
 
 const SEO_TITLE = "ROI Calculator — Return on Investment Calculator India | OpsTools";
 const SEO_DESCRIPTION = "Free ROI calculator (return on investment calculator) for India. Compare FD, RD and savings account returns, run what-if scenarios, no login required.";
+const CANONICAL = "https://www.opstools.ai/business/roi-calculator";
+
+// Structured data — the page had none of this before, despite already
+// having a full written FAQ section. FAQPage schema is one of the few
+// legitimate ways to earn a rich-snippet FAQ dropdown directly in Google's
+// results, which matters a lot more than the plain title/description for a
+// page that already ranks with real impressions but close to zero clicks.
+const softwareAppSchema = {
+  "@context": "https://schema.org", "@type": "SoftwareApplication",
+  name: "OpsTools ROI Calculator", operatingSystem: "Web", applicationCategory: "FinanceApplication",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+  description: SEO_DESCRIPTION, url: CANONICAL,
+  provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" },
+};
+const faqSchema = {
+  "@context": "https://schema.org", "@type": "FAQPage",
+  mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+};
+const breadcrumbSchema = {
+  "@context": "https://schema.org", "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://www.opstools.ai" },
+    { "@type": "ListItem", position: 2, name: "ROI Calculator", item: CANONICAL },
+  ],
+};
 
 export default function ROICalculatorPage() {
   const [currency, setCurrency] = useState(CURRENCIES[0]);
@@ -56,8 +82,8 @@ export default function ROICalculatorPage() {
         <meta name="description" content={SEO_DESCRIPTION} />
         <meta property="og:title" content={SEO_TITLE} />
         <meta property="og:description" content={SEO_DESCRIPTION} />
-        <meta property="og:url" content="https://www.opstools.ai/business/roi-calculator" />
-        <link rel="canonical" href="https://www.opstools.ai/business/roi-calculator" />
+        <meta property="og:url" content={CANONICAL} />
+        <link rel="canonical" href={CANONICAL} />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
         <meta property="og:image:width" content="1200" />
@@ -66,6 +92,9 @@ export default function ROICalculatorPage() {
         <meta name="twitter:title" content={SEO_TITLE} />
         <meta name="twitter:description" content={SEO_DESCRIPTION} />
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
+        <script type="application/ld+json">{JSON.stringify(softwareAppSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
 
       <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>

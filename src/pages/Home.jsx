@@ -37,10 +37,9 @@ const stats = [
 const HOME_FAQS = [
   { q: "Is OpsTools really free?", a: "Yes — every single-document download is free, forever. There's no card on file, no trial period, and no feature locked behind a paywall for generating one document at a time." },
   { q: "Do I need to create an account?", a: "No. Every tool works fully as a guest — fill the form, download the PDF, done. An account is only needed if you want to request credits for bulk uploads (generating many documents at once from a CSV)." },
-  { q: "Is my data stored anywhere?", a: "No — every document is generated client-side, directly in your browser. What you type never reaches our servers, and we don't store or see your data." },
   { q: "Which documents can I generate?", a: "Fuel bills, rent receipts, GST invoices, salary slips, hotel bills, restaurant bills, e-way bills, and 15+ other India-specific formats — plus an ROI calculator and GST calculator. Browse the full list on the Documents page." },
   { q: "Can I generate documents in bulk?", a: "Yes — upload a CSV and generate up to 50 documents as one PDF in a single pass, instead of filling the form repeatedly." },
-  { q: "Are the formats compliant with Indian tax rules?", a: "Yes — GST invoices include CGST/SGST/IGST and HSN codes, rent receipts support landlord PAN for HRA claims, and fuel bills follow IOCL/POS-style formats used for reimbursement." },
+  { q: "Are the formats compliant with Indian tax rules?", a: "GST invoices include CGST/SGST/IGST and HSN codes, rent receipts support landlord PAN for HRA claims, and fuel bills follow IOCL/POS-style formats used for reimbursement. These are provided for formatting purposes only — please use your own discretion and verify with a tax advisor before relying on them for official compliance." },
 ];
 const homeFaqSchema = {
   "@context": "https://schema.org", "@type": "FAQPage",

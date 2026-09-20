@@ -1,6 +1,38 @@
 import { Helmet } from 'react-helmet-async';
 import { useState } from "react";
 
+const SEO_TITLE = "Free GST Calculator India — Add or Remove GST with CGST/SGST | OpsTools";
+const SEO_DESCRIPTION = "Calculate GST instantly. Add or remove GST. CGST, SGST and IGST breakdown for any rate. Free.";
+const CANONICAL = "https://www.opstools.ai/business/gst-calculator";
+
+const FAQS = [
+  { q: "What's the difference between adding and removing GST?", a: "Adding GST starts from a GST-exclusive price and calculates the tax on top (Price × Rate ÷ 100), giving you a higher total. Removing GST starts from a GST-inclusive price and works backward to find the base value (Price ÷ (1 + Rate ÷ 100)) and the tax hidden within it. They use different formulas — you can't just subtract the percentage from an inclusive price." },
+  { q: "When do I use CGST + SGST instead of IGST?", a: "CGST + SGST applies when the buyer and seller are in the same state (intra-state) — the total GST is split equally between the two. IGST applies when the buyer and seller are in different states (inter-state) — the full GST amount is charged as IGST instead of being split." },
+  { q: "How is the CGST/SGST rate calculated from the total GST rate?", a: "For an intra-state transaction, the total GST rate is split evenly: each of CGST and SGST is charged at half the total rate, and each amount is half of the total GST amount. For example, at an 18% total rate, CGST is 9% and SGST is 9%." },
+  { q: "Can I calculate GST for any rate, not just 5%, 12%, 18%, or 28%?", a: "Yes — the calculator supports 0%, 0.25%, 0.5%, 1%, 1.5%, 3%, 5%, 7.5%, 12%, 18%, and 28%, covering both the standard slabs and the lower rates used for items like rough diamonds, precious metals, and specific job-work services." },
+  { q: "Do the GST rate slabs shown for common items always apply?", a: "The categories and rates shown are common reference points for everyday items, but GST classifications and rates can change and can vary by specific product description or notification. Always verify the exact rate applicable to your product or service before issuing an invoice." },
+  { q: "Is this GST calculator free to use?", a: "Yes — completely free, with no login, subscription, or credits required. Calculations happen instantly in your browser." },
+];
+
+const softwareAppSchema = {
+  "@context": "https://schema.org", "@type": "SoftwareApplication",
+  name: "OpsTools GST Calculator", operatingSystem: "Web", applicationCategory: "FinanceApplication",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+  description: SEO_DESCRIPTION, url: CANONICAL,
+  provider: { "@type": "Organization", name: "OpsTools", url: "https://www.opstools.ai" },
+};
+const faqSchema = {
+  "@context": "https://schema.org", "@type": "FAQPage",
+  mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+};
+const breadcrumbSchema = {
+  "@context": "https://schema.org", "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://www.opstools.ai" },
+    { "@type": "ListItem", position: 2, name: "GST Calculator", item: CANONICAL },
+  ],
+};
+
 const GST_RATES = [0, 0.25, 0.5, 1, 1.5, 3, 5, 7.5, 12, 18, 28];
 const COMMON_ITEMS = [
   { name: "Milk / Eggs / Fresh vegetables", rate: 0 },
@@ -51,20 +83,23 @@ export default function GSTCalculatorPage() {
   return (
     <>
       <Helmet>
-        <title>Free GST Calculator India — Add or Remove GST with CGST/SGST | OpsTools</title>
-        <meta name="description" content="Calculate GST instantly. Add or remove GST. CGST, SGST and IGST breakdown for any rate. Free." />
-        <meta property="og:title" content="Free GST Calculator India — Add or Remove GST with CGST/SGST | OpsTools" />
-        <meta property="og:description" content="Calculate GST instantly. Add or remove GST. CGST, SGST and IGST breakdown for any rate. Free." />
-        <meta property="og:url" content="https://www.opstools.ai/business/gst-calculator" />
-        <link rel="canonical" href="https://www.opstools.ai/business/gst-calculator" />
+        <title>{SEO_TITLE}</title>
+        <meta name="description" content={SEO_DESCRIPTION} />
+        <meta property="og:title" content={SEO_TITLE} />
+        <meta property="og:description" content={SEO_DESCRIPTION} />
+        <meta property="og:url" content={CANONICAL} />
+        <link rel="canonical" href={CANONICAL} />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Free GST Calculator India — Add or Remove GST with CGST/SGST | OpsTools" />
-        <meta name="twitter:description" content="Calculate GST instantly. Add or remove GST. CGST, SGST and IGST breakdown for any rate. Free." />
+        <meta name="twitter:title" content={SEO_TITLE} />
+        <meta name="twitter:description" content={SEO_DESCRIPTION} />
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
+        <script type="application/ld+json">{JSON.stringify(softwareAppSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
     <div style={{ backgroundColor:"#F8FAFC", minHeight:"100vh" }}>
       <style>{`@media(max-width:768px){.gst-layout{grid-template-columns:1fr!important;}}`}</style>
@@ -252,6 +287,25 @@ export default function GSTCalculatorPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ background: "#fff", borderTop: "1px solid #E2E8F0" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "48px 24px 64px" }}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", margin: "0 0 16px", letterSpacing: "-0.01em" }}>What is GST?</h2>
+          <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.8, marginBottom: 16 }}>
+            GST (Goods and Services Tax) is India's unified indirect tax on the supply of goods and services. To add GST to a price, multiply it by the rate and add that on top; to remove GST from a price that already includes it, divide by (1 + rate ÷ 100) to find the taxable value. For a transaction within the same state, the total GST splits evenly into CGST and SGST; across states, the same total is charged in full as IGST.
+          </p>
+
+          <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0F172A", margin: "32px 0 20px", letterSpacing: "-0.01em" }}>Frequently Asked Questions</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {FAQS.map((faq) => (
+              <div key={faq.q} style={{ background: "#F8FAFC", borderRadius: 12, padding: "18px 20px", border: "1px solid #E2E8F0" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>{faq.q}</div>
+                <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.7 }}>{faq.a}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

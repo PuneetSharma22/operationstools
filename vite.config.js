@@ -25,6 +25,16 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'script-defer',
       includeAssets: ['favicon.svg', 'pwa-192.png', 'pwa-512.png'],
+      workbox: {
+        // Without this, workbox's default navigateFallback treats every
+        // top-level browser navigation — including a direct visit to
+        // /sitemap.xml or /robots.txt — as an SPA route and serves the
+        // cached index.html instead of the real file. Only actually visible
+        // to a browser that already has the service worker installed from
+        // an earlier visit; a fresh request (or curl) hits the server
+        // directly and gets the correct file either way.
+        navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.txt$/, /^\/llms\.txt$/, /^\/api\//],
+      },
       manifest: {
         name: 'OpsTools — Free Business Tools for India',
         short_name: 'OpsTools',

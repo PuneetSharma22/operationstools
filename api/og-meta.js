@@ -71,7 +71,7 @@ const PAGE_META = {
 const DEFAULT_META = {
   h1: "Professional documents, ready in seconds",
   title: "OpsTools — Free Business Document Generator for India",
-  description: "Free online document generators and calculators for Indian small businesses. Fuel bills, rent receipts, GST invoices, salary slips, ROI calculator — no login, no cost, instant results.",
+  description: "Free document generators for Indian small businesses — fuel bills, rent receipts, GST invoices, salary slips, ROI calculator. No login, instant PDF.",
 };
 
 function escapeHtml(str) {

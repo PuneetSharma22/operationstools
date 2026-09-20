@@ -34,6 +34,19 @@ const stats = [
   { value: "50+", label: "Tools in roadmap" },
 ];
 
+const HOME_FAQS = [
+  { q: "Is OpsTools really free?", a: "Yes — every single-document download is free, forever. There's no card on file, no trial period, and no feature locked behind a paywall for generating one document at a time." },
+  { q: "Do I need to create an account?", a: "No. Every tool works fully as a guest — fill the form, download the PDF, done. An account is only needed if you want to request credits for bulk uploads (generating many documents at once from a CSV)." },
+  { q: "Is my data stored anywhere?", a: "No — every document is generated client-side, directly in your browser. What you type never reaches our servers, and we don't store or see your data." },
+  { q: "Which documents can I generate?", a: "Fuel bills, rent receipts, GST invoices, salary slips, hotel bills, restaurant bills, e-way bills, and 15+ other India-specific formats — plus an ROI calculator and GST calculator. Browse the full list on the Documents page." },
+  { q: "Can I generate documents in bulk?", a: "Yes — upload a CSV and generate up to 50 documents as one PDF in a single pass, instead of filling the form repeatedly." },
+  { q: "Are the formats compliant with Indian tax rules?", a: "Yes — GST invoices include CGST/SGST/IGST and HSN codes, rent receipts support landlord PAN for HRA claims, and fuel bills follow IOCL/POS-style formats used for reimbursement." },
+];
+const homeFaqSchema = {
+  "@context": "https://schema.org", "@type": "FAQPage",
+  mainEntity: HOME_FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+};
+
 export default function Home() {
   const [retailDocs, setRetailDocs] = useState(FALLBACK_RETAIL);
   const [businessDocs, setBusinessDocs] = useState(FALLBACK_BUSINESS);
@@ -50,8 +63,9 @@ export default function Home() {
     <>
       <Helmet>
         <title>OpsTools — Free Business Document Generator for India</title>
-        <meta name="description" content="Free online document generators and calculators for Indian small businesses. Fuel bills, rent receipts, GST invoices, salary slips, ROI calculator — no login, no cost, instant results." />
+        <meta name="description" content="Free document generators for Indian small businesses — fuel bills, rent receipts, GST invoices, salary slips, ROI calculator. No login, instant PDF." />
         <link rel="canonical" href="https://www.opstools.ai/" />
+        <script type="application/ld+json">{JSON.stringify(homeFaqSchema)}</script>
       </Helmet>
       <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
         <style>{`
@@ -231,6 +245,20 @@ export default function Home() {
                   </div>
                   <div style={{ fontSize: 15, fontWeight: 600, color: "#E2E8F0", marginBottom: 6 }}>{f.title}</div>
                   <div style={{ fontSize: 13, color: "#94A3B8", lineHeight: 1.6 }}>{f.body}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section style={{ background: "#fff", borderTop: "1px solid #E2E8F0", padding: "56px 24px" }}>
+          <div style={{ maxWidth: 760, margin: "0 auto" }}>
+            <h2 style={{ fontSize: "clamp(20px,3vw,28px)", fontWeight: 700, color: "#0F172A", margin: "0 0 24px", letterSpacing: "-0.02em", textAlign: "center" }}>Frequently Asked Questions</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {HOME_FAQS.map((faq) => (
+                <div key={faq.q} style={{ background: "#F8FAFC", borderRadius: 12, padding: "18px 20px", border: "1px solid #E2E8F0" }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>{faq.q}</div>
+                  <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.7 }}>{faq.a}</div>
                 </div>
               ))}
             </div>

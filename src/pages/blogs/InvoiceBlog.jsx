@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import BlogSidebar from "../../components/blog/BlogSidebar";
 
 function Callout({ icon, title, children, color = "#EFF6FF", borderColor = "#2563EB" }) {
   return (
@@ -40,6 +41,7 @@ export default function InvoiceBlog() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
+      <style>{`@media(max-width:900px){.blog-layout{grid-template-columns:1fr!important}.blog-sidebar{position:static!important;margin-top:32px;}}`}</style>
 
       {/* Hero */}
       <section style={{ background: "linear-gradient(160deg,#07011F 0%,#1e1b4b 55%,#3730a3 100%)", padding: "72px 24px 48px" }}>
@@ -83,7 +85,9 @@ export default function InvoiceBlog() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "48px 24px 80px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px 80px" }}>
+        <div className="blog-layout" style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 48, alignItems: "start" }}>
+        <div>
         <p style={{ fontSize: 16, color: "#374151", lineHeight: 1.85, marginBottom: 20 }}>
           Need a clean, professional invoice without wrestling with a spreadsheet template? Whether you're a freelancer billing a client, a small business owner closing a sale, or a service provider issuing a one-off bill, a proper invoice is what gets you paid — and what your client's accounts team needs to process the payment.
         </p>
@@ -216,6 +220,11 @@ export default function InvoiceBlog() {
               </Link>
             ))}
           </div>
+        </div>
+      </div>
+        <div style={{ position: "sticky", top: 88 }} className="blog-sidebar">
+          <BlogSidebar currentSlug="how-to-generate-invoice-online-india" />
+        </div>
         </div>
       </div>
     </div>

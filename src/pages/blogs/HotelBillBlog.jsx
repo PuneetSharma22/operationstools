@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import BlogSidebar from "../../components/blog/BlogSidebar";
 
 function Callout({ icon, title, children, color = "#EFF6FF", borderColor = "#2563EB" }) {
   return (
@@ -150,6 +151,7 @@ export default function HotelBillBlog() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
+      <style>{`@media(max-width:900px){.blog-layout{grid-template-columns:1fr!important}.blog-sidebar{position:static!important;margin-top:32px;}}`}</style>
 
       {/* Hero */}
       <section style={{ background: "linear-gradient(160deg,#07011F 0%,#0c2340 100%)", padding: "72px 24px 48px" }}>
@@ -195,7 +197,9 @@ export default function HotelBillBlog() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "48px 24px 80px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px 80px" }}>
+        <div className="blog-layout" style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 48, alignItems: "start" }}>
+        <div>
         <p style={{ fontSize: 16, color: "#374151", lineHeight: 1.85, marginBottom: 20 }}>
           Whether you run a small hotel or guesthouse, or you're a traveler who needs a proper receipt for expense reimbursement, a hotel bill has to get a few things right: accurate stay dates, itemized charges, and — for registered properties — GSTIN and tax breakup. Most small hotels either scribble this by hand or pay for a full property management system just to print a receipt.
         </p>
@@ -315,6 +319,11 @@ export default function HotelBillBlog() {
               </Link>
             ))}
           </div>
+        </div>
+      </div>
+        <div style={{ position: "sticky", top: 88 }} className="blog-sidebar">
+          <BlogSidebar currentSlug="how-to-generate-hotel-bill-online-india" />
+        </div>
         </div>
       </div>
     </div>

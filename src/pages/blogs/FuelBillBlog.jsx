@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import BlogSidebar from "../../components/blog/BlogSidebar";
 
 function Callout({ icon, title, children, color = "#EFF6FF", borderColor = "#2563EB" }) {
   return (
@@ -43,6 +44,7 @@ export default function FuelBillBlog() {
       <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
       <meta name="twitter:card" content="summary_large_image" />
     </Helmet>
+    <style>{`@media(max-width:900px){.blog-layout{grid-template-columns:1fr!important}.blog-sidebar{position:static!important;margin-top:32px;}}`}</style>
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
 
       {/* Hero */}
@@ -162,7 +164,9 @@ export default function FuelBillBlog() {
       </div>
 
       {/* Article */}
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "48px 24px 80px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px 80px" }}>
+        <div className="blog-layout" style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 48, alignItems: "start" }}>
+        <div>
 
         <p style={{ fontSize: 16, color: "#374151", lineHeight: 1.85, marginBottom: 20 }}>
           Every month, thousands of Indian employees submit fuel bills for reimbursement — only to realise they've lost the receipt, the petrol pump didn't print one, or the printout is too faded to read. If you've been in this situation, you're not alone.
@@ -316,6 +320,11 @@ export default function FuelBillBlog() {
               </Link>
             ))}
           </div>
+        </div>
+      </div>
+        <div style={{ position: "sticky", top: 88 }} className="blog-sidebar">
+          <BlogSidebar currentSlug="how-to-generate-fuel-bill-online-india" />
+        </div>
         </div>
       </div>
     </div>

@@ -99,7 +99,7 @@ export default function Home() {
                 </p>
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 32 }}>
                   <Link to="/documents/fuel-bill" style={{ background: "linear-gradient(135deg, #2563EB 0%, #4F46E5 100%)", color: "#fff", padding: "13px 26px", borderRadius: 10, fontWeight: 600, fontSize: 15, textDecoration: "none", display: "inline-block" }}>Generate a fuel bill →</Link>
-                  <a href="#tools" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)", color: "#CBD5E1", padding: "13px 26px", borderRadius: 10, fontWeight: 500, fontSize: 15, textDecoration: "none", display: "inline-block" }}>Browse all tools</a>
+                  <Link to="/documents" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)", color: "#CBD5E1", padding: "13px 26px", borderRadius: 10, fontWeight: 500, fontSize: 15, textDecoration: "none", display: "inline-block" }}>Browse all tools</Link>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
                   {[{ icon: "🔒", text: "No data stored" }, { icon: "⚡", text: "Instant PDF" }, { icon: "🇮🇳", text: "India-specific formats" }].map(t => (

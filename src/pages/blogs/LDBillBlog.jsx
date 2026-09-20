@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import BlogSidebar from "../../components/blog/BlogSidebar";
 
 function Callout({ icon, title, children, color = "#EFF6FF", borderColor = "#2563EB" }) {
   return (
@@ -125,6 +126,7 @@ export default function LDBillBlog() {
       <meta property="og:image" content="https://www.opstools.ai/og-image.png" />
       <meta name="twitter:card" content="summary_large_image" />
     </Helmet>
+    <style>{`@media(max-width:900px){.blog-layout{grid-template-columns:1fr!important}.blog-sidebar{position:static!important;margin-top:32px;}}`}</style>
     <div style={{ backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
 
       {/* Hero */}
@@ -161,7 +163,9 @@ export default function LDBillBlog() {
       <HeroIllustration />
 
       {/* Article */}
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "48px 24px 80px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px 80px" }}>
+        <div className="blog-layout" style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 48, alignItems: "start" }}>
+        <div>
 
         <p style={{ fontSize: 16, color: "#374151", lineHeight: 1.85, marginBottom: 20 }}>
           Whether you're claiming reimbursement for an online course, submitting a training expense to your finance team, or running a corporate L&D program — you need a proper tax invoice. Most platforms like Udemy, Coursera, and LinkedIn Learning do generate invoices, but they're not always in the format your company's finance team accepts.
@@ -310,6 +314,11 @@ export default function LDBillBlog() {
               </Link>
             ))}
           </div>
+        </div>
+      </div>
+        <div style={{ position: "sticky", top: 88 }} className="blog-sidebar">
+          <BlogSidebar currentSlug="how-to-generate-ld-bill-online-india" />
+        </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import BlogSidebar from "../../components/blog/BlogSidebar";
 
 function Callout({ icon, title, children, color = "#EFF6FF", borderColor = "#2563EB" }) {
   return (
@@ -40,6 +41,7 @@ export default function FreelancerInvoiceBlog() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content="https://www.opstools.ai/og-image.png" />
       </Helmet>
+      <style>{`@media(max-width:900px){.blog-layout{grid-template-columns:1fr!important}.blog-sidebar{position:static!important;margin-top:32px;}}`}</style>
 
       {/* Hero */}
       <section style={{ background: "linear-gradient(160deg,#07011F 0%,#1e3a8a 55%,#1d4ed8 100%)", padding: "72px 24px 48px" }}>
@@ -83,7 +85,9 @@ export default function FreelancerInvoiceBlog() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "48px 24px 80px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px 80px" }}>
+        <div className="blog-layout" style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 48, alignItems: "start" }}>
+        <div>
         <p style={{ fontSize: 16, color: "#374151", lineHeight: 1.85, marginBottom: 20 }}>
           Billing a client as a freelancer shouldn't mean fighting with a spreadsheet template every time. Whether you're logging hours against a rate or billing a fixed amount for a deliverable, the invoice needs to look professional, add up correctly, and land in the client's inbox without a back-and-forth about formatting.
         </p>
@@ -214,6 +218,11 @@ export default function FreelancerInvoiceBlog() {
               </Link>
             ))}
           </div>
+        </div>
+      </div>
+        <div style={{ position: "sticky", top: 88 }} className="blog-sidebar">
+          <BlogSidebar currentSlug="how-to-generate-freelancer-invoice-online-india" />
+        </div>
         </div>
       </div>
     </div>

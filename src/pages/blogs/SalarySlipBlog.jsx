@@ -59,7 +59,7 @@ export default function SalarySlipBlog() {
               A complete guide to salary slips in India — CTC structure, basic pay, HRA, PF, TDS, deductions, net pay, and how to generate a professional payslip instantly.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>OpsTools Team</span><span>·</span><span>July 8, 2026</span><span>·</span><span>7 min read</span>
+              <span>Gulnaaz</span><span>·</span><span>July 16, 2026</span><span>·</span><span>7 min read</span>
             </div>
           </div>
         </div>

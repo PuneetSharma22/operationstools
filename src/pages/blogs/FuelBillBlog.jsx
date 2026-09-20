@@ -66,7 +66,7 @@ export default function FuelBillBlog() {
               A complete guide to generating petrol and diesel receipts online — for reimbursement, expense tracking, and fleet management. No login needed.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>OpsTools Team</span>
+              <span>Prakash Jha</span>
               <span>·</span>
               <span>June 20, 2026</span>
               <span>·</span>

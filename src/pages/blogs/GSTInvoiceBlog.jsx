@@ -159,7 +159,7 @@ export default function GSTInvoiceBlog() {
               A complete guide to generating GST-compliant tax invoices — with CGST/SGST/IGST, HSN codes, mandatory fields, and instant PDF download. No login, no cost.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>OpsTools Team</span><span>·</span><span>July 8, 2026</span><span>·</span><span>8 min read</span>
+              <span>Prajay Bangar</span><span>·</span><span>July 9, 2026</span><span>·</span><span>8 min read</span>
             </div>
           </div>
         </div>

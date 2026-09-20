@@ -20,6 +20,7 @@ const LDBillBlog = lazy(() => import("./pages/blogs/LDBillBlog"));
 const GSTInvoiceBlog = lazy(() => import("./pages/blogs/GSTInvoiceBlog"));
 const SalarySlipBlog = lazy(() => import("./pages/blogs/SalarySlipBlog"));
 const RentReceiptBlog = lazy(() => import("./pages/blogs/RentReceiptBlog"));
+const HotelBillBlog = lazy(() => import("./pages/blogs/HotelBillBlog"));
 const LDBillPage = lazy(() => import("./pages/documents/LDBillPage"));
 const GSTInvoicePage = lazy(() => import("./pages/documents/GSTInvoicePage"));
 const SalarySlipPage = lazy(() => import("./pages/documents/SalarySlipPage"));
@@ -100,6 +101,7 @@ export default function App() {
                 <Route path="/blogs/how-to-generate-gst-invoice-online-india" element={<GSTInvoiceBlog />} />
                 <Route path="/blogs/how-to-generate-salary-slip-online-india" element={<SalarySlipBlog />} />
                 <Route path="/blogs/how-to-generate-rent-receipt-online-india" element={<RentReceiptBlog />} />
+                <Route path="/blogs/how-to-generate-hotel-bill-online-india" element={<HotelBillBlog />} />
               </Routes>
             </Suspense>
           </main>

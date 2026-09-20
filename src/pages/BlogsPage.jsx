@@ -1,5 +1,17 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { cloneElement } from "react";
+
+// Same pastel line-icon style used across Home/DocumentsPage/TopHeader —
+// reused here (scaled up) instead of a generic document-wireframe mockup.
+const BLOG_ICONS = {
+  "fuel-bill": { bg: "#DBEAFE", svg: <svg viewBox="0 0 28 28" fill="none"><rect x="5" y="3" width="14" height="19" rx="2" fill="#BFDBFE"/><rect x="8" y="7" width="8" height="1.5" rx="0.75" fill="#3B82F6"/><rect x="8" y="10.5" width="6" height="1.5" rx="0.75" fill="#3B82F6"/><rect x="8" y="14" width="8" height="1.5" rx="0.75" fill="#3B82F6"/><circle cx="20" cy="19" r="5" fill="#FDE68A"/><path d="M19 17.5l1.5 1.5-1.5 1.5" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M18 17.5v3" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round"/></svg> },
+  "ld-bill": { bg: "#EDE9FE", svg: <svg viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#DDD6FE"/><path d="M8 10h12M8 14h8M8 18h10" stroke="#7C3AED" strokeWidth="1.5" strokeLinecap="round"/></svg> },
+  "gst-invoice": { bg: "#EDE9FE", svg: <svg viewBox="0 0 28 28" fill="none"><rect x="4" y="3" width="20" height="22" rx="2.5" fill="#DDD6FE"/><rect x="7" y="7" width="14" height="2" rx="1" fill="#7C3AED"/><rect x="7" y="11" width="9" height="1.5" rx="0.75" fill="#A78BFA"/><rect x="7" y="14" width="11" height="1.5" rx="0.75" fill="#A78BFA"/><rect x="7" y="17" width="7" height="1.5" rx="0.75" fill="#A78BFA"/><rect x="15" y="20" width="6" height="2" rx="1" fill="#7C3AED"/></svg> },
+  "salary-slip": { bg: "#FCE7F3", svg: <svg viewBox="0 0 28 28" fill="none"><rect x="3" y="6" width="22" height="16" rx="2.5" fill="#FBCFE8"/><circle cx="10" cy="14" r="4" fill="#F9A8D4"/><path d="M9 14h2M10 13v2" stroke="#DB2777" strokeWidth="1.3" strokeLinecap="round"/><rect x="16" y="11" width="6" height="1.5" rx="0.75" fill="#F9A8D4"/><rect x="16" y="14" width="4" height="1.5" rx="0.75" fill="#F9A8D4"/></svg> },
+  "rent-receipt": { bg: "#D1FAE5", svg: <svg viewBox="0 0 28 28" fill="none"><rect x="4" y="5" width="20" height="18" rx="2.5" fill="#A7F3D0"/><path d="M9 10h10M9 14h6" stroke="#059669" strokeWidth="1.5" strokeLinecap="round"/><path d="M16 17l2 2 4-4" stroke="#059669" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+  "hotel-bill": { bg: "#DBEAFE", svg: <svg viewBox="0 0 28 28" fill="none"><rect x="3" y="3" width="22" height="22" rx="3" fill="#BFDBFE"/><rect x="7" y="12" width="6" height="10" rx="1" fill="#2563EB"/><rect x="15" y="12" width="6" height="10" rx="1" fill="#2563EB"/><rect x="5" y="10" width="18" height="3" rx="1" fill="#3B82F6"/><rect x="11" y="6" width="6" height="4" rx="1" fill="#60A5FA"/></svg> },
+};
 
 const ALL_BLOGS = [
   {
@@ -7,11 +19,12 @@ const ALL_BLOGS = [
     title: "How to Generate a Fuel Bill Online for Free in India (2026)",
     excerpt: "A complete guide to generating petrol and diesel receipts online — for reimbursement, HRA claims, and fleet management. No login needed.",
     date: "June 20, 2026",
+    author: "Prakash Jha",
     readTime: "7 min read",
     category: "Guide",
     categoryColor: "#2563EB",
     categoryBg: "#EFF6FF",
-    icon: "⛽",
+    docIcon: "fuel-bill",
     gradientFrom: "#1e3a8a",
     gradientTo: "#312e81",
     tool: { name: "Try Fuel Bill Generator →", href: "/documents/fuel-bill" },
@@ -21,11 +34,12 @@ const ALL_BLOGS = [
     title: "How to Generate an L&D Tax Invoice Online in India (2026)",
     excerpt: "A complete guide to generating professional tax invoices for training, courses, and learning & development expenses — with CGST/SGST and instant PDF.",
     date: "July 2, 2026",
+    author: "Arijit Sawant",
     readTime: "6 min read",
     category: "Guide",
     categoryColor: "#7C3AED",
     categoryBg: "#F5F3FF",
-    icon: "🎓",
+    docIcon: "ld-bill",
     gradientFrom: "#1e1b4b",
     gradientTo: "#312e81",
     tool: { name: "Try L&D Bill Generator →", href: "/documents/ld-bill" },
@@ -34,12 +48,13 @@ const ALL_BLOGS = [
     slug: "how-to-generate-gst-invoice-online-india",
     title: "How to Generate a GST Invoice Online in India for Free (2026)",
     excerpt: "Complete guide to GST-compliant tax invoices — CGST, SGST, IGST, HSN codes, mandatory fields, and instant PDF download. No login, no cost.",
-    date: "July 8, 2026",
+    date: "July 9, 2026",
+    author: "Prajay Bangar",
     readTime: "8 min read",
     category: "Guide",
     categoryColor: "#7C3AED",
     categoryBg: "#EDE9FE",
-    icon: "🧾",
+    docIcon: "gst-invoice",
     gradientFrom: "#1e1b4b",
     gradientTo: "#4c1d95",
     tool: { name: "Try GST Invoice Generator →", href: "/documents/gst-invoice" },
@@ -48,12 +63,13 @@ const ALL_BLOGS = [
     slug: "how-to-generate-salary-slip-online-india",
     title: "How to Generate a Salary Slip Online in India for Free (2026)",
     excerpt: "Complete guide to salary slips — CTC structure, basic pay, HRA, PF, TDS, deductions and net pay. Generate a professional payslip instantly.",
-    date: "July 8, 2026",
+    date: "July 16, 2026",
+    author: "Gulnaaz",
     readTime: "7 min read",
     category: "Guide",
     categoryColor: "#DB2777",
     categoryBg: "#FCE7F3",
-    icon: "💼",
+    docIcon: "salary-slip",
     gradientFrom: "#1a0a1e",
     gradientTo: "#3b0764",
     tool: { name: "Try Salary Slip Generator →", href: "/documents/salary-slip" },
@@ -62,19 +78,35 @@ const ALL_BLOGS = [
     slug: "how-to-generate-rent-receipt-online-india",
     title: "How to Generate a Rent Receipt Online for HRA Exemption in India (2026)",
     excerpt: "Complete guide to rent receipts for HRA tax exemption — mandatory fields, landlord PAN requirement, monthly vs annual receipts, and free PDF.",
-    date: "July 8, 2026",
+    date: "July 23, 2026",
+    author: "Prakash Jha",
     readTime: "6 min read",
     category: "Guide",
     categoryColor: "#059669",
     categoryBg: "#D1FAE5",
-    icon: "🏠",
+    docIcon: "rent-receipt",
     gradientFrom: "#052e16",
     gradientTo: "#14532d",
     tool: { name: "Try Rent Receipt Generator →", href: "/documents/rent-receipt" },
   },
+  {
+    slug: "how-to-generate-hotel-bill-online-india",
+    title: "How to Generate a Hotel Bill Online in India for Free (2026)",
+    excerpt: "Complete guide to hotel bills — check-in/check-out dates, room and additional charges, GSTIN, CGST/SGST, and instant PDF download.",
+    date: "August 20, 2026",
+    author: "Arijit Sawant",
+    readTime: "7 min read",
+    category: "Guide",
+    categoryColor: "#0284C7",
+    categoryBg: "#E0F2FE",
+    docIcon: "hotel-bill",
+    gradientFrom: "#07011F",
+    gradientTo: "#0c2340",
+    tool: { name: "Try Hotel Bill Generator →", href: "/documents/hotel-bill" },
+  },
 ];
 
-function BlogCard({ blog, featured }) {
+function BlogCard({ blog }) {
   return (
     <Link to={`/blogs/${blog.slug}`} style={{ textDecoration: "none", display: "block" }}>
       <article style={{
@@ -87,44 +119,47 @@ function BlogCard({ blog, featured }) {
       >
         {/* Illustration */}
         <div style={{
-          height: featured ? 240 : 160,
+          height: 160,
           background: `linear-gradient(160deg, ${blog.gradientFrom}, ${blog.gradientTo})`,
           display: "flex", alignItems: "center", justifyContent: "center",
           position: "relative", overflow: "hidden",
         }}>
-          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 30% 50%, rgba(37,99,235,0.15), transparent 60%), radial-gradient(circle at 70% 60%, rgba(79,70,229,0.15), transparent 60%)" }} />
-          {/* Inline SVG receipt illustration */}
-          <svg width={featured ? 280 : 180} height={featured ? 140 : 90} viewBox="0 0 280 140" fill="none" style={{ position: "relative", zIndex: 1 }}>
-            <rect x="60" y="10" width="160" height="120" rx="8" fill="white" opacity="0.07" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
-            <rect x="74" y="22" width="60" height="6" rx="3" fill="#2563EB" opacity="0.6" />
-            <rect x="74" y="34" width="100" height="4" rx="2" fill="rgba(255,255,255,0.15)" />
-            {[0,1,2,3,4].map(i => (
-              <g key={i}>
-                <rect x="74" y={48 + i * 14} width={40 + (i % 3) * 16} height="3" rx="1.5" fill="rgba(255,255,255,0.1)" />
-                <rect x={188} y={48 + i * 14} width="28" height="3" rx="1.5" fill="rgba(255,255,255,0.15)" />
-              </g>
-            ))}
-            <rect x="74" y="120" width="132" height="3" rx="1.5" fill="rgba(37,99,235,0.4)" />
-            <text x="140" y="134" textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="8" fontWeight="600" letterSpacing="0.1em">{blog.category.toUpperCase()}</text>
-          </svg>
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 25% 25%, rgba(255,255,255,0.16), transparent 55%), radial-gradient(circle at 78% 75%, rgba(255,255,255,0.10), transparent 55%)" }} />
+          {/* Concentric rings for depth */}
+          <div style={{ position: "absolute", width: 210, height: 210, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.08)" }} />
+          <div style={{ position: "absolute", width: 150, height: 150, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.12)" }} />
+          {/* Floating accent dots */}
+          <div style={{ position: "absolute", top: "22%", left: "20%", width: 7, height: 7, borderRadius: "50%", background: "rgba(255,255,255,0.4)" }} />
+          <div style={{ position: "absolute", bottom: "26%", right: "22%", width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.28)" }} />
+          <div style={{ position: "absolute", top: "32%", right: "24%", width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.32)" }} />
+          {/* Icon badge — same pastel icon used for this doc type elsewhere on the site, scaled up */}
+          <div style={{
+            position: "relative", zIndex: 1,
+            width: 80, height: 80, borderRadius: 22,
+            background: BLOG_ICONS[blog.docIcon].bg,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 20px 40px -12px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.4)",
+          }}>
+            {cloneElement(BLOG_ICONS[blog.docIcon].svg, { width: 42, height: 42 })}
+          </div>
         </div>
 
         {/* Content */}
-        <div style={{ padding: featured ? "24px" : "18px" }}>
+        <div style={{ padding: "18px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: blog.categoryColor, background: blog.categoryBg, padding: "2px 10px", borderRadius: 999 }}>
               {blog.category}
             </span>
             <span style={{ fontSize: 12, color: "#94A3B8" }}>{blog.readTime}</span>
           </div>
-          <h2 style={{ fontSize: featured ? 20 : 16, fontWeight: 700, color: "#0F172A", margin: "0 0 10px", lineHeight: 1.35, letterSpacing: "-0.01em" }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0F172A", margin: "0 0 10px", lineHeight: 1.35, letterSpacing: "-0.01em" }}>
             {blog.title}
           </h2>
           <p style={{ fontSize: 13, color: "#64748B", lineHeight: 1.65, margin: "0 0 16px" }}>
             {blog.excerpt}
           </p>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 12, color: "#94A3B8" }}>{blog.date}</span>
+            <span style={{ fontSize: 12, color: "#94A3B8" }}>{blog.author} · {blog.date}</span>
             <span style={{ fontSize: 13, fontWeight: 600, color: "#2563EB" }}>Read more →</span>
           </div>
         </div>
@@ -134,9 +169,6 @@ function BlogCard({ blog, featured }) {
 }
 
 export default function BlogsPage() {
-  const featured = ALL_BLOGS[0];
-  const rest = ALL_BLOGS.slice(1);
-
   return (
     <>
     <Helmet>
@@ -171,32 +203,9 @@ export default function BlogsPage() {
 
       {/* Blog grid */}
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 24px 80px" }}>
-
-        {/* Featured */}
-        {featured && (
-          <div style={{ marginBottom: 40 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>Featured</p>
-            <BlogCard blog={featured} featured={true} />
-          </div>
-        )}
-
-        {/* Rest */}
-        {rest.length > 0 && (
-          <div>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>All Posts</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
-              {rest.map(blog => <BlogCard key={blog.slug} blog={blog} />)}
-            </div>
-          </div>
-        )}
-
-        {/* Empty state if only 1 blog */}
-        {rest.length === 0 && (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "#94A3B8" }}>
-            <div style={{ fontSize: 32, marginBottom: 12 }}>✍️</div>
-            <p style={{ fontSize: 14 }}>More guides coming soon — GST invoices, salary slips, rent receipts and more.</p>
-          </div>
-        )}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+          {ALL_BLOGS.map(blog => <BlogCard key={blog.slug} blog={blog} />)}
+        </div>
       </div>
     </div>
     </>

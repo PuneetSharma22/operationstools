@@ -59,7 +59,7 @@ export default function RentReceiptBlog() {
               A complete guide to rent receipts for HRA tax exemption — what fields are mandatory, when you need the landlord's PAN, and how to generate a compliant receipt for free.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>OpsTools Team</span><span>·</span><span>July 8, 2026</span><span>·</span><span>6 min read</span>
+              <span>Prakash Jha</span><span>·</span><span>July 23, 2026</span><span>·</span><span>6 min read</span>
             </div>
           </div>
         </div>

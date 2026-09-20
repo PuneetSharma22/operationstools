@@ -148,7 +148,7 @@ export default function LDBillBlog() {
               A complete guide to generating professional tax invoices for training, courses, and learning & development expenses — with CGST/SGST, HSN codes, and instant PDF download.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>OpsTools Team</span>
+              <span>Arijit Sawant</span>
               <span>·</span>
               <span>July 2, 2026</span>
               <span>·</span>

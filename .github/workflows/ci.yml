@@ -6,6 +6,16 @@ on:
   pull_request:
     branches: [main]
 
+# The anon key is a client-side, RLS-gated key that already ships inside the
+# app's own JS bundle for anyone to read — it's not a secret, and it's
+# already committed in cleartext in supabase/migrations/. Without these,
+# src/supabase.js's createClient(undefined, undefined) throws at import
+# time, which crashes the whole React tree before it ever mounts (every
+# e2e test then fails to find any rendered content, on every page).
+env:
+  VITE_SUPABASE_URL: https://ihodvebprqaqphdnfobn.supabase.co
+  VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlob2R2ZWJwcnFhcXBoZG5mb2JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4OTUwODcsImV4cCI6MjA5NzQ3MTA4N30.5FrLZLz6QIkF5WPkgC5b-mDzXbld5w-syd9kGaXB-c0
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest

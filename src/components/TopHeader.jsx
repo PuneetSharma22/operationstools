@@ -114,6 +114,9 @@ function MobileDrawer({ open, onClose, retailDocs, businessDocs, user, signOut }
               )}
             </div>
           ))}
+          <Link to="/blogs" onClick={onClose} className="drawer-item" style={{ display: "flex", alignItems: "center", padding: "12px 20px", textDecoration: "none" }}>
+            <span style={{ fontSize: 15, fontWeight: 600, color: "#fff" }}>Blogs</span>
+          </Link>
           <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "8px 0" }} />
           {user ? (
             <div style={{ padding: "8px 20px" }}>
@@ -284,6 +287,12 @@ export default function TopHeader() {
                 {openMenu === item.key && item.docs.length > 0 && <MegaDropdown docs={item.docs} onClose={closeAll} />}
               </div>
             ))}
+            <Link to="/blogs" onClick={closeAll}
+              style={{ display: "inline-flex", alignItems: "center", padding: "0 14px", height: 36, borderRadius: 8, fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.75)", textDecoration: "none", transition: "color 0.15s, background 0.15s" }}
+              onMouseEnter={e => { e.currentTarget.style.color="#fff"; e.currentTarget.style.background="rgba(255,255,255,0.06)"; }}
+              onMouseLeave={e => { e.currentTarget.style.color="rgba(255,255,255,0.75)"; e.currentTarget.style.background="transparent"; }}>
+              Blogs
+            </Link>
           </nav>
           <div className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, marginLeft: "auto" }}>
             {user ? (

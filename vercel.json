@@ -2,6 +2,17 @@
   "rewrites": [
     {
       "source": "/((?!sitemap.xml|robots.txt|llms.txt|favicon.svg|og-image.png|pwa-192.png|pwa-512.png|api/).*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|crawl|spider|slurp|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|Slackbot|Discordbot|TelegramBot|Googlebot|bingbot|Applebot|SemrushBot|AhrefsBot|MJ12bot|DotBot|Screaming Frog|Sogou|Baiduspider|YandexBot|DuckDuckBot|Pinterest).*"
+        }
+      ],
+      "destination": "/api/og-meta?path=/$1"
+    },
+    {
+      "source": "/((?!sitemap.xml|robots.txt|llms.txt|favicon.svg|og-image.png|pwa-192.png|pwa-512.png|api/).*)",
       "destination": "/index.html"
     }
   ],

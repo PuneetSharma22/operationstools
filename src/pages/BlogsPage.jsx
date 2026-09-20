@@ -204,7 +204,8 @@ export default function BlogsPage() {
       {/* Blog grid */}
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 24px 80px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
-          {ALL_BLOGS.map(blog => <BlogCard key={blog.slug} blog={blog} />)}
+          {/* ALL_BLOGS is in publish order (oldest first) — reverse so newest shows first */}
+          {[...ALL_BLOGS].reverse().map(blog => <BlogCard key={blog.slug} blog={blog} />)}
         </div>
       </div>
     </div>

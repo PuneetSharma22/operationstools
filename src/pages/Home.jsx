@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../supabase";
+import { fetchDocuments } from "../lib/documentsCache";
 import { Helmet } from 'react-helmet-async';
 
 const DOC_ICON_MAP = {
@@ -39,12 +39,11 @@ export default function Home() {
   const [businessDocs, setBusinessDocs] = useState(FALLBACK_BUSINESS);
 
   useEffect(() => {
-    supabase.from("documents").select("*").order("sort_order", { ascending: true })
-      .then(({ data, error }) => {
-        if (error || !data?.length) return;
-        setRetailDocs(data.filter(d => d.category === "retail"));
-        setBusinessDocs(data.filter(d => d.category === "business"));
-      });
+    fetchDocuments().then(data => {
+      if (!data?.length) return;
+      setRetailDocs(data.filter(d => d.category === "retail"));
+      setBusinessDocs(data.filter(d => d.category === "business"));
+    });
   }, []);
 
   return (

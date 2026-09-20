@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { supabase } from "../supabase";
+import { fetchDocuments } from "../lib/documentsCache";
 import { useSEO } from "../seo/useSEO";
 
 const DOC_ICON_MAP = {
@@ -36,14 +36,13 @@ export default function DocumentsPage() {
   const [activeCat, setActiveCat] = useState("all");
 
   useEffect(() => {
-    supabase.from("documents").select("*").order("sort_order", { ascending: true })
-      .then(({ data, error }) => {
-        if (error || !data?.length) {
-          setAllDocs(FALLBACK_ALL);
-          return;
-        }
-        setAllDocs(data);
-      });
+    fetchDocuments().then(data => {
+      if (!data?.length) {
+        setAllDocs(FALLBACK_ALL);
+        return;
+      }
+      setAllDocs(data);
+    });
   }, []);
 
   const liveDocs = allDocs.filter(d => d.status === "live");

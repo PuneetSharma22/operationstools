@@ -21,7 +21,7 @@ function OpsToolsLogo({ size = 32 }) {
 
 function OpsToolsWatermark() {
   return (
-    <div style={{ position: "absolute", right: 32, bottom: 28, opacity: 0.06, userSelect: "none", pointerEvents: "none", display: "flex", alignItems: "center", gap: 10 }}>
+    <div aria-hidden="true" style={{ position: "absolute", right: 32, bottom: 28, opacity: 0.06, userSelect: "none", pointerEvents: "none", display: "flex", alignItems: "center", gap: 10 }}>
       <OpsToolsLogo size={48} />
       <span style={{ fontSize: 32, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em" }}>OpsTools</span>
     </div>

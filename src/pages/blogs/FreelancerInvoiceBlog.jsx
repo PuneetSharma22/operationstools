@@ -60,7 +60,7 @@ export default function FreelancerInvoiceBlog() {
               A complete guide to freelancer invoices — hourly or fixed-price billing, project details, tax and discount, and how to generate a professional invoice for free in under a minute.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Gulnaaz</span><span>·</span><span>October 1, 2026</span><span>·</span><span>7 min read</span>
+              <span>Gulnaaz</span><span>·</span><span>September 7, 2026</span><span>·</span><span>7 min read</span>
             </div>
           </div>
         </div>

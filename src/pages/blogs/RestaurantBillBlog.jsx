@@ -59,7 +59,7 @@ export default function RestaurantBillBlog() {
               A complete guide to restaurant bills in India — itemised dishes, service charge, CGST/SGST, table and dine-in numbers, and how to generate one in four receipt formats for free.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Prajay Bangar</span><span>·</span><span>August 27, 2026</span><span>·</span><span>6 min read</span>
+              <span>Prajay Bangar</span><span>·</span><span>August 23, 2026</span><span>·</span><span>6 min read</span>
             </div>
           </div>
         </div>

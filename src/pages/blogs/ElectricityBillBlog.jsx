@@ -60,7 +60,7 @@ export default function ElectricityBillBlog() {
               A complete guide to electricity bills — meter readings, units consumed, energy charges, and tax breakdown, all calculated automatically. Free, no login, instant PDF.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Prakash Jha</span><span>·</span><span>September 10, 2026</span><span>·</span><span>6 min read</span>
+              <span>Prakash Jha</span><span>·</span><span>August 29, 2026</span><span>·</span><span>6 min read</span>
             </div>
           </div>
         </div>

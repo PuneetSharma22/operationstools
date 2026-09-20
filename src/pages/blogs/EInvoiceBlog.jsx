@@ -60,7 +60,7 @@ export default function EInvoiceBlog() {
               A complete guide to laying out a GST e-invoice — what the IRN and acknowledgement number actually are, which businesses are mandated to use e-invoicing, and how to generate a properly formatted reference document for free.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Prajay Bangar</span><span>·</span><span>October 22, 2026</span><span>·</span><span>7 min read</span>
+              <span>Prajay Bangar</span><span>·</span><span>September 16, 2026</span><span>·</span><span>7 min read</span>
             </div>
           </div>
         </div>

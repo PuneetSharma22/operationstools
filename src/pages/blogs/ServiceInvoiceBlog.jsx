@@ -59,7 +59,7 @@ export default function ServiceInvoiceBlog() {
               A complete guide to service invoices for consultants, agencies and freelancers — GST on services, per-line tax, payment terms, and how to generate a compliant invoice for free.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Prakash Jha</span><span>·</span><span>October 8, 2026</span><span>·</span><span>6 min read</span>
+              <span>Prakash Jha</span><span>·</span><span>September 10, 2026</span><span>·</span><span>6 min read</span>
             </div>
           </div>
         </div>

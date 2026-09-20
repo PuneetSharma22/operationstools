@@ -60,7 +60,7 @@ export default function BookInvoiceBlog() {
               A complete guide to GST invoices for book, magazine and newspaper sales — HSN codes, GST rates per item, multi-item billing, and how to generate a compliant invoice for free.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Arijit Sawant</span><span>·</span><span>November 12, 2026</span><span>·</span><span>6 min read</span>
+              <span>Arijit Sawant</span><span>·</span><span>September 25, 2026</span><span>·</span><span>6 min read</span>
             </div>
           </div>
         </div>

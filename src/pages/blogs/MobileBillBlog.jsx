@@ -60,7 +60,7 @@ export default function MobileBillBlog() {
               A complete guide to mobile and telephone bills — postpaid GST tax invoices, prepaid recharge receipts, Airtel/Jio/Vi/BSNL operator themes, and how to generate one for free in under a minute.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Prajay Bangar</span><span>·</span><span>November 19, 2026</span><span>·</span><span>7 min read</span>
+              <span>Prajay Bangar</span><span>·</span><span>September 28, 2026</span><span>·</span><span>7 min read</span>
             </div>
           </div>
         </div>

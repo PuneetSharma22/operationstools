@@ -60,7 +60,7 @@ export default function VehicleExpenseBlog() {
               A complete guide to vehicle expense reports — tracking fuel, tolls, parking and maintenance for employee reimbursement or fleet management, and generating a compliant report for free.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Gulnaaz</span><span>·</span><span>October 29, 2026</span><span>·</span><span>6 min read</span>
+              <span>Gulnaaz</span><span>·</span><span>September 19, 2026</span><span>·</span><span>6 min read</span>
             </div>
           </div>
         </div>

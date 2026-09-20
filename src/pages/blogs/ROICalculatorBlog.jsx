@@ -59,7 +59,7 @@ export default function ROICalculatorBlog() {
               A complete guide to calculating ROI, annualized (CAGR) returns, and inflation-adjusted real ROI — plus how your numbers stack up against FD, Gold, and Nifty 50 benchmarks.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Gulnaaz</span><span>·</span><span>November 26, 2026</span><span>·</span><span>7 min read</span>
+              <span>Gulnaaz</span><span>·</span><span>September 30, 2026</span><span>·</span><span>7 min read</span>
             </div>
           </div>
         </div>

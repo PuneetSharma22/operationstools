@@ -59,7 +59,7 @@ export default function QuotationBlog() {
               A complete guide to business quotations — itemized pricing, validity periods, and terms & conditions — and how to generate a professional one for free in under a minute.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Prajay Bangar</span><span>·</span><span>September 24, 2026</span><span>·</span><span>6 min read</span>
+              <span>Prajay Bangar</span><span>·</span><span>September 4, 2026</span><span>·</span><span>6 min read</span>
             </div>
           </div>
         </div>

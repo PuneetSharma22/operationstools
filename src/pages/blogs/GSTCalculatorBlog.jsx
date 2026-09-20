@@ -59,7 +59,7 @@ export default function GSTCalculatorBlog() {
               A complete guide to calculating GST — add GST to a base price or remove it from a GST-inclusive price, with a full CGST/SGST/IGST breakdown for any rate. Free, instant, no login.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Prakash Jha</span><span>·</span><span>December 3, 2026</span><span>·</span><span>6 min read</span>
+              <span>Prakash Jha</span><span>·</span><span>October 1, 2026</span><span>·</span><span>6 min read</span>
             </div>
           </div>
         </div>

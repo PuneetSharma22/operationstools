@@ -59,7 +59,7 @@ export default function TravelExpenseBlog() {
               A complete guide to travel expense reports — flights, hotels, meals, per-day itinerary breakdowns, and advance reconciliation. Free, no login, instant PDF.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Prakash Jha</span><span>·</span><span>November 5, 2026</span><span>·</span><span>7 min read</span>
+              <span>Prakash Jha</span><span>·</span><span>September 22, 2026</span><span>·</span><span>7 min read</span>
             </div>
           </div>
         </div>

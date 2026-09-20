@@ -60,7 +60,7 @@ export default function InvoiceBlog() {
               A complete guide to creating professional invoices — itemized line items, tax, discounts, and bank details — with instant PDF download. No login, no cost.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Arijit Sawant</span><span>·</span><span>September 17, 2026</span><span>·</span><span>7 min read</span>
+              <span>Arijit Sawant</span><span>·</span><span>September 1, 2026</span><span>·</span><span>7 min read</span>
             </div>
           </div>
         </div>

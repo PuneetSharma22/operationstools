@@ -60,7 +60,7 @@ export default function MedicalBillBlog() {
               A complete guide to medical and pharmacy bills — patient details, itemized medicines, consultations, tests and procedures, hospital GSTIN, and instant PDF download. No login, no cost.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Gulnaaz</span><span>·</span><span>September 3, 2026</span><span>·</span><span>6 min read</span>
+              <span>Gulnaaz</span><span>·</span><span>August 26, 2026</span><span>·</span><span>6 min read</span>
             </div>
           </div>
         </div>

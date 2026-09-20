@@ -60,7 +60,7 @@ export default function EWayBillBlog() {
               A complete guide to e-way bill reference documents — when one is legally required, what consignor, consignee, and transport details it needs, and how to lay it out cleanly for free.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748B", flexWrap: "wrap" }}>
-              <span>Arijit Sawant</span><span>·</span><span>October 15, 2026</span><span>·</span><span>7 min read</span>
+              <span>Arijit Sawant</span><span>·</span><span>September 13, 2026</span><span>·</span><span>7 min read</span>
             </div>
           </div>
         </div>

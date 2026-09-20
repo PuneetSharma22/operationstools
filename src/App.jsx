@@ -21,6 +21,21 @@ const GSTInvoiceBlog = lazy(() => import("./pages/blogs/GSTInvoiceBlog"));
 const SalarySlipBlog = lazy(() => import("./pages/blogs/SalarySlipBlog"));
 const RentReceiptBlog = lazy(() => import("./pages/blogs/RentReceiptBlog"));
 const HotelBillBlog = lazy(() => import("./pages/blogs/HotelBillBlog"));
+const RestaurantBillBlog = lazy(() => import("./pages/blogs/RestaurantBillBlog"));
+const MedicalBillBlog = lazy(() => import("./pages/blogs/MedicalBillBlog"));
+const ElectricityBillBlog = lazy(() => import("./pages/blogs/ElectricityBillBlog"));
+const InvoiceBlog = lazy(() => import("./pages/blogs/InvoiceBlog"));
+const QuotationBlog = lazy(() => import("./pages/blogs/QuotationBlog"));
+const FreelancerInvoiceBlog = lazy(() => import("./pages/blogs/FreelancerInvoiceBlog"));
+const ServiceInvoiceBlog = lazy(() => import("./pages/blogs/ServiceInvoiceBlog"));
+const EWayBillBlog = lazy(() => import("./pages/blogs/EWayBillBlog"));
+const EInvoiceBlog = lazy(() => import("./pages/blogs/EInvoiceBlog"));
+const VehicleExpenseBlog = lazy(() => import("./pages/blogs/VehicleExpenseBlog"));
+const TravelExpenseBlog = lazy(() => import("./pages/blogs/TravelExpenseBlog"));
+const BookInvoiceBlog = lazy(() => import("./pages/blogs/BookInvoiceBlog"));
+const MobileBillBlog = lazy(() => import("./pages/blogs/MobileBillBlog"));
+const ROICalculatorBlog = lazy(() => import("./pages/blogs/ROICalculatorBlog"));
+const GSTCalculatorBlog = lazy(() => import("./pages/blogs/GSTCalculatorBlog"));
 const LDBillPage = lazy(() => import("./pages/documents/LDBillPage"));
 const GSTInvoicePage = lazy(() => import("./pages/documents/GSTInvoicePage"));
 const SalarySlipPage = lazy(() => import("./pages/documents/SalarySlipPage"));
@@ -102,6 +117,21 @@ export default function App() {
                 <Route path="/blogs/how-to-generate-salary-slip-online-india" element={<SalarySlipBlog />} />
                 <Route path="/blogs/how-to-generate-rent-receipt-online-india" element={<RentReceiptBlog />} />
                 <Route path="/blogs/how-to-generate-hotel-bill-online-india" element={<HotelBillBlog />} />
+                <Route path="/blogs/how-to-generate-restaurant-bill-online-india" element={<RestaurantBillBlog />} />
+                <Route path="/blogs/how-to-generate-medical-bill-online-india" element={<MedicalBillBlog />} />
+                <Route path="/blogs/how-to-generate-electricity-bill-online-india" element={<ElectricityBillBlog />} />
+                <Route path="/blogs/how-to-generate-invoice-online-india" element={<InvoiceBlog />} />
+                <Route path="/blogs/how-to-generate-quotation-online-india" element={<QuotationBlog />} />
+                <Route path="/blogs/how-to-generate-freelancer-invoice-online-india" element={<FreelancerInvoiceBlog />} />
+                <Route path="/blogs/how-to-generate-service-invoice-online-india" element={<ServiceInvoiceBlog />} />
+                <Route path="/blogs/how-to-generate-eway-bill-online-india" element={<EWayBillBlog />} />
+                <Route path="/blogs/how-to-generate-e-invoice-online-india" element={<EInvoiceBlog />} />
+                <Route path="/blogs/how-to-generate-vehicle-expense-report-online-india" element={<VehicleExpenseBlog />} />
+                <Route path="/blogs/how-to-generate-travel-expense-report-online-india" element={<TravelExpenseBlog />} />
+                <Route path="/blogs/how-to-generate-book-invoice-online-india" element={<BookInvoiceBlog />} />
+                <Route path="/blogs/how-to-generate-mobile-bill-online-india" element={<MobileBillBlog />} />
+                <Route path="/blogs/how-to-calculate-roi-online-india" element={<ROICalculatorBlog />} />
+                <Route path="/blogs/how-to-calculate-gst-online-india" element={<GSTCalculatorBlog />} />
               </Routes>
             </Suspense>
           </main>

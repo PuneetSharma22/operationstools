@@ -65,12 +65,56 @@ function groupByDay(rows, dateField) {
   return result;
 }
 
+// Same shape as groupByDay, but counts distinct idField values per day
+// instead of rows — used for "active users" rather than raw save volume.
+function groupByDayUnique(rows, dateField, idField) {
+  const map = {};
+  rows.forEach(r => {
+    if (!r[idField]) return;
+    const day = new Date(r[dateField]).toISOString().split("T")[0];
+    if (!map[day]) map[day] = new Set();
+    map[day].add(r[idField]);
+  });
+  const sorted = Object.keys(map).sort();
+  if (!sorted.length) return [];
+  const start = new Date(sorted[0]);
+  const end = new Date();
+  const result = [];
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const key = d.toISOString().split("T")[0];
+    result.push({
+      date: key,
+      label: new Date(key).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+      count: map[key]?.size || 0,
+    });
+  }
+  return result;
+}
+
+const RANGE_DAYS = { "7d": 7, "30d": 30, "90d": 90 };
+
 function filterByRange(rows, dateField, range) {
   if (range === "all") return rows;
-  const days = range === "7d" ? 7 : range === "30d" ? 30 : 90;
+  const days = RANGE_DAYS[range];
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - days);
   return rows.filter(r => new Date(r[dateField]) >= cutoff);
+}
+
+// The equal-length window immediately before the current range, so stat
+// cards can show "+N vs prev period" rather than a number with no context.
+// Undefined for "all" — there's no meaningful "previous" to an all-time total.
+function filterByPreviousRange(rows, dateField, range) {
+  if (range === "all") return [];
+  const days = RANGE_DAYS[range];
+  const periodStart = new Date();
+  periodStart.setDate(periodStart.getDate() - days);
+  const prevStart = new Date();
+  prevStart.setDate(prevStart.getDate() - days * 2);
+  return rows.filter(r => {
+    const d = new Date(r[dateField]);
+    return d >= prevStart && d < periodStart;
+  });
 }
 
 export default function AdminPage() {
@@ -80,6 +124,7 @@ export default function AdminPage() {
   const [requests, setRequests] = useState([]);
   const [allSaves, setAllSaves] = useState([]);
   const [allProfiles, setAllProfiles] = useState([]);
+  const [allTxns, setAllTxns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(null);
   const [filter, setFilter] = useState("pending");
@@ -101,10 +146,11 @@ export default function AdminPage() {
   async function loadAll() {
     setLoading(true);
     try {
-      const [reqRes, saveRes, profileRes] = await Promise.all([
+      const [reqRes, saveRes, profileRes, txnRes] = await Promise.all([
         supabase.from("credit_requests").select("*").order("requested_at", { ascending: false }),
         supabase.from("save_requests").select("*").order("created_at", { ascending: true }),
         supabase.from("profiles").select("id, email, full_name, created_at, email_verified"),
+        supabase.from("credit_transactions").select("*").order("created_at", { ascending: true }),
       ]);
 
       const profileMap = (profileRes.data || []).reduce((acc, p) => { acc[p.id] = p; return acc; }, {});
@@ -112,6 +158,7 @@ export default function AdminPage() {
       setRequests(reqs);
       setAllSaves(saveRes.data || []);
       setAllProfiles(profileRes.data || []);
+      setAllTxns(txnRes.data || []);
     } catch (e) { console.error(e); }
     setLoading(false);
   }
@@ -142,13 +189,52 @@ export default function AdminPage() {
   }, {});
   const creditsOverTime = Object.values(creditsByDay).sort((a, b) => a.date.localeCompare(b.date));
 
+  const activeUsersOverTime = groupByDayUnique(filteredSaves, "created_at", "user_id");
+
+  // credit_transactions is the ledger of every balance change — positive
+  // amounts (manual grants + approved requests) are supply, negative
+  // (bulk_generation) are actual usage. credit_requests alone only covers
+  // the first of those, and only the request-originated share of it.
+  const grantedTxns = allTxns.filter(t => t.amount > 0);
+  const consumedTxns = allTxns.filter(t => t.amount < 0);
+  const filteredGranted = filterByRange(grantedTxns, "created_at", range);
+  const filteredConsumed = filterByRange(consumedTxns, "created_at", range);
+
+  const creditFlowByDay = {};
+  filteredGranted.forEach(t => {
+    const day = new Date(t.created_at).toISOString().split("T")[0];
+    if (!creditFlowByDay[day]) creditFlowByDay[day] = { date: day, label: new Date(day).toLocaleDateString("en-IN", { day: "numeric", month: "short" }), granted: 0, consumed: 0 };
+    creditFlowByDay[day].granted += t.amount;
+  });
+  filteredConsumed.forEach(t => {
+    const day = new Date(t.created_at).toISOString().split("T")[0];
+    if (!creditFlowByDay[day]) creditFlowByDay[day] = { date: day, label: new Date(day).toLocaleDateString("en-IN", { day: "numeric", month: "short" }), granted: 0, consumed: 0 };
+    creditFlowByDay[day].consumed += Math.abs(t.amount);
+  });
+  const creditFlowOverTime = Object.values(creditFlowByDay).sort((a, b) => a.date.localeCompare(b.date));
+
   const totalSaves = allSaves.length;
   const totalUsers = allProfiles.length;
   const verifiedUsers = allProfiles.filter(p => p.email_verified === "verified").length;
   const pendingReqs = requests.filter(r => r.status === "pending").length;
-  const approvedCredits = requests.filter(r => r.status === "approved").reduce((s, r) => s + r.amount, 0);
   const periodSaves = filteredSaves.length;
   const periodSignups = filteredProfiles.length;
+  const activeUsers = new Set(filteredSaves.map(s => s.user_id).filter(Boolean)).size;
+  const creditsGrantedPeriod = filteredGranted.reduce((s, t) => s + t.amount, 0);
+  const creditsGrantedAllTime = grantedTxns.reduce((s, t) => s + t.amount, 0);
+  const creditsConsumedPeriod = Math.abs(filteredConsumed.reduce((s, t) => s + t.amount, 0));
+
+  // Deltas compare this period to the one immediately before it; "all time"
+  // has no such baseline, so these resolve to undefined and the stat cards
+  // simply omit the trend chip.
+  const previousSaves = filterByPreviousRange(allSaves, "created_at", range);
+  const previousProfiles = filterByPreviousRange(allProfiles, "created_at", range);
+  const previousGranted = filterByPreviousRange(grantedTxns, "created_at", range);
+  const previousActiveUsers = new Set(previousSaves.map(s => s.user_id).filter(Boolean)).size;
+  const savesDelta = range === "all" ? undefined : periodSaves - previousSaves.length;
+  const signupsDelta = range === "all" ? undefined : periodSignups - previousProfiles.length;
+  const grantedDelta = range === "all" ? undefined : creditsGrantedPeriod - previousGranted.reduce((s, t) => s + t.amount, 0);
+  const activeUsersDelta = range === "all" ? undefined : activeUsers - previousActiveUsers;
 
   // Grants the credits and marks the request approved in a single
   // server-side transaction via admin_grant_credits() — a SECURITY DEFINER
@@ -261,10 +347,12 @@ export default function AdminPage() {
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 14, marginBottom: 28 }}>
-              <StatCard label="Total PDF Saves" value={totalSaves} sub={`${periodSaves} in period`} accent="#2563EB" bg="#EFF6FF" />
               <StatCard label="Total Users" value={totalUsers} sub={`${verifiedUsers} verified`} accent="#7C3AED" bg="#F5F3FF" />
-              <StatCard label="New Signups" value={periodSignups} sub={RANGE_LABELS[range]} accent="#059669" bg="#F0FDF4" />
-              <StatCard label="Credits Approved" value={approvedCredits} sub="All time" accent="#D97706" bg="#FFFBEB" />
+              <StatCard label="Active Users" value={activeUsers} sub={`${RANGE_LABELS[range]} · ${totalUsers ? Math.round(activeUsers / totalUsers * 100) : 0}% of total`} accent="#0891B2" bg="#ECFEFF" delta={activeUsersDelta} />
+              <StatCard label="New Signups" value={periodSignups} sub={RANGE_LABELS[range]} accent="#059669" bg="#F0FDF4" delta={signupsDelta} />
+              <StatCard label="Total PDF Saves" value={totalSaves} sub={`${periodSaves} in period`} accent="#2563EB" bg="#EFF6FF" delta={savesDelta} />
+              <StatCard label="Credits Granted" value={creditsGrantedPeriod} sub={`${creditsGrantedAllTime} all-time`} accent="#D97706" bg="#FFFBEB" delta={grantedDelta} />
+              <StatCard label="Credits Consumed" value={creditsConsumedPeriod} sub={`${RANGE_LABELS[range]} · usage`} accent="#9333EA" bg="#FAF5FF" />
               <StatCard label="Pending Requests" value={pendingReqs} sub="Needs review" accent="#EF4444" bg="#FEF2F2" />
             </div>
 
@@ -324,6 +412,38 @@ export default function AdminPage() {
                   </ResponsiveContainer>
                 ) : (
                   <div style={{ height: 240, display: "flex", alignItems: "center", justifyContent: "center", color: "#94A3B8", fontSize: 13 }}>No credit requests in this period</div>
+                )}
+              </ChartCard>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
+              <ChartCard title="Active Users Over Time">
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart data={activeUsersOverTime}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                    <XAxis dataKey="label" tick={{ fontSize: 10, fill: "#94A3B8" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                    <YAxis tick={{ fontSize: 10, fill: "#94A3B8" }} tickLine={false} axisLine={false} allowDecimals={false} />
+                    <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #E2E8F0" }} />
+                    <Line type="monotone" dataKey="count" stroke="#0891B2" strokeWidth={2} dot={false} name="Active users" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartCard>
+
+              <ChartCard title="Credits Granted vs Consumed">
+                {creditFlowOverTime.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={creditFlowOverTime}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                      <XAxis dataKey="label" tick={{ fontSize: 10, fill: "#94A3B8" }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                      <YAxis tick={{ fontSize: 10, fill: "#94A3B8" }} tickLine={false} axisLine={false} />
+                      <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #E2E8F0" }} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      <Bar dataKey="granted" fill="#D97706" name="Granted" radius={[3, 3, 0, 0]} />
+                      <Bar dataKey="consumed" fill="#9333EA" name="Consumed" radius={[3, 3, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div style={{ height: 220, display: "flex", alignItems: "center", justifyContent: "center", color: "#94A3B8", fontSize: 13 }}>No credit activity in this period</div>
                 )}
               </ChartCard>
             </div>

@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { AuthProvider } from "./context/AuthProvider";
 import TopHeader from "./components/TopHeader";
 import Footer from "./components/Footer";
@@ -138,6 +140,8 @@ export default function App() {
           <Footer />
         </div>
       </AuthProvider>
+      <Analytics />
+      <SpeedInsights />
     </BrowserRouter>
   );
 }

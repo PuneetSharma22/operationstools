@@ -13,7 +13,17 @@ export function AuthProvider({ children }) {
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+      // Supabase re-validates the session (firing an auth event) whenever the
+      // tab regains focus, even when nothing changed. That handed every
+      // consumer a new-but-equivalent user object, and pages that reload
+      // their data on `[user]` changing (AdminPage, AccountPage) mistook it
+      // for a real user change and refetched everything on every tab switch.
+      // Only replace the object when the signed-in user has actually changed.
+      setUser(prev => {
+        const nextId = session?.user?.id ?? null
+        const prevId = prev?.id ?? null
+        return nextId === prevId ? prev : (session?.user ?? null)
+      })
     })
 
     return () => subscription.unsubscribe()
